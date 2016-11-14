@@ -1,0 +1,542 @@
+{% extends "site_base.html" %}
+
+{% load i18n %}
+{% block title %} {% trans "Case study" %} — {{ block.super }}{% endblock %}
+
+{% block extra_head %}
+{{ block.super }}
+    <link rel="stylesheet" href="http://openlayers.org/en/v3.18.2/css/ol.css" type="text/css">
+    <!-- The line below is only needed for old environments like Internet Explorer and Android 4.x -->
+    <script src="http://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL"></script>
+    <script src="http://openlayers.org/en/v3.18.2/build/ol.js"></script>
+    <style>
+    .map {
+      height: 450px;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    .top-buffer { margin-top: 30px; }
+    </style>
+{% endblock %}
+
+
+{% block sidebar %}
+
+    <div class="row top-buffer">
+      <div class="col-md-12">
+        <li class="list-group-item">
+          <h3>Configuration</h3>
+        </li>
+        <li class="list-group-item">
+          <h4 class="list-group-item-heading">{%trans "Input Dataset" %}</h4>
+          <small>
+          <ul class="list-unstyled">
+            <li><strong>Case Study:</strong> {{ cs.label }}</li>
+            <li><strong>Type:</strong> EEA Reference Grid</li>
+            <li><strong>Reference System:</strong> ETRS89 / LAEA Europe <a href="http://epsg.io/3035" target="_blank">EPSG: 3035</a></li>
+            <li><strong >Resolution:</strong> {{ cs.grid_resolution }} m</li>
+            <li><strong>Area:</strong> {{ cs.area_km |floatformat }} km<sup>2</sup></li>
+          </ul>
+          </small>
+        </li>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <li class="list-group-item">
+          <h4 class="list-group-item-heading">{%trans "Analysis Area" %}</h4>
+          <p>By default the analyses will be performed for the whole input grid.
+          <p>The user can draw a new area of analysis (polygon) on the map.</p>
+        </li>
+      </div>
+    </div>
+
+
+    <div class="row">
+      <div class="col-md-12">
+        <li class="list-group-item">
+          <h4 class="list-group-item-heading">{%trans "Activities & Uses" %}</h4>
+          {% verbatim %}
+          <p>Available: {{uses.length}} - Selected: {{selectionUses.length}}</p>
+          {% endverbatim %}
+          <button class="btn btn-default btn-md btn-block" data-toggle="modal" data-target="#configure-uses">{% trans "Configure" %}</button>
+        </li>
+
+        <div class="modal fade" id="configure-uses" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">{% trans "Configure Activities & Uses" %}</h4>
+              </div>
+              <div class="modal-body">
+                <input id="uses-select-all-checkbox" type="checkbox" ng-click="toggleAllUses()" ng-model="isAllUsesSelected">
+                Select all / Unselect all
+                {% verbatim %}
+                <div class="checkbox" ng-repeat="use in uses">
+                  <label>
+                    <input type="checkbox" name="uses" value="{{ use.id }}" ng-model="use.selected" ng-change="useToggled()">
+                    {{ use.label }}
+                    <!-- TODO:
+                    {% if user.is_superuser %}
+                    <p><small>
+                        {% for l in value %}
+                        <a href="{{ l.get_absolute_url }}" target="_blank">{{ l.title }}</a>,
+                        {% endfor %}
+                    </small></p>
+                    {% endif %}
+                    -->
+                  </label>
+                </div>
+                {% endverbatim %}
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Ok" %}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <li class="list-group-item">
+          <h4 class="list-group-item-heading">{%trans "Environmental Components" %}</h4>
+          {% verbatim %}
+          <p>Available: {{envs.length}} - Selected: {{selectionEnvs.length}}</p>
+          {% endverbatim %}
+          <button class="btn btn-default btn-md btn-block" data-toggle="modal" data-target="#configure-envs">{% trans "Configure" %}</button>
+        </li>
+
+        <div class="modal fade" id="configure-envs" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">{% trans "Configure Environmental Components" %}</h4>
+              </div>
+              <div class="modal-body">
+                <input id="envs-select-all-checkbox" type="checkbox"  ng-click="toggleAllEnvs()" ng-model="isAllEnvsSelected">
+                Select all / Unselect all
+                {% verbatim %}
+                <div class="checkbox" ng-repeat="env in envs">
+                  <label>
+                    <input type="checkbox" name="envs" value="{{ env.id }}" ng-model="env.selected" ng-change="envToggled()">
+                    {{ env.label }}
+                    <!-- TODO
+                    {% if user.is_superuser %}
+                    <p><small>
+                        {% for l in value %}
+                        <a href="{{ l.get_absolute_url }}" target="_blank">{{ l.title }}</a>,
+                        {% endfor %}
+                    </small></p>
+                    {% endif %}
+                    -->
+                  </label>
+                </div>
+                {% endverbatim %}
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Ok" %}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+{% endblock %}
+
+
+{% block body %}
+
+  <div class="page-header">
+    <h2>Step 2: Case Study Setup</h2>
+    <p>Select the area of interest for your case study on the map interface: click with your mouse to define the vertices of the polygon and double click to confirm.</p>
+    <P>Then select, from the list available in the sections "Activities and uses" and "Environmental Components", the layers to be included in your case study.</p>
+    <p>Finally, click on one of the available tools to run your case study.</p>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <button  id="coexist-analysis-btn" class="btn btn-primary btn-md btn-block" data-toggle="modal" data-target="#run-coexist-md">Run COEXIST Analysis</button>
+      <button id="ci-analysis-btn" class="btn btn-primary btn-md btn-block" data-toggle="modal" data-target="#run-ci-md">Run Cumulative Impact Analysis</button>
+    </div>
+    <div class="col-md-6">
+          <button id="ciback-analysis-btn" class="btn btn-default btn-md btn-block" data-toggle="modal" data-target="#run-backtraking-md">Run CI Backtracking Analysis</button>
+          <button id="es-analysis-btn" class="btn btn-default btn-md btn-block" data-toggle="modal" data-target="#run-es-md">Run Ecosystem Services Analysis</button>
+    </div>
+  </div>
+
+  <div class="modal fade" id="run-coexist-md" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title" id="myModalLabel">{% trans "Run COEXIST Analysis" %}</h4>
+        </div>
+        {% verbatim %}
+        <div class="modal-body">
+          <p><strong>Number of selected "Activities & Uses":</strong> {{selectionUses.length}}</p>
+          <div ng-hide="selectionUses.length > 0">
+            <div class="alert alert-danger" role="alert">
+              <strong>No "Activity & Use" selected:</strong> you have to select at least an "Activity & Use" in order to continue the analysis
+            </div>
+          </div>
+        </div>
+        {% endverbatim %}
+        <div class="modal-footer">
+          <div ng-hide="selectionUses.length > 0">
+            <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Ok" %}</button>
+          </div>
+          <div ng-show="selectionUses.length > 0">
+            <button type="submit" class="btn btn-primary" ng-click="runTool('coexist')">Run analysis</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="run-ci-md" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title" id="myModalLabel">{% trans "Run Cumulative Impact Analysis" %}</h4>
+        </div>
+        {% verbatim %}
+        <div class="modal-body">
+          <p><strong>Number of selected "Activities & Uses":</strong> {{selectionUses.length}}</p>
+          <p><strong>Number of selected "Environmental Components":</strong> {{selectionEnvs.length}}</p>
+          <div ng-hide="selectionUses.length > 0">
+            <div class="alert alert-danger" role="alert">
+              <strong>No "Activity & Use" selected:</strong> you have to select at least an "Activity & Use" in order to continue the analysis
+            </div>
+          </div>
+          <div ng-hide="selectionEnvs.length > 0">
+            <div class="alert alert-danger" role="alert">
+              <strong>No "Environmental Component" selected:</strong> you have to select at least an "Environmental Component" in order to continue the analysis
+            </div>
+          </div>
+        </div>
+        {% endverbatim %}
+        <div class="modal-footer">
+          <div ng-hide="selectionUses.length > 0 && selectionEnvs.length > 0">
+            <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Ok" %}</button>
+          </div>
+          <div ng-show="selectionUses.length > 0 && selectionEnvs.length > 0">
+            <button type="submit" class="btn btn-primary" ng-click="runTool('ci')">Run analysis</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="run-backtraking-md" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title" id="myModalLabel">{% trans "CI Backtracking Analysis" %}</h4>
+        </div>
+        <div class="modal-body">
+          <div class="alert alert-info" role="alert">The <strong>Cumulative Impact Backtracking Analysis</strong> is not available for this Case Study</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Ok" %}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="run-es-md" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title" id="myModalLabel">{% trans "Ecosystem Services Analysis" %}</h4>
+        </div>
+        <div class="modal-body">
+          <div class="alert alert-info" role="alert">The <strong>Ecosystem Services Analysis</strong> is not available for this Case Study</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Ok" %}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row top-buffer">
+      <div class="col-md-12">
+          <div id="map" class="map"></div>
+      </div>
+  </div>
+
+  <div id="loading-indicator" style="display:none" class="text-center">
+    <img src="/static/tools4msp/img/loading.gif"/>
+    <p>Analyses are in progress. This operation might take some time to complete. Please wait.</p>
+  </div>
+  <style>
+    #loading-indicator {
+    position: absolute;
+    left: 60%;
+    top: 10px;
+    z-index: 2000;
+    background-color: white;
+    }
+  </style>
+
+{% endblock %}
+
+{% block extra_script %}
+ <script>
+ // var raster = new ol.layer.Tile({
+ //    source: new ol.source.OSM()
+ //});
+
+  var raster = new ol.layer.Tile({
+      source: new ol.source.Stamen({
+          layer: 'terrain'
+      })
+  })
+
+
+var gridLayer = new ol.layer.Tile({
+    source: new ol.source.TileWMS({
+        // TODO: use a better link to wms services
+        url: '{{ GEOSERVER_BASE_URL }}wms',
+        params: {
+            'LAYERS': '{{ cs.grid.typename }}',
+            'FORMAT': 'image/png',
+            'TILED': true
+        }
+    }),
+    opacity: 0.5
+})
+
+
+var source = new ol.source.Vector({wrapX: false});
+
+var vector = new ol.layer.Vector({
+    source: source,
+    style: new ol.style.Style({
+        fill: new ol.style.Fill({
+            color: 'rgba(255, 255, 255, 0.2)'
+        }),
+        stroke: new ol.style.Stroke({
+            color: '#ffcc33',
+            width: 2
+        }),
+        image: new ol.style.Circle({
+            radius: 7,
+            fill: new ol.style.Fill({
+                color: '#ffcc33'
+            })
+        })
+    })
+});
+
+var map = new ol.Map({
+    layers: [raster, gridLayer, vector],
+    target: 'map',
+    view: new ol.View({
+        center: [1806736, 5173704],
+        zoom: 5
+    })
+});
+
+draw = new ol.interaction.Draw({
+    source: source,
+    type: ('MultiPolygon')
+});
+
+var test = function(){
+    if(source.getFeatures().length == 1){
+        source.removeFeature(source.getFeatures()[0])
+    }
+}
+
+draw.on('drawstart', test);
+
+map.addInteraction(draw);
+
+
+// $('#uses-select-all-btn').click(function() {
+//   $('#uses-select-all-checkbox').click();
+// });
+
+// $('#uses-select-all-checkbox').click(function(){
+//  $('input[name="uses"]').prop('checked', this.checked);
+// });
+
+
+// $('#envs-select-all-btn').click(function() {
+//   $('#envs-select-all-checkbox').click();
+// });
+
+// $('#envs-select-all-checkbox').click(function(){
+//  $('input[name="envs"]').prop('checked', this.checked);
+// });
+
+
+// $('#ci-analysis-btn').click(function(){
+//     var source = vector.getSource();
+//     var features = source.getFeatures();
+//     var area;
+//     if(features.length == 1){
+//         console.log(features[0]);
+//         geojsonFormat = new ol.format.GeoJSON()
+//         area = geojsonFormat.writeFeature(features[0])
+//     }
+
+//     var usesids = []
+//     $('input:checkbox[name="uses"]').each(function () {
+//         if(this.checked){
+//             usesids.push($(this).val());
+//         }
+//     });
+
+//     var envsids = []
+//     $('input:checkbox[name="envs"]').each(function () {
+//         if(this.checked){
+//             envsids.push($(this).val());
+//         }
+//     });
+//     console.log(envsids);
+
+
+
+
+// });
+
+
+function post(path, params, method) {
+    method = method || "post"; // Set method to post by default if not specified.
+
+    // The rest of this code assumes you are not using a library.
+    // It can be made less wordy if you use one.
+    var form = document.createElement("form");
+    form.setAttribute("method", method);
+    form.setAttribute("action", path);
+
+    //append csrftoken
+    params['csrfmiddlewaretoken'] = getCookie('csrftoken');
+    for(var key in params) {
+        if(params.hasOwnProperty(key)) {
+            var hiddenField = document.createElement("input");
+            hiddenField.setAttribute("type", "hidden");
+            hiddenField.setAttribute("name", key);
+            hiddenField.setAttribute("value", params[key]);
+
+            form.appendChild(hiddenField);
+         }
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Angular configuration
+$("html").attr('ng-app', 'tools4mspApp');
+$("body").attr('ng-controller', 'Tolls4mspConfController');
+
+var tools4mspApp = angular.module('tools4mspApp', []);
+tools4mspApp.config(['$httpProvider', function($httpProvider) {
+    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+
+}]);
+tools4mspApp.controller('Tolls4mspConfController', function Tolls4mspConfController($scope, $http) {
+    $scope.uses = {{ uses|safe }};
+    $scope.envs = {{ envs|safe }};
+
+    // selected uses & envs
+    $scope.selectionUes = [];
+    $scope.selectionEnvs = [];
+
+    // helper method to get selected uses & envs
+    $scope.selectedUses = function selectedUses() {
+        return filterFilter($scope.uses, { selected: true });
+    };
+    $scope.selectedEnvs = function selectedEnvs() {
+        return filterFilter($scope.envs, { selected: true });
+    };
+
+    $scope.$watch('uses|filter:{selected: true}', function (nv) {
+        $scope.selectionUses = nv.map(function (use) {
+            return use.id;
+        });
+    }, true);
+    $scope.$watch('envs|filter:{selected:true}', function (nv) {
+        $scope.selectionEnvs = nv.map(function (env) {
+            return env.id;
+        });
+    }, true);
+
+    $scope.toggleAllUses = function() {
+        var toggleStatus = $scope.isAllUsesSelected;
+        angular.forEach($scope.uses, function(itm){ itm.selected = toggleStatus; });
+    }
+
+    $scope.useToggled = function(){
+        $scope.isAllUsesSelected = $scope.uses.every(function(itm){ return itm.selected; })
+    }
+
+    $scope.toggleAllEnvs = function() {
+        var toggleStatus = $scope.isAllEnvsSelected;
+        angular.forEach($scope.envs, function(itm){ itm.selected = toggleStatus; });
+    }
+
+    $scope.envToggled = function(){
+        $scope.isAllEnvsSelected = $scope.envs.every(function(itm){ return itm.selected; })
+    }
+
+    $scope.runTool = function(tool) {
+        var source = vector.getSource();
+        var features = source.getFeatures();
+        var area;
+        if(features.length == 1){
+            console.log(features[0]);
+            geojsonFormat = new ol.format.GeoJSON()
+            area = geojsonFormat.writeFeature(features[0])
+        }
+        $('#loading-indicator').show();
+        $http({
+            'method': 'post',
+            'url': "{% url 'casestudy-run-save' cs.id %}",
+            'data': {'uses': $scope.selectionUses,
+                     'envs': $scope.selectionEnvs,
+                     'area': area,
+                     'tools': [tool]
+                    }
+        }).success(function(data, status, headers, config) {
+
+            if(status == 200){
+                window.location.href = data['redirect'];
+            }
+
+        }).error(function(data, status, headers, config) {
+            $('#loading-indicator').hide();
+            console.log('FAIL');
+        });
+
+    }
+});
+
+</script>
+{% endblock %}

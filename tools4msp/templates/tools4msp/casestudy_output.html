@@ -1,0 +1,226 @@
+{% extends "site_base.html" %}
+
+{% load i18n %}
+{% block title %} {% trans "Case study" %} — {{ block.super }}{% endblock %}
+
+{% block extra_head %}
+{{ block.super }}
+    <link rel="stylesheet" href="http://openlayers.org/en/v3.18.2/css/ol.css" type="text/css">
+    <!-- The line below is only needed for old environments like Internet Explorer and Android 4.x -->
+    <script src="http://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL"></script>
+    <script src="http://openlayers.org/en/v3.18.2/build/ol.js"></script>
+
+    <script src="http://cdn.pydata.org/bokeh/release/bokeh-0.12.3.min.js"></script>
+    <link rel="stylesheet" href="http://cdn.pydata.org/bokeh/release/bokeh-0.12.3.min.css">
+    <style>
+    .map {
+      height: 450px;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    .top-buffer { margin-top: 30px; }
+    </style>
+{% endblock %}
+
+{% block body_outer %}
+    <div class="row">
+        <div class="col-md-8">
+            <div class="page-header">
+                <h2>Step 3: Results</h2>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <p>The spatial distribution of "Cumulative Impact" has been published on the Data Portal.</p>
+                    <p>Click on "View layer" to visualize the output layer in
+                        the Data Portal: you'll be able to download the raster file,
+                        to visualise and modifiy the metadata, to create a new map
+                        by integrating your results with other geospatial layersand
+                        to share the layer with others.
+                    </p>
+                    <p>Click on "Complete metadata" to directly add more
+                        information related to the output of your case study.
+                    </p>
+
+                </div>
+                <div class="col-md-6">
+                    <a target="_blank" href="{{ csr.out_ci.get_absolute_url }}" class="btn btn-primary btn-block">{% trans "View layer" %}</a>
+                </div>
+                <div class="col-md-6">
+                    <a target="_blank" href="{{ csr.out_ci.get_absolute_url }}/metadata" class="btn btn-primary btn-block">{% trans "Complete metadata" %}</a>
+                </div>
+            </div>
+
+            <div class="row  top-buffer">
+                <div class="col-md-12">
+                    <div id="map" class="map"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="row top-buffer">
+                <div class="col-md-12">
+                    <li class="list-group-item">
+                        <h3>Details</h3>
+                    </li>
+                    <li class="list-group-item">
+                        <h4 class="list-group-item-heading">{%trans "Input Dataset" %}</h4>
+                        <small>
+                            <ul class="list-unstyled">
+                                <li><strong>Case Study:</strong> {{ cs.label }}</li>
+                                <li><strong>Type:</strong> EEA Reference Grid</li>
+                                <li><strong>Reference System:</strong> ETRS89 / LAEA Europe <a href="http://epsg.io/3035" target="_blank">EPSG: 3035</a></li>
+                                <li><strong >Resolution:</strong> {{ cs.grid_resolution }} m</li>
+                                <li><strong>Area:</strong> {{ cs.area_km |floatformat }} km<sup>2</sup></li>
+                            </ul>
+                    </li>
+                        </small>
+                        {% if 'coexist' in tools %}
+                        <li class="list-group-item">
+                            <h4 class="list-group-item-heading">{%trans "COEXIST Scores" %}</h4>
+                            <ul class="list-unstyled">
+                                <li><strong>Total score: </strong> {{ coexistscores.total|floatformat:3 }}</li>
+                            </ul>
+                        </li>
+                        {% endif %}
+                        {% if 'ci' in tools %}
+                        <li class="list-group-item">
+                            <h4 class="list-group-item-heading">{%trans "Cumulative Impact Scores" %}</h4>
+                            <ul class="list-unstyled">
+                                <li><strong>Total score: </strong> {{ ciscores.total|floatformat:3 }}</li>
+                            </ul>
+                        </li>
+                        {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Statistics of the case study results</h3>
+        </div>
+    </div>
+    {% if 'coexist' in tools %}
+    <div class="row">
+        <div class="col-md-12">
+            <h4>COEXIST Analysis</h4>
+            <li class="list-group-item">
+                <h4>COEXIST input scores</h4>
+                {{ the_div.heat_coexist|safe }}
+            </li>
+            <li class="list-group-item">
+                <h4>Cell's COEXIST score distribution</h4>
+                {{ the_div.hist_coexist|safe }}
+            </li>
+            <li class="list-group-item">
+                <h4>COEXIST score by co-use</h4>
+                {{ the_div.heat_couses|safe }}
+            </li>
+            <li>
+            </li>
+        </div>
+    </div>
+    {% endif %}
+    {% if 'ci' in tools %}
+    <div class="row">
+        <div class="col-md-12">
+            <h4>Cumulative Impact Analysis</h4>
+            {% if user.is_superuser %}
+            <li class="list-group-item">
+                <h4>Input sensitivities</h4>
+                {{ the_div.sensitivities|safe }}
+            </li>
+            {% endif %}
+            <li class="list-group-item">
+                <h4>Cell's CI score distribution</h4>
+                {{ the_div.hist_ci|safe }}
+            </li>
+            <li class="list-group-item">
+                <h4>Cumulative Impact Score by Uses</h4>
+                {{ the_div.bar_ci_uses|safe }}
+            </li>
+            <li class="list-group-item">
+                <h4>Cumulative Impact Score by Environmental Components</h4>
+                {{ the_div.bar_ci_envs|safe }}
+            </li>
+        </div>
+    </div>
+    {% endif %}
+    {{ the_script|safe }}
+
+{% endblock %}
+
+{% block extra_script %}
+ <script>
+ // var raster = new ol.layer.Tile({
+ //    source: new ol.source.OSM()
+ //});
+
+  var raster = new ol.layer.Tile({
+      source: new ol.source.Stamen({
+          layer: 'terrain'
+      })
+  })
+
+
+{% if 'coexist' in tools %}
+var gridLayer = new ol.layer.Tile({
+    source: new ol.source.TileWMS({
+        // TODO: use a better link to wms services
+        url: '{{ GEOSERVER_BASE_URL }}wms',
+        params: {
+            'LAYERS': '{{ csr.out_coexist.typename }}',
+            'FORMAT': 'image/png',
+            'TILED': true
+        }
+    }),
+    opacity: 0.5
+})
+{% endif %}
+
+{% if 'ci' in tools %}
+var gridLayer = new ol.layer.Tile({
+    source: new ol.source.TileWMS({
+        // TODO: use a better link to wms services
+        url: '{{ GEOSERVER_BASE_URL }}wms',
+        params: {
+            'LAYERS': '{{ csr.out_ci.typename }}',
+            'FORMAT': 'image/png',
+            'TILED': true
+        }
+    }),
+    opacity: 0.5
+})
+{% endif %}
+
+var source = new ol.source.Vector({wrapX: false});
+
+var vector = new ol.layer.Vector({
+    source: source,
+    style: new ol.style.Style({
+        fill: new ol.style.Fill({
+            color: 'rgba(255, 255, 255, 0.2)'
+        }),
+        stroke: new ol.style.Stroke({
+            color: '#ffcc33',
+            width: 2
+        }),
+        image: new ol.style.Circle({
+            radius: 7,
+            fill: new ol.style.Fill({
+                color: '#ffcc33'
+            })
+        })
+    })
+});
+
+var map = new ol.Map({
+    layers: [raster, gridLayer, vector],
+    target: 'map',
+    view: new ol.View({
+        center: [1806736, 5173704],
+        zoom: 5
+    })
+});
+
+</script>
+{% endblock %}

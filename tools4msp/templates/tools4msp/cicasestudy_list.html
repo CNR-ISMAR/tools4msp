@@ -1,0 +1,28 @@
+{% extends "site_base.html" %}
+
+{% load i18n %}
+{% block title %} {% trans "Case study" %} — {{ block.super }}{% endblock %}
+
+{% block extra_head %}
+{{ block.super }}
+{% endblock %}
+
+{% block body %}
+
+  <div class="page-header">
+    <h2>Case studies</h2>
+  </div>
+
+  <div class="row">
+      <div class="col-md-12 grid-spacer">
+          <article>
+              <ul>
+                  {% for casestudy in object_list %}
+                  <li>{{ casestudy.label }} </li>
+                  {% empty %}
+                  {% endfor %}
+              </ul>
+          </article>
+      </div>
+  </div>
+{% endblock %}

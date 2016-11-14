@@ -1,0 +1,42 @@
+{% extends "tools4msp/tools4msp_base.html" %}
+
+{% load i18n %}
+{% block title %} {% trans "Case study" %} — {{ block.super }}{% endblock %}
+
+
+{% block body %}
+
+  <div class="page-header">
+    <h1>Tools 4 MSP</h1>
+      <p>The Tools4MSP are a set of web and open source tools developed to support the implementation of Maritime Spatial Planning (MSP), with a specific focus on the analysis of conflicts between marine uses and the analysis of cumulative impacts (CI) of human activities on marine environments.
+      </p>
+  </div>
+  <div class="row">
+      <div class="col-md-12">
+          <h2>Step 1: Case Study selection</h2>
+          <p>
+              In step 1 you can select a predefined set of input data that you can use for your geospatial analyses.
+              The Case Study areas can be differentiated by region (e.g. Adriatic Ionian Region - AIR), resolution and temporal scenario (e.g. 2014, 2020).
+          </p>
+      </div>
+  </div>
+  <div class="row">
+      <div class="col-md-3"><strong>Case Study</strong></div>
+      <div class="col-md-5"><strong>Description</strong></div>
+      <div class="col-md-4"><strong>Additional info</strong></div>
+  </div>
+  {% for casestudy in object_list %}
+  <div class="row">
+      <div class="col-md-3">
+          <a href="{% url "casestudy-conf" casestudy.id %}">{{ casestudy.label }}</a>
+      </div>
+      <div class="col-md-5"><p>{{ casestudy.description }}</p></div>
+      <div class="col-md-4">
+          <li class="list-unstyled">
+              Resolution: {{ casestudy.grid_resolution }} m
+          </dl>
+      </div>
+  </div>
+  {% empty %}
+  {% endfor %}
+{% endblock %}

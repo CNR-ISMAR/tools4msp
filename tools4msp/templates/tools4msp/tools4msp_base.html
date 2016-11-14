@@ -1,0 +1,29 @@
+{% extends "site_base.html" %}
+
+{% load i18n %}
+{% block title %} {% trans "Tools 4 MSP" %} — {{ block.super }}{% endblock %}
+
+{% block extra_head %}
+{{ block.super }}
+{% endblock %}
+
+{% block sidebar %}
+  <div class="row">
+      <div class="col-md-12">
+          <h2>Available tools</h2>
+          <a href="{% url "coexistinfo" %}"class="btn btn-default btn-block" aria-label="Left Align">
+              <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+              COEXIST - sea uses conflict analysis
+          </a>
+          <a href="{% url "ciinfo" %}"class="btn btn-default btn-block" aria-label="Left Align">
+              <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+              Cumulative Impact Assesment
+          </a>
+          <!--a href="{% url "esinfo" %}"class="btn btn-info btn-block" aria-label="Left Align">
+              <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+              Ecosystem Services Assesment
+          </a-->
+          <p class=""></p>
+      </div>
+  </div>
+{% endblock %}
