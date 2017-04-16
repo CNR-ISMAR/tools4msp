@@ -7,6 +7,7 @@ import pandas as pd
 import numpy as np
 import rectifiedgrid as rg
 import json
+from rasterio.warp import reproject, RESAMPLING
 
 from .ci import CumulativeImpactMixin
 from .conflict_score import ConflictScoreMixin
@@ -215,12 +216,12 @@ class CaseStudy(CumulativeImpactMixin, ConflictScoreMixin):
             l.availability.mask = np.ma.nomask
             l.availability.mask = mask.copy()
 
-    def set_grid(self, grid):
+    def set_grid(self, grid, resampling=RESAMPLING.nearest):
         """Reproject the self on the new grid"""
         self.grid = grid.copy()
         for idx, l in self.layers.iterrows():
             _l = self.grid.copy()
-            _l.reproject(l.layer, RESAMPLING.nearest)
+            _l.reproject(l.layer, resampling)
             l.layer = _l
             l.layer[self.grid == 0] = np.ma.masked
             #
