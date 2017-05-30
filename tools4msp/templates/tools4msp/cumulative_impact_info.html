@@ -4,6 +4,10 @@
 {% block title %} {% trans "Case study" %} — {{ block.super }}{% endblock %}
 
 {% block body %}
+  <ol class = "breadcrumb">
+      <li><a href="{% url 'tools4msp-home' %}">Tools4MSP</a></li>
+      <li class = "active">Cumulative Impact info</li>
+  </ol>
 
   <div class="page-header">
     <h1>Cumulative Impact Assesment</h1>
@@ -26,9 +30,9 @@
           Ecosystem-Based Approach (EBA) by assessing the potential cumulative impacts of maritime activities on the marine environment.
           </p>
           <p>
-          The CI assessment tool (hyperlink) was developed during the
+          The CI assessment tool was developed during the
           ADRIPLAN project (http://adriplan.eu). It is the core tool
-          of the Tools4MSP (hyperlink), an open source geopython
+          of the Tools4MSP, an open source geopython
           library. The tool was tested for the Adriatic-Ionian
           sub-basin, but can be deployed to any research area around the globe.
           </p>

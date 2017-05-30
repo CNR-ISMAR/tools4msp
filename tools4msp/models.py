@@ -26,7 +26,6 @@ class CaseStudyRun(models.Model):
     configuration = JSONField()
 
 
-
 # class CaseStudyRunLayers(models.Model):
 #     lid = models.CharField(max_length=5)
 #     label = models.CharField(max_length=5)

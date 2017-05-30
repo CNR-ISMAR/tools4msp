@@ -6,11 +6,11 @@
 
 {% block body %}
 
-  <div class="page-header">
-    <h1>Tools 4 MSP</h1>
-      <p>The Tools4MSP are a set of web and open source tools developed to support the implementation of Maritime Spatial Planning (MSP), with a specific focus on the analysis of conflicts between marine uses and the analysis of cumulative impacts (CI) of human activities on marine environments.
-      </p>
-  </div>
+  <ol class = "breadcrumb">
+      <li><a href="{% url 'tools4msp-home' %}">Tools4MSP</a></li>
+      <li class = "active">Step1</li>
+  </ol>
+
   <div class="row">
       <div class="col-md-12">
           <h2>Step 1: Case Study selection</h2>
@@ -28,7 +28,7 @@
   {% for casestudy in object_list %}
   <div class="row">
       <div class="col-md-3">
-          <a href="{% url "casestudy-conf" casestudy.id %}">{{ casestudy.label }}</a>
+          <a href="{% url "casestudy-conf" tool=tool id=casestudy.id %}">{{ casestudy.label }} {{ tool }}</a>
       </div>
       <div class="col-md-5"><p>{{ casestudy.description }}</p></div>
       <div class="col-md-4">

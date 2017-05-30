@@ -52,9 +52,164 @@
       </div>
     </div>
 
+    <div class="row">
+        <div class="col-md-12">
+            <button  id="run-analysis-btn" class="btn btn-primary btn-md btn-block" data-toggle="modal" data-target="#run-analysis-md">Run Analysis</button>
+        </div>
+    </div>
+
+    <div class="modal fade" id="run-analysis-md" tabindex="-1" role="dialog" aria-labelledby="Run analysis" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">{% trans "Run Analysis" %}</h4>
+                </div>
+                <div class="modal-body">
+                    {% verbatim %}
+                    <p><strong>Number of selected "Activities & Uses":</strong> {{selectionUses.length}}</p>
+                    <div ng-hide="selectionUses.length > 0">
+                        <div class="alert alert-danger" role="alert">
+                            <strong>No "Activity & Use" selected:</strong> you have to select at least an "Activity & Use" in order to continue the analysis
+                        </div>
+                    </div>
+                    {% endverbatim %}
+                    {% if tool == 'ci' %}
+                    {% verbatim %}
+                    <p><strong>Number of selected "Environmental Components":</strong> {{selectionEnvs.length}}</p>
+                    <div ng-hide="selectionEnvs.length > 0">
+                        <div class="alert alert-danger" role="alert">
+                            <strong>No "Environmental Component" selected:</strong> you have to select at least an "Environmental Component" in order to continue the analysis
+                        </div>
+                    </div>
+                    {% endverbatim %}
+                    {% endif %}
+                </div>
+                <div class="modal-footer">
+                    <div ng-hide="selectionUses.length > 0 && selectionEnvs.length > 0">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Ok" %}</button>
+                    </div>
+                    <div ng-show="selectionUses.length > 0 && selectionEnvs.length > 0">
+                        <button type="submit" class="btn btn-primary" ng-click="runTool('{{ tool }}')">Run analysis</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <div class="row">
+
       <div class="col-md-12">
+
+        <!-- <li class="list-group-item"> -->
+        <!--   <h4 class="list-group-item-heading">{%trans "Activities & Uses" %}</h4> -->
+        <!--   {% verbatim %} -->
+        <!--   <p>Available: {{uses.length}} - Selected: {{selectionUses.length}}</p> -->
+        <!--   {% endverbatim %} -->
+        <!--   <button class="btn btn-default btn-md btn-block" data-toggle="modal" data-target="#configure-uses">{% trans "Configure" %}</button> -->
+        <!-- </li> -->
+
+        <!-- <div class="modal fade" id="configure-uses" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"> -->
+        <!--   <div class="modal-dialog"> -->
+        <!--     <div class="modal-content"> -->
+        <!--       <div class="modal-header"> -->
+        <!--         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button> -->
+        <!--         <h4 class="modal-title" id="myModalLabel">{% trans "Configure Activities & Uses" %}</h4> -->
+        <!--       </div> -->
+        <!--       <div class="modal-body"> -->
+        <!--         <input id="uses-select-all-checkbox" type="checkbox" ng-click="toggleAllUses()" ng-model="isAllUsesSelected"> -->
+        <!--         Select all / Unselect all -->
+        <!--         {% verbatim %} -->
+        <!--         <div class="checkbox" ng-repeat="use in uses"> -->
+        <!--           <label> -->
+        <!--             <input type="checkbox" name="uses" value="{{ use.id }}" ng-model="use.selected" ng-change="useToggled()"> -->
+        <!--             {{ use.label }} -->
+        <!--             <\!-- TODO: -->
+        <!--             {% if user.is_superuser %} -->
+        <!--             <p><small> -->
+        <!--                 {% for l in value %} -->
+        <!--                 <a href="{{ l.get_absolute_url }}" target="_blank">{{ l.title }}</a>, -->
+        <!--                 {% endfor %} -->
+        <!--             </small></p> -->
+        <!--             {% endif %} -->
+        <!--             -\-> -->
+        <!--           </label> -->
+        <!--         </div> -->
+        <!--         {% endverbatim %} -->
+        <!--       </div> -->
+        <!--       <div class="modal-footer"> -->
+        <!--         <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Ok" %}</button> -->
+        <!--       </div> -->
+        <!--     </div> -->
+        <!--   </div> -->
+        <!-- </div> -->
+
+        <!-- <li class="list-group-item"> -->
+        <!--   <h4 class="list-group-item-heading">{%trans "Environmental Components" %}</h4> -->
+        <!--   {% verbatim %} -->
+        <!--   <p>Available: {{envs.length}} - Selected: {{selectionEnvs.length}}</p> -->
+        <!--   {% endverbatim %} -->
+        <!--   <button class="btn btn-default btn-md btn-block" data-toggle="modal" data-target="#configure-envs">{% trans "Configure" %}</button> -->
+        <!-- </li> -->
+
+        <!-- <div class="modal fade" id="configure-envs" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"> -->
+        <!--   <div class="modal-dialog"> -->
+        <!--     <div class="modal-content"> -->
+        <!--       <div class="modal-header"> -->
+        <!--         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button> -->
+        <!--         <h4 class="modal-title" id="myModalLabel">{% trans "Configure Environmental Components" %}</h4> -->
+        <!--       </div> -->
+        <!--       <div class="modal-body"> -->
+        <!--         <input id="envs-select-all-checkbox" type="checkbox"  ng-click="toggleAllEnvs()" ng-model="isAllEnvsSelected"> -->
+        <!--         Select all / Unselect all -->
+        <!--         {% verbatim %} -->
+        <!--         <div class="checkbox" ng-repeat="env in envs"> -->
+        <!--           <label> -->
+        <!--             <input type="checkbox" name="envs" value="{{ env.id }}" ng-model="env.selected" ng-change="envToggled()"> -->
+        <!--             {{ env.label }} -->
+        <!--             <\!-- TODO -->
+        <!--             {% if user.is_superuser %} -->
+        <!--             <p><small> -->
+        <!--                 {% for l in value %} -->
+        <!--                 <a href="{{ l.get_absolute_url }}" target="_blank">{{ l.title }}</a>, -->
+        <!--                 {% endfor %} -->
+        <!--             </small></p> -->
+        <!--             {% endif %} -->
+        <!--             -\-> -->
+        <!--           </label> -->
+        <!--         </div> -->
+        <!--         {% endverbatim %} -->
+        <!--       </div> -->
+        <!--       <div class="modal-footer"> -->
+        <!--         <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Ok" %}</button> -->
+        <!--       </div> -->
+        <!--     </div> -->
+        <!--   </div> -->
+        <!-- </div> -->
+
+      </div>
+    </div>
+
+{% endblock %}
+
+
+{% block body %}
+  <ol class = "breadcrumb">
+      <li><a href="{% url 'tools4msp-home' %}">Tools4MSP</a></li>
+      <li><a href="{% url 'casestudy-list' tool=tool %}">Step1</a></li>
+      <li class = "active">Step2</li>
+  </ol>
+
+  <div class="page-header">
+    <h2>Step 2: Case Study Setup</h2>
+    <p>a) Configure the list of "Activities and uses" {% if tool == 'ci' %} and "Environmental Components" {% endif %} to be included in your case study. (NOTE: By default the case study runs with all Activities/Uses {% if tool == 'ci' %}and Environmental Components{% endif %}).</p>
+    <p>b) Select the area of interest for your scenario analysis on the map interface: click with your mouse to define the vertices of the polygon and double click to confirm.</p>
+    <p>c) Press RUN ANALYSIS.</p>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
         <li class="list-group-item">
           <h4 class="list-group-item-heading">{%trans "Activities & Uses" %}</h4>
           {% verbatim %}
@@ -97,7 +252,10 @@
             </div>
           </div>
         </div>
+    </div>
 
+    {% if tool == 'ci' %}
+    <div class="col-md-6">
         <li class="list-group-item">
           <h4 class="list-group-item-heading">{%trans "Environmental Components" %}</h4>
           {% verbatim %}
@@ -140,32 +298,22 @@
             </div>
           </div>
         </div>
-
-      </div>
     </div>
+    {% endif %}
 
-{% endblock %}
 
-
-{% block body %}
-
-  <div class="page-header">
-    <h2>Step 2: Case Study Setup</h2>
-    <p>Select the area of interest for your case study on the map interface: click with your mouse to define the vertices of the polygon and double click to confirm.</p>
-    <P>Then select, from the list available in the sections "Activities and uses" and "Environmental Components", the layers to be included in your case study.</p>
-    <p>Finally, click on one of the available tools to run your case study.</p>
   </div>
 
-  <div class="row">
-    <div class="col-md-6">
-      <button  id="coexist-analysis-btn" class="btn btn-primary btn-md btn-block" data-toggle="modal" data-target="#run-coexist-md">Run COEXIST Analysis</button>
-      <button id="ci-analysis-btn" class="btn btn-primary btn-md btn-block" data-toggle="modal" data-target="#run-ci-md">Run Cumulative Impact Analysis</button>
-    </div>
-    <div class="col-md-6">
-          <button id="ciback-analysis-btn" class="btn btn-default btn-md btn-block" data-toggle="modal" data-target="#run-backtraking-md">Run CI Backtracking Analysis</button>
-          <button id="es-analysis-btn" class="btn btn-default btn-md btn-block" data-toggle="modal" data-target="#run-es-md">Run Ecosystem Services Analysis</button>
-    </div>
-  </div>
+  <!-- <div class="row"> -->
+  <!--   <div class="col-md-6"> -->
+  <!--     <button  id="coexist-analysis-btn" class="btn btn-primary btn-md btn-block" data-toggle="modal" data-target="#run-coexist-md">Run COEXIST Analysis</button> -->
+  <!--     <button id="ci-analysis-btn" class="btn btn-primary btn-md btn-block" data-toggle="modal" data-target="#run-ci-md">Run Cumulative Impact Analysis</button> -->
+  <!--   </div> -->
+  <!--   <div class="col-md-6"> -->
+  <!--         <button id="ciback-analysis-btn" class="btn btn-default btn-md btn-block" data-toggle="modal" data-target="#run-backtraking-md">Run CI Backtracking Analysis</button> -->
+  <!--         <button id="es-analysis-btn" class="btn btn-default btn-md btn-block" data-toggle="modal" data-target="#run-es-md">Run Ecosystem Services Analysis</button> -->
+  <!--   </div> -->
+  <!-- </div> -->
 
   <div class="modal fade" id="run-coexist-md" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -518,7 +666,7 @@ tools4mspApp.controller('Tolls4mspConfController', function Tolls4mspConfControl
         $('#loading-indicator').show();
         $http({
             'method': 'post',
-            'url': "{% url 'casestudy-run-save' cs.id %}",
+            'url': "{% url 'casestudy-run-save' tool=tool id=cs.id %}",
             'data': {'uses': $scope.selectionUses,
                      'envs': $scope.selectionEnvs,
                      'area': area,

@@ -4,6 +4,10 @@
 {% block title %} {% trans "Case study" %} — {{ block.super }}{% endblock %}
 
 {% block body %}
+  <ol class = "breadcrumb">
+      <li><a href="{% url 'tools4msp-home' %}">Tools4MSP</a></li>
+      <li class = "active">COEXIST info</li>
+  </ol>
 
   <div class="page-header">
     <h1>COEXIST - Sea Uses Conflict Analysis</h1>
@@ -12,8 +16,8 @@
   <div class="row">
       <div class="col-md-12">
           <h4>Aim</h4>
-          <p>The COEXIST – sea uses conflict analysis tool (hyperlink)
-              was developed during ADRIPLAN project (hyperlink). The
+          <p>The COEXIST – sea uses conflict analysis tool
+              was developed during ADRIPLAN project. The
               tool is based on a methodology developed for the FP7
               <a href="http://www.coexistproject.eu/">COEXIST Project</a>  and has the aim to (1)
               support MSP process through reallocation of maritime

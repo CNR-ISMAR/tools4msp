@@ -23,6 +23,13 @@
 {% endblock %}
 
 {% block body_outer %}
+    <ol class = "breadcrumb">
+        <li><a href="{% url 'tools4msp-home' %}">Tools4MSP</a></li>
+        <li><a href="{% url 'casestudy-list' tool=tool %}">Step1</a></li>
+        <li><a href="{% url 'casestudy-conf' tool=tool id=cs.id %}">Step2</a></li>
+        <li class = "active">Step3</li>
+    </ol>
+
     <div class="row">
         <div class="col-md-8">
             <div class="page-header">
@@ -30,11 +37,11 @@
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <p>The spatial distribution of "Cumulative Impact" has been published on the Data Portal.</p>
+                    <p>The spatial distribution of "{{ tool_label }}" has been published on the Data Portal.</p>
                     <p>Click on "View layer" to visualize the output layer in
                         the Data Portal: you'll be able to download the raster file,
                         to visualise and modifiy the metadata, to create a new map
-                        by integrating your results with other geospatial layersand
+                        by integrating your results with other geospatial layers and
                         to share the layer with others.
                     </p>
                     <p>Click on "Complete metadata" to directly add more
@@ -42,12 +49,22 @@
                     </p>
 
                 </div>
+                {% if csr.out_ci %}
                 <div class="col-md-6">
                     <a target="_blank" href="{{ csr.out_ci.get_absolute_url }}" class="btn btn-primary btn-block">{% trans "View layer" %}</a>
                 </div>
                 <div class="col-md-6">
                     <a target="_blank" href="{{ csr.out_ci.get_absolute_url }}/metadata" class="btn btn-primary btn-block">{% trans "Complete metadata" %}</a>
                 </div>
+                {% endif %}
+                {% if csr.out_coexist %}
+                <div class="col-md-6">
+                    <a target="_blank" href="{{ csr.out_coexist.get_absolute_url }}" class="btn btn-primary btn-block">{% trans "View layer" %}</a>
+                </div>
+                <div class="col-md-6">
+                    <a target="_blank" href="{{ csr.out_coexist.get_absolute_url }}/metadata" class="btn btn-primary btn-block">{% trans "Complete metadata" %}</a>
+                </div>
+                {% endif %}
             </div>
 
             <div class="row  top-buffer">

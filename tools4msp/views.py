@@ -1,15 +1,20 @@
+# coding: utf-8
+
 from __future__ import absolute_import
 
 import tempfile
-
+import urlparse
 from django.shortcuts import render
 from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
+from django.views.generic.base import ContextMixin
+
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+from django.conf import settings
 
 import json
 
@@ -81,44 +86,105 @@ class CumulativeImpactInfo(TemplateView):
     template_name = "tools4msp/cumulative_impact_info.html"
 
 
+class HomeView(TemplateView):
+    template_name = "tools4msp/home.html"
+
+
 class ESInfo(TemplateView):
     template_name = "tools4msp/esinfo.html"
 
 
-class CaseStudyListView(ListView):
+class Tools4MPSBaseView(ContextMixin):
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        self.tool = kwargs.get('tool', None)
+        self.id = kwargs.get('id', None)
+        self.rid = kwargs.get('rid', None)
+
+        if self.tool == 'ci':
+            self.tool_label = 'Cumulative Impact'
+        elif self.tool == 'coexist':
+            self.tool_label = 'COEXIST'
+
+        return super(Tools4MPSBaseView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(Tools4MPSBaseView, self).get_context_data(**kwargs)
+        context['tool'] = self.tool
+        context['tool_label'] = self.tool_label
+
+        context['id'] = self.id
+        context['rid'] = self.rid
+        return context
+
+
+class CaseStudyListView(ListView, Tools4MPSBaseView):
     model = CICaseStudy
 
     # def get_context_data(self, **kwargs):
     #     context = super(CaseStudyListView, self).get_context_data(**kwargs)
     #     return context
 
+    # def get_context_data(self, **kwargs):
+    #     tool = self.kwargs['tool']
+    #     context = super(CaseStudyListView, self).get_context_data(**kwargs)
+    #     context['tool'] = tool
+    #     return context
+
     def get_queryset(self):
+        tool = self.tool
         qs = CICaseStudy.objects.filter(tools4msp=True)
+
+        if tool == 'coexist':
+            qs = qs.filter(tool_coexist=True)
+        if tool == 'ci':
+            qs = qs.filter(tool_ci=True)
         if self.request.user.is_superuser:
             return qs
         return qs.filter(is_published=True)
 
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(CaseStudyListView, self).dispatch(*args, **kwargs)
+    # @method_decorator(login_required)
+    # def dispatch(self, *args, **kwargs):
+    #     return super(CaseStudyListView, self).dispatch(*args, **kwargs)
 
 # @ensure_csrf_cookie
+# @login_required
+# def casestudy_configuration(request, tool, id):
+#     cs = CICaseStudy.objects.get(pk=id)
+#     guses = cs._group_uses()
+#     genvs = cs._group_envs()
+#     uses = json.dumps([{'id': guse.id, 'label': guse.label, 'selected': True} for guse in guses ])
+#     envs = json.dumps([{'id': genv.id, 'label': genv.label, 'selected': True} for genv in genvs ])
+
+#     return render(request, "tools4msp/casestudy_configuration.html",
+#                   {'tool': tool,
+#                    'cs': cs,
+#                    'uses': uses,
+#                    'envs': envs})
+
+
+class CaseStudyRunConfigurationView(TemplateView, Tools4MPSBaseView):
+    template_name = "tools4msp/casestudy_configuration.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(CaseStudyRunConfigurationView, self).get_context_data(**kwargs)
+        cs = CICaseStudy.objects.get(pk=self.id)
+        guses = cs._group_uses()
+        genvs = cs._group_envs()
+        uses = json.dumps([{'id': guse.id,
+                            'label': guse.label,
+                            'selected': True} for guse in guses ])
+        envs = json.dumps([{'id': genv.id,
+                            'label': genv.label,
+                            'selected': True} for genv in genvs ])
+        context['cs'] = cs
+        context['uses'] = uses
+        context['envs'] = envs
+        return context
+
+
 @login_required
-def casestudy_configuration(request, id):
-    cs = CICaseStudy.objects.get(pk=id)
-    guses = cs._group_uses()
-    genvs = cs._group_envs()
-    uses = json.dumps([{'id': guse.id, 'label': guse.label, 'selected': True} for guse in guses ])
-    envs = json.dumps([{'id': genv.id, 'label': genv.label, 'selected': True} for genv in genvs ])
-
-    return render(request, "tools4msp/casestudy_configuration.html",
-                  {'cs': cs,
-                   'uses': uses,
-                   'envs': envs})
-
-
-@login_required
-def casestudy_run_save(request, id):
+def casestudy_run_save(request, tool, id):
     body = json.loads(request.body)
     uses = body['uses']
     envs = body['envs']
@@ -167,6 +233,7 @@ def casestudy_run_save(request, id):
     c.rtype = rtype
     c.set_dirs()
 
+    layer = None
     if 'ci' in tools:
         c.cumulative_impact(outputmask=_grid == 0)
         _cia = c.outputs['ci']
@@ -184,6 +251,8 @@ def casestudy_run_save(request, id):
             filepath = _tempdir + '/' + c.get_outfile('ci.tiff')
             cia.write_raster(filepath)
             layer, style = raster_file_upload(filepath, user=request.user)
+            layer.is_published = True
+            layer.save()
             csr.out_ci = layer
             csr.save()
 
@@ -202,6 +271,8 @@ def casestudy_run_save(request, id):
             filepath = _tempdir + '/' + c.get_outfile('coexist.tiff')
             coexista.write_raster(filepath, nodata=-1)
             layer, style = raster_file_upload(filepath, user=request.user)
+            layer.is_published = True
+            layer.save()
             csr.out_coexist = layer
             csr.save()
 
@@ -211,135 +282,160 @@ def casestudy_run_save(request, id):
     # plot.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
     #           fill_color="#036564", line_color="#033649")
 
+    reverse_url = reverse('casestudy-run-view', kwargs={'tool': tool,
+                                                        'id': id,
+                                                        'rid': csr.id})
+    # save metadata
+    tool_label = None
+    if tool == 'ci':
+        tool_label = 'Cumulative Impact'
+    elif tool == 'coexist':
+        tool_label = 'COEXIST'
+
+    absolute_reverse_url = urlparse.urljoin(settings.SITEURL, reverse_url)
+    abstract = 'This layer was produced using the tool "{}" and configuration and statistical outputs can be accessed here: {}'.format(tool_label,
+                                                                                                                                       absolute_reverse_url)
+    if layer is not None:
+        layer.abstract = abstract
+        layer.save()
+
     c.dump_outputs()
     # return HttpResponseRedirect(reverse('casestudy-run-view', args=[id, csr.id]))
-    data = {'redirect': reverse('casestudy-run-view', args=[id, csr.id])}
+    data = {'redirect': reverse_url}
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 
-@login_required
-def casestudy_run_view(request, id, rid):
-    cs = CICaseStudy.objects.get(pk=id)
-    csr = CaseStudyRun.objects.get(pk=rid)
-    c = CaseStudy(None, '/var/www/geonode/static/cumulative_impact',
-                  id, rtype="r{}".format(rid))
+class CaseStudyRunView(TemplateView, Tools4MPSBaseView):
+    template_name = "tools4msp/casestudy_output.html"
 
-    context = {"tools": []}
-    plots = {}
+    def get_context_data(self, **kwargs):
+        context = super(CaseStudyRunView, self).get_context_data(**kwargs)
 
-    # load coexist outputs
-    try:
-        _layers = pd.DataFrame.from_csv(c.datadir + 'layersmd.csv')
-        coexista = rg.read_raster(c.get_outpath('coexist.tiff'))
-        coexist_scores = pd.DataFrame.from_csv(c.get_outpath('coexist_scores.csv', rtype='full'))
-        coexist_couses = pd.DataFrame.from_csv(c.get_outpath('coexist_couses_df.csv'))
+        tool = self.tool
+        id = self.id
+        rid = self.rid
 
-        plots['hist_coexist'] = Histogram(coexista[coexista > 0],
-                                          xlabel="Cell's Coexist score",
-                                          ylabel="Number of cells",
-                                          bins=20)
+        cs = CICaseStudy.objects.get(pk=id)
+        csr = CaseStudyRun.objects.get(pk=rid)
+        c = CaseStudy(None, '/var/www/geonode/static/cumulative_impact',
+                      id, rtype="r{}".format(rid))
 
-        a = coexist_scores.unstack().reset_index()
-        a.columns = ['use1', 'use2', 'score']
-        uselabels = _layers[['lid', 'label']]
-        _a = pd.merge(pd.merge(a, uselabels, how="left", left_on='use1', right_on='lid'),
-                 uselabels, how="left", left_on='use2', right_on='lid')
+        context["tools"] = []
+        plots = {}
 
-        hover = HoverTool(
-            tooltips=[
-                ("value", "@score"),
-            ]
-        )
+        # load coexist outputs
+        try:
+            _layers = pd.DataFrame.from_csv(c.datadir + 'layersmd.csv')
+            coexista = rg.read_raster(c.get_outpath('coexist.tiff'))
+            coexist_scores = pd.DataFrame.from_csv(c.get_outpath('coexist_scores.csv', rtype='full'))
+            coexist_couses = pd.DataFrame.from_csv(c.get_outpath('coexist_couses_df.csv'))
 
-        plots['heat_coexist'] = HeatMap(_a, x='label_x', y='label_y', values='score', stat=None, tools=[hover])
-        plots['heat_couses'] = HeatMap(coexist_couses, x='use1', y='use2', values='score', stat=None)
+            plots['hist_coexist'] = Histogram(coexista[coexista > 0],
+                                              xlabel="Cell's Coexist score",
+                                              ylabel="Number of cells",
+                                              bins=20)
 
-        # use_score_df = ciscores.groupby('uselabel').sum()[['score']]
-        # env_score_df = ciscores.groupby('envlabel').sum()[['score']]
+            a = coexist_scores.unstack().reset_index()
+            a.columns = ['use1', 'use2', 'score']
+            uselabels = _layers[['lid', 'label']]
 
-        # plot2 = Bar(use_score_df)
-        # plot3 = Bar(env_score_df, width=800)
-        # plot3.xaxis.axis_label_text_font_size = "10pt"
+            _a = pd.merge(pd.merge(a, uselabels, how="left", left_on='use1', right_on='lid'),
+                          uselabels, how="left", left_on='use2', right_on='lid')
 
-        context["coexistscores"] = {'total': coexista.sum()}
-        context["tools"].append('coexist')
-    except RasterioIOError:
-        pass
-
-    # load cumulative impact outputs
-    try:
-        cia = rg.read_raster(c.get_outpath('ci.tiff'))
-        ciscores = pd.read_csv(c.get_outpath('ciscores.csv'))
-        plots['hist_ci'] = Histogram(cia[cia > 0],
-                                     xlabel="Cell's CI score",
-                                     ylabel="Number of cells",
-                                     bins=20)
-
-        use_score_df = ciscores.groupby('uselabel').sum()[['score']]
-        env_score_df = ciscores.groupby('envlabel').sum()[['score']]
-
-        plots['bar_ci_uses'] = Bar(use_score_df, legend=False)
-        plots['bar_ci_envs'] = Bar(env_score_df, width=800, legend=False)
-        # plot3.xaxis.axis_label_text_font_size = "10pt"
-
-        # sensitivities matrix
-        if self.request.user.is_superuser:
-            _s = pd.DataFrame.from_csv(c.get_outpath('cisensitivities.csv', rtype='full'))
-            sp = _s.groupby(['uselabel', 'envlabel'])
-            s = sp.agg({'score': 'sum', 'confidence': 'mean'}).reset_index()
-            s['scoreround'] = s.score.round(2)
-
-            source = ColumnDataSource(
-                data = s
+            hover = HoverTool(
+                tooltips=[
+                    ("value", "@score"),
+                ]
             )
-            colors = ["#75968f", "#a5bab7", "#c9d9d3", "#e2e2e2", "#dfccce", "#ddb7b1", "#cc7878", "#933b41", "#550b1d"]
-            mapper = LinearColorMapper(palette=colors)
 
-            opts = dict(plot_width=900, plot_height=1400,min_border=0)
+            plots['heat_coexist'] = HeatMap(_a, x='label_x', y='label_y', values='score', stat=None, tools=[hover])
+            plots['heat_couses'] = HeatMap(coexist_couses, x='use1', y='use2', values='score', stat=None)
 
-            use_factors = s.sort_values('uselabel').uselabel.unique()
-            env_factors = s.sort_values('envlabel').envlabel.unique()
-            list(use_factors)
-            p = figure(tools="hover,save", # toolbar_location=None,
-                       x_range=list(use_factors), y_range=list(env_factors),
-                       x_axis_location="above",
-                       **opts)
-            p.grid.grid_line_color = None
-            p.axis.axis_line_color = None
-            p.axis.major_tick_line_color = None
-            p.axis.major_label_text_font_size = "7pt"
-            p.axis.major_label_standoff = 0
+            # use_score_df = ciscores.groupby('uselabel').sum()[['score']]
+            # env_score_df = ciscores.groupby('envlabel').sum()[['score']]
 
-            p.rect(x="uselabel", y="envlabel", width=1, height=1,
-                   source=source,
-                   fill_color={'field': 'score', 'transform': mapper},
-                   # line_color=None
-               )
+            # plot2 = Bar(use_score_df)
+            # plot3 = Bar(env_score_df, width=800)
+            # plot3.xaxis.axis_label_text_font_size = "10pt"
 
-            p.select_one(HoverTool).tooltips = [
-                ('Use', '@uselabel'),
-                ('Env', '@envlabel'),
-                ('Score', '@score'),
-                ('Confidence', '@confidence'),
-            ]
+            context["coexistscores"] = {'total': coexista.sum()}
+            context["tools"].append('coexist')
+        except RasterioIOError:
+            pass
 
-            p.text(x="uselabel", y="envlabel", source=source, text="scoreround",text_font_size="8pt", text_align="center", text_baseline="middle")
-            p.xaxis.major_label_orientation = 1.
-            # t = show(p, notebook_handle=True)
+        # load cumulative impact outputs
+        try:
+            cia = rg.read_raster(c.get_outpath('ci.tiff'))
+            ciscores = pd.read_csv(c.get_outpath('ciscores.csv'))
+            plots['hist_ci'] = Histogram(cia[cia > 0],
+                                         xlabel="Cell's CI score",
+                                         ylabel="Number of cells",
+                                         bins=20)
 
-            plots['sensitivities'] = p
+            use_score_df = ciscores.groupby('uselabel').sum()[['score']]
+            env_score_df = ciscores.groupby('envlabel').sum()[['score']]
 
-        context["ciscores"] = {'total': cia.sum()}
-        context["tools"].append('ci')
-    except RasterioIOError:
-        pass
+            plots['bar_ci_uses'] = Bar(use_score_df, legend=False)
+            plots['bar_ci_envs'] = Bar(env_score_df, width=800, legend=False)
+            # plot3.xaxis.axis_label_text_font_size = "10pt"
 
-    script, div = components(plots, CDN)
+            # sensitivities matrix
+            if self.request.user.is_superuser:
+                _s = pd.DataFrame.from_csv(c.get_outpath('cisensitivities.csv', rtype='full'))
+                sp = _s.groupby(['uselabel', 'envlabel'])
+                s = sp.agg({'score': 'sum', 'confidence': 'mean'}).reset_index()
+                s['scoreround'] = s.score.round(2)
 
-    context["the_script"] = script
-    context["the_div"] = div
-    context["cs"] = cs
-    context["csr"] = csr
+                source = ColumnDataSource(
+                    data = s
+                )
+                colors = ["#75968f", "#a5bab7", "#c9d9d3", "#e2e2e2", "#dfccce", "#ddb7b1", "#cc7878", "#933b41", "#550b1d"]
+                mapper = LinearColorMapper(palette=colors)
 
-    return render(request, "tools4msp/casestudy_output.html",
-                  context)
+                opts = dict(plot_width=900, plot_height=1400,min_border=0)
+
+                use_factors = s.sort_values('uselabel').uselabel.unique()
+                env_factors = s.sort_values('envlabel').envlabel.unique()
+                list(use_factors)
+                p = figure(tools="hover,save", # toolbar_location=None,
+                           x_range=list(use_factors), y_range=list(env_factors),
+                           x_axis_location="above",
+                           **opts)
+                p.grid.grid_line_color = None
+                p.axis.axis_line_color = None
+                p.axis.major_tick_line_color = None
+                p.axis.major_label_text_font_size = "7pt"
+                p.axis.major_label_standoff = 0
+
+                p.rect(x="uselabel", y="envlabel", width=1, height=1,
+                       source=source,
+                       fill_color={'field': 'score', 'transform': mapper},
+                       # line_color=None
+                   )
+
+                p.select_one(HoverTool).tooltips = [
+                    ('Use', '@uselabel'),
+                    ('Env', '@envlabel'),
+                    ('Score', '@score'),
+                    ('Confidence', '@confidence'),
+                ]
+
+                p.text(x="uselabel", y="envlabel", source=source, text="scoreround",text_font_size="8pt", text_align="center", text_baseline="middle")
+                p.xaxis.major_label_orientation = 1.
+                # t = show(p, notebook_handle=True)
+
+                plots['sensitivities'] = p
+
+            context["ciscores"] = {'total': cia.sum()}
+            context["tools"].append('ci')
+        except RasterioIOError:
+            pass
+
+        script, div = components(plots, CDN)
+
+        context["the_script"] = script
+        context["the_div"] = div
+        context["cs"] = cs
+        context["csr"] = csr
+
+        return context
