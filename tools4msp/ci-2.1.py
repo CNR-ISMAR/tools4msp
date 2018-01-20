@@ -33,13 +33,13 @@ class ResponseFunction(object):
 class CumulativeImpactMixin(object):
     def __init__(self, grid, basedir=None,
                  name='unnamed', version='v1', rtype='full',
-                 mscf=0.):
+                 mscf=None):
         """ mscf: multiple stressor combination factor
         """
         columns = ['useid', 'uselabel',
                    'envid', 'envlabel',
                    'presid', 'preslabel',
-                   'score', 'distance', 'confidence'
+                   'score', 'distance', 'confidence',
                    'nrf',  # nonlinear response factor
                    'srf',  # skewness response factor
         ]
@@ -51,8 +51,11 @@ class CumulativeImpactMixin(object):
         ]
         self.pressures = pd.DataFrame(columns=columns)
 
+        if mscf is None:
+            mscf = {}
         self.mscf = mscf
 
+        self._labels = None
         super(CumulativeImpactMixin, self).__init__(grid, basedir=basedir,
                                                     name='unnamed',
                                                     version='v1', rtype='full')
@@ -66,32 +69,82 @@ class CumulativeImpactMixin(object):
                                        nrf, srf)
 
     def cumulative_impact(self, uses=None, envs=None,
-                          outputmask=None, fulloutput=True):
-        # ci = self.grid.copy()
-        ci = np.zeros_like(self.grid)
-        cimax = np.zeros_like(self.grid)
-        confidence = np.zeros_like(self.grid)
-        ciuses = {}
-        cienvs = {}
-        cienvsmax = {}
-        cipres = {}
-        _scores = []
+                          outputmask=None, fulloutput=True, pressures=None,
+                          cienvs_info=True, ciuses_info=True, cipres_info=True,
+                          ciscores_info=True):
+        self.cienvs_info = cienvs_info
+        self.ciuses_info = ciuses_info
+        self.cipres_info = cipres_info
+        self.ciscores_info = ciscores_info
+        # confidence = np.zeros_like(self.grid)
+        self.outputs['cienvs'] = {}
+        self.outputs['cipres'] = {}
+        self.outputs['ciuses'] = {}
+        self.outputs['ciscores'] = []
 
-        for sid, s in self.sensitivities.iterrows():
+        prev_env = None
+        cur_env = None
+        prev_pres = None
+        cur_pres = None
+
+        cienv_cur_pres = np.zeros_like(self.grid)
+        cienv_dominant = np.zeros_like(self.grid)
+        cienv_dominant_pid = np.zeros(self.grid.shape,
+                                      dtype='S6')
+        cienv_additive = np.zeros_like(self.grid)
+        cienv_pressures = {}
+        # cienv_uses = {}
+        cienv_pressures_uses = {}
+
+        for sid, s in self.sensitivities.sort(['envid', 'presid']).iterrows():
             if uses is not None and s.useid not in uses:
                 continue
             if envs is not None and s.envid not in envs:
                 continue
+            if pressures is not None and s.presid not in pressures:
+                continue
 
+            # print sid
             useid = s.useid
             presid = s.presid
+            envid = s.envid
             usepresid = "{}{}".format(useid, presid)
 
             ispressure = False
 
-            if usepresid in self.pressures.index:
+            # save previous values
+            prev_env = cur_env
+            prev_pres = cur_pres
+
+            # set new values
+            cur_env = s.envid
+            cur_pres = s.presid
+
+            if (cur_env != prev_env or cur_pres != prev_pres) and prev_pres is not None:
+                cienv_pressures[prev_pres] = cienv_cur_pres
+                self.apply_pressure(cienv_dominant, cienv_dominant_pid,
+                                    cienv_additive, prev_pres,
+                                    cienv_cur_pres)
+
+                # reset arrays
+                cienv_cur_pres = np.zeros_like(self.grid)
+
+            if cur_env != prev_env and prev_env is not None:
+                self.apply_env(prev_env, cienv_dominant, cienv_dominant_pid,
+                               cienv_additive, cienv_pressures, cienv_pressures_uses)
+                # reset arrays
+                cienv_dominant = np.zeros_like(self.grid)
+                cienv_dominant_pid = np.zeros(self.grid.shape,
+                                              dtype='S6')
+                cienv_additive = np.zeros_like(self.grid)
+                cienv_pressures = {}
+                cienv_uses = {}
+                cienv_pressures_uses = {}
+
+            if usepresid in self.layers.index:
                 # print usepresid
-                _pressure_layer = self.pressures.loc[usepresid, 'layer']
+                _pressure_layer = self.layers.loc[usepresid, 'layer']
+                # print useid, presid, usepresid
                 _use_layer = None
                 ispressure = True
             else:
@@ -110,11 +163,6 @@ class CumulativeImpactMixin(object):
                     pressure_layer.gaussian_filter(s.distance / self.grid.resolution / 2., truncate=3.)
                     if pressure_layer.max() != 0.: # TODO spostare il controllo nella funzione norm()
                         pressure_layer = pressure_layer.norm() * max_value
-                    # li passo già sistemati così ho più controllo
-                    # use_layer.lognorm()
-                    # use_layer.norm()
-
-                    # env_layer.norm()
                 else:
                     # print "Using a pressure layer"
                     pressure_layer = _pressure_layer.copy()
@@ -135,139 +183,228 @@ class CumulativeImpactMixin(object):
                     sensarray = pressure_layer * env_layer * s.score
                 if outputmask is not None:
                     sensarray.mask = outputmask
-                ci += sensarray
-                cimax = np.fmax(cimax, sensarray)
 
-                if fulloutput or self.mscf is not None:
-                    if _env_layer.lid not in cienvs:
-                        cienvs[_env_layer.lid] = sensarray.copy()
-                        cienvsmax[_env_layer.lid] = sensarray.copy()
-                    else:
-                        cienvs[_env_layer.lid] += sensarray
-                        cienvsmax[_env_layer.lid] = np.fmax(cienvsmax[_env_layer.lid], sensarray)
+                # sum uses contributions over pressure and env
+                cienv_cur_pres += sensarray
+                # print envid, useid, presid, sensarray.sum(), cienv_cur_pres.sum()
 
-                if fulloutput:
-                    _confidence = sensarray * s.confidence
+                if self.ciuses_info:
+                    if presid not in cienv_pressures_uses:
+                        cienv_pressures_uses[presid] = {}
+                    if useid not in cienv_pressures_uses[presid]:
+                        cienv_pressures_uses[presid][useid] = sensarray
 
-                    if useid not in ciuses:
-                        ciuses[useid] = sensarray.copy()
-                    else:
-                        ciuses[useid] += sensarray
+                    # if useid not in cienv_uses:
+                    #     cienv_uses[useid] = {}
+                    #     cienv_uses[useid] = np.zeros_like(self.grid)
+                    # cienv_uses[useid] += sensarray
 
-                    if presid not in cipres:
-                        cipres[presid] = sensarray.copy()
-                    else:
-                        cipres[presid] += sensarray
+                # TODO: calcolare il contributo per singolo uso
+                # cienvsdominant_uid[_env_layer.lid] = np.zeros(self.grid.shape,
+                #                                         dtype='S6')
+                # cienvsdominant_uid[_env_layer.lid][:] = useid
+                # #
+                # cienvsdominant_uid[_env_layer.lid][sensarray > cienvsdominant[_env_layer.lid]] = useid
 
-                    # results['nsens'][sensarray > 0] += 1
-                    confidence += _confidence
+                # TODO: verificare se si vuole calcolare la confidence
+                # if fulloutput:
+                #     _confidence = sensarray * s.confidence
 
-                    _scores.append([useid, s.uselabel,
-                                    s.envid, s.envlabel,
-                                    s.presid, s.preslabel,
-                                    sensarray.sum(),
-                                    s.confidence
-                                ])
+                #     # if useid not in ciuses:
+                #     #     ciuses[useid] = sensarray.copy()
+                #     # else:
+                #     #     ciuses[useid] += sensarray
 
-        if self.mscf is not None:
-            ci = None
-            for k, a in cienvs.iteritems():
-                _ci = a * (1. - self.mscf) + cienvsmax[k] * self.mscf
-                if ci is None:
-                    ci = _ci
-                else:
-                    ci += _ci
+                #     # if presid not in cipres:
+                #     #     cipres[presid] = sensarray.copy()
+                #     # else:
+                #     #     cipres[presid] += sensarray
+
+                #     # if envid not in cienvs:
+                #     #    cienvs[envid] = sensarray.copy()
+                #     # else:
+                #     #    cienvs[envid] += sensarray
+
+                #     # results['nsens'][sensarray > 0] += 1
+                #     confidence += _confidence
+
+                #     _scores.append([useid, s.uselabel,
+                #                     envid, s.envlabel,
+                #                     presid, s.preslabel,
+                #                     sensarray.sum(),
+                #                     s.confidence
+                #                 ])
+
+        # apply last env - pressure
+        cienv_pressures[cur_pres] = cienv_cur_pres
+        self.apply_pressure(cienv_dominant, cienv_dominant_pid,
+                            cienv_additive, cur_pres,
+                            cienv_cur_pres)
+        self.apply_env(cur_env, cienv_dominant, cienv_dominant_pid,
+                       cienv_additive, cienv_pressures, cienv_pressures_uses)
+
+        # global CI computation
+        ci = np.zeros_like(self.grid)
+        for k, e in self.outputs['cienvs'].iteritems():
+            ci += e
+
+            # for uk, u in ciuses.iteritems():
+            #     _ciuses = np.zeros_like(self.grid)
+            #     # for k, a in cienvs.iteritems():
+            #     #     _cienvsdominant = cienvsdominant[k]
+            #     #     _cienvsdominant_uid = cienvsdominant_uid[k]
+            #     #     _ciuses[_cienvsdominant_uid == uk] += _cienvsdominant[_cienvsdominant_uid == uk]
+            #     # ciuses[uk] = u * (1. - self.mscf) + _ciuses * self.mscf
 
         self.outputs['ci'] = ci
 
-        if fulloutput:
-            scores = pd.DataFrame(_scores, columns=['useid', 'uselabel',
-                                                    'envid', 'envlabel',
-                                                    'presid', 'preslabel',
-                                                    'score', 'confidence'])
-            self.outputs['ciuses'] = ciuses
-            self.outputs['cienvs'] = cienvs
-            self.outputs['cipres'] = cipres
-            self.outputs['ciconfidence'] = confidence / ci
-            self.outputs['ciscores'] = scores
-            self.outputs['cimax'] = cimax
+        # TODO: compute scores
+        # if fulloutput:
+        #     scores = pd.DataFrame(_scores, columns=['useid', 'uselabel',
+        #                                             'envid', 'envlabel',
+        #                                             'presid', 'preslabel',
+        #                                             'score', 'confidence'])
+        #     # self.outputs['ciuses'] = ciuses
+        #     # self.outputs['cienvs'] = cienvs
+        #     # self.outputs['cipres'] = cipres
+        #     # self.outputs['ciconfidence'] = confidence / ci
+        #     self.outputs['ciscores'] = scores
+        #     # self.outputs['cimax'] = cimax
+        #     # self.outputs['cienvsdominant_uid'] = cienvsdominant_uid
+        #     # self.outputs['cienvsdominant_pid'] = cienvsdominant_pid
+        #     # self.outputs['cienvsdominant'] = cienvsdominant
+
+        if not self.cienvs_info:
+            ci['cienvs'] = None
+
+        if self.ciscores_info:
+            ciscores = self.outputs['ciscores']
+            ciscores = pd.DataFrame(ciscores, columns=['useid', 'uselabel',
+                                                             'envid', 'envlabel',
+                                                             'presid', 'preslabel',
+                                                             'score', 'confidence'])
+            self.outputs['ciscores'] = ciscores
+
+        self.outputs['ciconfidence'] = np.zeros_like(self.grid)
         return True
 
+    def apply_pressure(self, cienv_dominant, cienv_dominant_pid,
+                       cienv_additive, prev_pres,
+                       cienv_cur_pres):
+
+        cienv_dominant_pid[prev_pres > cienv_dominant] = prev_pres
+        cienv_dominant = np.fmax(cienv_dominant, cienv_cur_pres)
+        cienv_additive += cienv_cur_pres
+
+    def apply_env(self, envid, cienv_dominant, cienv_dominant_pid,
+                  cienv_additive, cienv_pressures, cienv_pressures_uses):
+        cienvs = self.outputs['cienvs']
+        if envid not in cienvs:
+            cienvs[envid] = np.zeros_like(self.grid)
+        mscf = self.mscf.get(envid, 0)
+        cienvs[envid] = cienv_additive * (1. - mscf) \
+                        + cienv_dominant * mscf
+
+        # print "envid", envid, cienvs[envid].sum()
+
+        if self.cipres_info:
+            cipres = self.outputs['cipres']
+            for pid, p in cienv_pressures.iteritems():
+                if pid not in cipres:
+                    cipres[pid] = np.zeros_like(self.grid)
+
+                _cipres = np.zeros_like(self.grid)
+                _cipres[cienv_dominant_pid == pid] += cienv_dominant[cienv_dominant_pid == pid]
+
+                _cipres_env = p * (1. - mscf) + _cipres * mscf
+                cipres[pid] += _cipres_env
+
+        if self.ciuses_info:
+            ciuses = self.outputs['ciuses']
+            for pid, udict in cienv_pressures_uses.iteritems():
+                for uid, u in udict.iteritems():
+                    _ciuse = np.zeros_like(self.grid)
+                    _ciuse[cienv_dominant_pid == pid] += u[cienv_dominant_pid == pid]
+                    _ciuse_env_pres = u * (1. - mscf) + _ciuse * mscf
+                    self.outputs['ciscores'].append([uid, self.get_label(uid),
+                                                   envid, self.get_label(envid),
+                                                   pid, self.get_label(pid),
+                                                   _ciuse_env_pres.sum(),
+                                                   0])
+
+                    if uid not in ciuses:
+                        ciuses[uid] = np.zeros_like(self.grid)
+                    ciuses[uid] += _ciuse_env_pres
+
+    @property
+    def labels(self):
+        if self._labels is None:
+            e = self.sensitivities[['envid', 'envlabel']].copy().drop_duplicates()
+            u = self.sensitivities[['useid', 'uselabel']].copy().drop_duplicates()
+            p = self.sensitivities[['presid', 'preslabel']].copy().drop_duplicates()
+            e.columns = ['id', 'label']
+            u.columns = ['id', 'label']
+            p.columns = ['id', 'label']
+            self._labels = pd.concat([e, u, p])
+            self._labels.set_index('id', inplace=True)
+        return self._labels
+
+    def get_label(self, id):
+        labels = self.labels
+        return labels.loc[id].label
+
+    def get_id(self, label):
+        labels = self.labels
+        r = labels.index[labels.label.str.contains(label, case=False, regex=False)]
+        if r.shape[0] != 1:
+            raise ValueError('Invalid label')
+        return r[0]
+
     def inv_cumulative_impact(self, uses=None, envs=None, outputmask=None,
-                              envmask=None, fulloutput=True):
+                              fulloutput=True, pressures=None, cioutputmask=None):
         # ci = self.grid.copy()
-        ci = np.zeros_like(self.grid)
-        confidence = np.zeros_like(self.grid)
-        ciuses = {}
-        cienvs = {}
-        _scores = []
+        bci = np.zeros_like(self.grid)
 
         for sid, s in self.sensitivities.iterrows():
             if uses is not None and s.useid not in uses:
                 continue
             if envs is not None and s.envid not in envs:
                 continue
+            if pressures is not None and s.presid not in pressures:
+                continue
+
+            self.cumulative_impact(uses=[s.useid],
+                                   envs=[s.envid],
+                                   outputmask=cioutputmask,
+                                   fulloutput=False,
+                                   pressures=[s.presid])
+
+            ci = self.outputs['ci']
+            ci[ci.mask] = 0
+            # print s
+            # print ci.sum()
+
+            usepresid = "{}{}".format(s.useid, s.presid)
+            ispressure = False
+            if usepresid in self.layers.index:
+                ispressure = True
 
             _use_layer = self.get_layer(s.useid)
             _env_layer = self.get_layer(s.envid)
 
-            if _use_layer is not None and _env_layer is not None:
-                max_value = _use_layer.layer.max()
+            if not ispressure and _use_layer is not None and _env_layer is not None:
+                print s.uselabel, s.envlabel, s.preslabel, s.distance, s.score
                 use_layer = _use_layer.layer.copy()
-                env_layer = _env_layer.layer.copy()
-                if envmask is not None:
-                    env_layer[envmask] = 0
-                use_layer_convolution = use_layer.copy()
-                use_layer_convolution.gaussian_filter(s.distance / self.grid.resolution / 2., truncate=3.)
-                max_use_convolution = use_layer_convolution.max()
-                # convolution
-                env_layer.gaussian_filter(s.distance / self.grid.resolution / 2., truncate=3.)
-                # TODO: da rivedere la noramlizzazione perché andava bene per gli usi
-                if env_layer.max() != 0.: # TODO spostare il controllo nella funzione norm()
-                    env_layer = (env_layer / max_use_convolution) * max_value
-                # li passo già sistemati così ho più controllo
-                # use_layer.lognorm()
-                # use_layer.norm()
+                ci.gaussian_filter(s.distance / self.grid.resolution / 2., truncate=3.)
 
-                # env_layer.norm()
-
-                sensarray = use_layer * env_layer * s.score
+                _bci = use_layer * ci * s.score
+                print _bci.sum()
                 if outputmask is not None:
-                    sensarray.mask = outputmask
-                ci += sensarray
+                    _bci.mask = outputmask
 
-                if fulloutput:
-                    _confidence = sensarray * s.confidence
+                bci += _bci
 
-                    if _use_layer.lid not in ciuses:
-                        ciuses[_use_layer.lid] = sensarray.copy()
-                    else:
-                        ciuses[_use_layer.lid] += sensarray
-
-                    if _env_layer.lid not in cienvs:
-                        cienvs[_env_layer.lid] = sensarray.copy()
-                    else:
-                        cienvs[_env_layer.lid] += sensarray
-
-                    # results['nsens'][sensarray > 0] += 1
-                    confidence += _confidence
-
-                    _scores.append([s.useid, s.uselabel,
-                                    s.envid, s.envlabel,
-                                    s.presid, s.preslabel,
-                                    sensarray.sum(),
-                                    s.confidence
-                                ])
-
-        if fulloutput:
-            scores = pd.DataFrame(_scores, columns=['useid', 'uselabel',
-                                                    'envid', 'envlabel',
-                                                    'presid', 'preslabel',
-                                                    'score', 'confidence'])
-        if fulloutput:
-            return ci, ciuses, cienvs, confidence / ci, scores
-        else:
-            return ci
+        self.outputs['bci'] = bci
 
     def dump_inputs(self):
         self.sensitivities.to_csv(self.get_outpath('cisensitivities.csv'))
@@ -287,13 +424,13 @@ class CumulativeImpactMixin(object):
 
     def dump_outputs(self):
         if 'ci' in self.outputs:
-            self.outputs['ci'].write_raster(self.get_outpath('ci.tiff'))
+            self.outputs['ci'].write_raster(self.get_outpath('ci.tiff'), dtype='float32')
         if 'ciuses' in self.outputs:
             for (idx, d) in self.outputs['ciuses'].iteritems():
-                d.write_raster(self.get_outpath('ciuse_{}.tiff'.format(idx)))
+                d.write_raster(self.get_outpath('ciuse_{}.tiff'.format(idx)), dtype='float32')
         if 'cienvs' in self.outputs:
             for (idx, d) in self.outputs['cienvs'].iteritems():
-                d.write_raster(self.get_outpath('cienv_{}.tiff'.format(idx)))
+                d.write_raster(self.get_outpath('cienv_{}.tiff'.format(idx)), dtype='float32')
         if 'ciscores' in self.outputs:
             self.outputs['ciscores'].to_csv(self.get_outpath('ciscores.csv'))
         # self.outputs['ci'] = ci
