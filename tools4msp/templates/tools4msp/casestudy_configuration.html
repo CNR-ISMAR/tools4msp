@@ -82,14 +82,20 @@
                             <strong>No "Environmental Component" selected:</strong> you have to select at least an "Environmental Component" in order to continue the analysis
                         </div>
                     </div>
+                    <p><strong>Number of selected "Pressures":</strong> {{selectionPress.length}}</p>
+                    <div ng-hide="selectionPress.length > 0">
+                        <div class="alert alert-danger" role="alert">
+                            <strong>No "Pressures" selected:</strong> you have to select at least a "Pressure" in order to continue the analysis
+                        </div>
+                    </div>
                     {% endverbatim %}
                     {% endif %}
                 </div>
                 <div class="modal-footer">
-                    <div ng-hide="selectionUses.length > 0 && selectionEnvs.length > 0">
+                    <div ng-hide="selectionUses.length > 0 && selectionEnvs.length > 0 && selectionPress.length > 0">
                         <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Ok" %}</button>
                     </div>
-                    <div ng-show="selectionUses.length > 0 && selectionEnvs.length > 0">
+                    <div ng-show="selectionUses.length > 0 && selectionEnvs.length > 0 && selectionPress.length > 0">
                         <button type="submit" class="btn btn-primary" ng-click="runTool('{{ tool }}')">Run analysis</button>
                     </div>
                 </div>
@@ -209,7 +215,7 @@
   </div>
 
   <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-4">
         <li class="list-group-item">
           <h4 class="list-group-item-heading">{%trans "Activities & Uses" %}</h4>
           {% verbatim %}
@@ -255,9 +261,9 @@
     </div>
 
     {% if tool == 'ci' %}
-    <div class="col-md-6">
+    <div class="col-md-4">
         <li class="list-group-item">
-          <h4 class="list-group-item-heading">{%trans "Environmental Components" %}</h4>
+          <h4 class="list-group-item-heading">{%trans "Environmental Comp." %}</h4>
           {% verbatim %}
           <p>Available: {{envs.length}} - Selected: {{selectionEnvs.length}}</p>
           {% endverbatim %}
@@ -279,6 +285,51 @@
                   <label>
                     <input type="checkbox" name="envs" value="{{ env.id }}" ng-model="env.selected" ng-change="envToggled()">
                     {{ env.label }}
+                    <!-- TODO
+                    {% if user.is_superuser %}
+                    <p><small>
+                        {% for l in value %}
+                        <a href="{{ l.get_absolute_url }}" target="_blank">{{ l.title }}</a>,
+                        {% endfor %}
+                    </small></p>
+                    {% endif %}
+                    -->
+                  </label>
+                </div>
+                {% endverbatim %}
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Ok" %}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <li class="list-group-item">
+          <h4 class="list-group-item-heading">{%trans "Pressures" %}</h4>
+          {% verbatim %}
+          <p>Available: {{press.length}} - Selected: {{selectionPress.length}}</p>
+          {% endverbatim %}
+          <button class="btn btn-default btn-md btn-block" data-toggle="modal" data-target="#configure-press">{% trans "Configure" %}</button>
+        </li>
+
+        <div class="modal fade" id="configure-press" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">{% trans "Configure Pressures" %}</h4>
+              </div>
+              <div class="modal-body">
+                <input id="press-select-all-checkbox" type="checkbox"  ng-click="toggleAllPress()" ng-model="isAllPressSelected">
+                Select all / Unselect all
+                {% verbatim %}
+                <div class="checkbox" ng-repeat="pres in press">
+                  <label>
+                    <input type="checkbox" name="press" value="{{ pres.id }}" ng-model="pres.selected" ng-change="presToggled()">
+                    {{ pres.label }}
                     <!-- TODO
                     {% if user.is_superuser %}
                     <p><small>
@@ -355,6 +406,7 @@
         <div class="modal-body">
           <p><strong>Number of selected "Activities & Uses":</strong> {{selectionUses.length}}</p>
           <p><strong>Number of selected "Environmental Components":</strong> {{selectionEnvs.length}}</p>
+          <p><strong>Number of selected "Pressures":</strong> {{selectionPress.length}}</p>
           <div ng-hide="selectionUses.length > 0">
             <div class="alert alert-danger" role="alert">
               <strong>No "Activity & Use" selected:</strong> you have to select at least an "Activity & Use" in order to continue the analysis
@@ -365,13 +417,18 @@
               <strong>No "Environmental Component" selected:</strong> you have to select at least an "Environmental Component" in order to continue the analysis
             </div>
           </div>
+          <div ng-hide="selectionPress.length > 0">
+            <div class="alert alert-danger" role="alert">
+              <strong>No "Pressures" selected:</strong> you have to select at least a "Pressure" in order to continue the analysis
+            </div>
+          </div>
         </div>
         {% endverbatim %}
         <div class="modal-footer">
-          <div ng-hide="selectionUses.length > 0 && selectionEnvs.length > 0">
+          <div ng-hide="selectionUses.length > 0 && selectionEnvs.length > 0  && selectionPress.length > 0">
             <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Ok" %}</button>
           </div>
-          <div ng-show="selectionUses.length > 0 && selectionEnvs.length > 0">
+          <div ng-show="selectionUses.length > 0 && selectionEnvs.length > 0 && selectionPress.length > 0">
             <button type="submit" class="btn btn-primary" ng-click="runTool('ci')">Run analysis</button>
           </div>
         </div>
@@ -453,7 +510,7 @@ var gridLayer = new ol.layer.Tile({
         // TODO: use a better link to wms services
         url: '{{ GEOSERVER_BASE_URL }}wms',
         params: {
-            'LAYERS': '{{ cs.grid.typename }}',
+            'LAYERS': '{{ grid_typename }}',
             'FORMAT': 'image/png',
             'TILED': true
         }
@@ -612,6 +669,7 @@ tools4mspApp.config(['$httpProvider', function($httpProvider) {
 tools4mspApp.controller('Tolls4mspConfController', function Tolls4mspConfController($scope, $http) {
     $scope.uses = {{ uses|safe }};
     $scope.envs = {{ envs|safe }};
+    $scope.press = {{ press|safe }};
 
     // selected uses & envs
     $scope.selectionUes = [];
@@ -624,6 +682,9 @@ tools4mspApp.controller('Tolls4mspConfController', function Tolls4mspConfControl
     $scope.selectedEnvs = function selectedEnvs() {
         return filterFilter($scope.envs, { selected: true });
     };
+    $scope.selectedPress = function selectedPress() {
+        return filterFilter($scope.press, { selected: true });
+    };
 
     $scope.$watch('uses|filter:{selected: true}', function (nv) {
         $scope.selectionUses = nv.map(function (use) {
@@ -633,6 +694,11 @@ tools4mspApp.controller('Tolls4mspConfController', function Tolls4mspConfControl
     $scope.$watch('envs|filter:{selected:true}', function (nv) {
         $scope.selectionEnvs = nv.map(function (env) {
             return env.id;
+        });
+    }, true);
+    $scope.$watch('press|filter:{selected:true}', function (nv) {
+        $scope.selectionPress = nv.map(function (pres) {
+            return pres.id;
         });
     }, true);
 
@@ -654,6 +720,15 @@ tools4mspApp.controller('Tolls4mspConfController', function Tolls4mspConfControl
         $scope.isAllEnvsSelected = $scope.envs.every(function(itm){ return itm.selected; })
     }
 
+    $scope.toggleAllPress = function() {
+        var toggleStatus = $scope.isAllPressSelected;
+        angular.forEach($scope.press, function(itm){ itm.selected = toggleStatus; });
+    }
+
+    $scope.presToggled = function(){
+        $scope.isAllPressSelected = $scope.press.every(function(itm){ return itm.selected; })
+    }
+
     $scope.runTool = function(tool) {
         var source = vector.getSource();
         var features = source.getFeatures();
@@ -669,6 +744,7 @@ tools4mspApp.controller('Tolls4mspConfController', function Tolls4mspConfControl
             'url': "{% url 'casestudy-run-save' tool=tool id=cs.id %}",
             'data': {'uses': $scope.selectionUses,
                      'envs': $scope.selectionEnvs,
+                     'press': $scope.selectionPress,
                      'area': area,
                      'tools': [tool]
                     }
