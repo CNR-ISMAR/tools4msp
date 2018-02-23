@@ -98,6 +98,6 @@ class ConflictScoreMixin(object):
 
     def dump_outputs(self):
         if 'coexist' in self.outputs:
-            self.outputs['coexist'].write_raster(self.get_outpath('coexist.tiff'))
+            self.outputs['coexist'].write_raster(self.get_outpath('coexist.tiff'), dtype='float32')
         if 'coexist_couses_df' in self.outputs:
             self.outputs['coexist_couses_df'].to_csv(self.get_outpath('coexist_couses_df.csv'))
