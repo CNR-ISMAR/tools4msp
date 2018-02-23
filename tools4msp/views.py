@@ -205,6 +205,7 @@ class CaseStudyRunConfigurationView(TemplateView, Tools4MPSBaseView):
 
 @login_required
 def casestudy_run_save(request, tool, id):
+    a = request.body
     body = json.loads(request.body)
     uses = body['uses']
     envs = body['envs']
@@ -262,7 +263,7 @@ def casestudy_run_save(request, tool, id):
     if 'ci' in tools:
         c.cumulative_impact(outputmask=_grid == 0, pressures=pressures)
         _cia = c.outputs['ci']
-
+        # _cia.unmask(0)
         # set original extension
         if area is not None:
             cia = aoi.copy()
@@ -274,7 +275,7 @@ def casestudy_run_save(request, tool, id):
             # temp dir
             _tempdir = tempfile.mkdtemp()
             filepath = _tempdir + '/' + c.get_outfile('ci.tiff')
-            cia.write_raster(filepath, dtype='float32')
+            cia.write_raster(filepath, dtype='float32', nodata=-9999)
             layer, style = raster_file_upload(filepath, user=request.user)
             layer.is_published = True
             layer.save()
@@ -294,7 +295,7 @@ def casestudy_run_save(request, tool, id):
             # temp dir
             _tempdir = tempfile.mkdtemp()
             filepath = _tempdir + '/' + c.get_outfile('coexist.tiff')
-            coexista.write_raster(filepath, nodata=-1)
+            coexista.write_raster(filepath, dtype='float32', nodata=-9999)
             layer, style = raster_file_upload(filepath, user=request.user)
             layer.is_published = True
             layer.save()
@@ -365,8 +366,8 @@ class CaseStudyRunView(TemplateView, Tools4MPSBaseView):
             a.columns = ['use1', 'use2', 'score']
             uselabels = _layers[['lid', 'label']]
 
-            _a = pd.merge(pd.merge(a, uselabels, how="left", left_on='use1', right_on='lid'),
-                          uselabels, how="left", left_on='use2', right_on='lid')
+            _a = pd.merge(pd.merge(a, uselabels, how="inner", left_on='use1', right_on='lid'),
+                          uselabels, how="inner", left_on='use2', right_on='lid')
 
             hover = HoverTool(
                 tooltips=[
@@ -396,7 +397,7 @@ class CaseStudyRunView(TemplateView, Tools4MPSBaseView):
             plots['hist_ci'] = Histogram(cia[cia > 0],
                                          xlabel="Cell's CI score",
                                          ylabel="Number of cells",
-                                         bins=20)
+                                         bins=20, plot_width=330, plot_height=300)
 
             use_score_df = ciscores.groupby('uselabel').sum()[['score']]
             env_score_df = ciscores.groupby('envlabel').sum()[['score']]
