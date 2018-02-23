@@ -164,6 +164,14 @@ class CaseStudy(models.Model):
     def get_grid(self):
         return self.grid_dataset.eval_expression(res=self.grid_resolution)
 
+    def get_thumbnail_url(self):
+        l = self.grid_dataset.get_layers_qs()[0]
+        return l.thumbnail_url
+
+    @property
+    def thumbnail_url(self):
+        return self.get_thumbnail_url()
+
 
 class Pressure(models.Model):
     label = models.CharField(max_length=100)
