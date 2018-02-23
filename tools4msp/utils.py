@@ -971,8 +971,9 @@ def raster_file_upload(filepath, **kwargs):
 
 
 def get_sld(data, name):
-    maxvalue = data.max()
-    return RASTER_SLD.format(name=name, maxvalue=maxvalue)
+    vmax = data.max()
+    vmean = vmax / 2.
+    return RASTER_SLD.format(name=name, vmax=vmax, vmean=vmean)
 
 RASTER_SLD = """<?xml version="1.0" encoding="UTF-8"?>
 <sld:StyledLayerDescriptor xmlns="http://www.opengis.net/sld" xmlns:sld="http://www.opengis.net/sld" xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml" version="1.0.0">
@@ -987,10 +988,11 @@ RASTER_SLD = """<?xml version="1.0" encoding="UTF-8"?>
           <RasterSymbolizer>
           <Opacity>1.0</Opacity>
             <ColorMap type="ramp">
-              <ColorMapEntry opacity="0" color="#ffffb2" quantity="0"/>
-              <ColorMapEntry color="#ffffb2" quantity="0.00001"/>
-              <ColorMapEntry color="#bd0026" quantity="{maxvalue}"/>
-              <ColorMapEntry opacity="0" color="#bd0026" quantity="{maxvalue}"/>
+              <ColorMapEntry opacity="0" color="#0000ff" quantity="0"/>
+              <ColorMapEntry color="#0000ff" quantity="0.00001"/>
+              <ColorMapEntry color="#ffff00" quantity="{vmean}"/>
+              <ColorMapEntry color="#ff0000" quantity="{vmax}"/>
+              <ColorMapEntry opacity="0" color="#ff0000" quantity="{vmax}"/>
           </ColorMap>
           </RasterSymbolizer>
         </sld:Rule>
