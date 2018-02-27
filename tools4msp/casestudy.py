@@ -164,19 +164,27 @@ class CaseStudy(CumulativeImpactMixin, ConflictScoreMixin):
 
         if lid is not None:
             layer = _layers.loc[lid]
+            try:
+                raster = self.read_raster('av_' + lid)
+            except:
+                raster = None
             self.add_layer(self.read_raster(lid),
                            layer.msptype,
                            lid=lid,
                            label=layer.label,
-                           availability=self.read_raster('av_' + lid))
+                           availability=raster)
             return True
 
         for lid, layer in _layers.iterrows():
+            try:
+                raster = self.read_raster('av_' + lid)
+            except:
+                raster = None
             self.add_layer(self.read_raster(lid),
                            layer.msptype,
                            lid=lid,
                            label=layer.label,
-                           availability=self.read_raster('av_' + lid))
+                           availability=raster)
         # TODO: manage error on loading
         return True
 
@@ -213,8 +221,9 @@ class CaseStudy(CumulativeImpactMixin, ConflictScoreMixin):
             l.layer.mask = np.ma.nomask
             l.layer.mask = mask.copy()
             #
-            l.availability.mask = np.ma.nomask
-            l.availability.mask = mask.copy()
+            if l.availability is not None:
+                l.availability.mask = np.ma.nomask
+                l.availability.mask = mask.copy()
 
     def set_grid(self, grid, resampling=RESAMPLING.nearest):
         """Reproject the self on the new grid"""
@@ -225,7 +234,8 @@ class CaseStudy(CumulativeImpactMixin, ConflictScoreMixin):
             l.layer = _l
             l.layer[self.grid == 0] = np.ma.masked
             #
-            _v = self.grid.copy()
-            _v.reproject(l.availability)
-            l.availability = _v
-            l.availability[self.grid == 0] = np.ma.masked
+            if l.availability is not None:
+                _v = self.grid.copy()
+                _v.reproject(l.availability)
+                l.availability = _v
+                l.availability[self.grid == 0] = np.ma.masked

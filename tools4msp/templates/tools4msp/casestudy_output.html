@@ -37,7 +37,7 @@
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <p>The spatial distribution of "{{ tool_label }}" has been published on the Data Portal.</p>
+                    <p>The spatial distribution of "{{ tool_label }}" score has been published on the Data Portal.</p>
                     <p>Click on "View layer" to visualize the output layer in
                         the Data Portal: you'll be able to download the raster file,
                         to visualise and modifiy the metadata, to create a new map
@@ -93,18 +93,34 @@
                         </small>
                         {% if 'coexist' in tools %}
                         <li class="list-group-item">
-                            <h4 class="list-group-item-heading">{%trans "COEXIST Scores" %}</h4>
+                            <h4 class="list-group-item-heading">{%trans "MUC Scores" %}</h4>
                             <ul class="list-unstyled">
                                 <li><strong>Total score: </strong> {{ coexistscores.total|floatformat:3 }}</li>
                             </ul>
                         </li>
+                        <li class="list-group-item">
+                            <h4 class="list-group-item-heading">{%trans "Legend" %}</h4>
+                            <p><img id="legend_icon" src="{{ csr.out_coexist.get_legend.url }}"></p>
+                        </li>
+                        <li class="list-group-item">
+                            <h4 class="list-group-item-heading">{%trans "MUC score distribution" %}</h4>
+                            <p>{{ the_div.hist_coexist|safe }}</p>
+                        </li>
                         {% endif %}
                         {% if 'ci' in tools %}
                         <li class="list-group-item">
-                            <h4 class="list-group-item-heading">{%trans "Cumulative Impact Scores" %}</h4>
+                            <h4 class="list-group-item-heading">{%trans "CEA Scores" %}</h4>
                             <ul class="list-unstyled">
                                 <li><strong>Total score: </strong> {{ ciscores.total|floatformat:3 }}</li>
                             </ul>
+                        </li>
+                        <li class="list-group-item">
+                            <h4 class="list-group-item-heading">{%trans "Legend" %}</h4>
+                            <p><img id="legend_icon" src="{{ csr.out_ci.get_legend.url }}"></p>
+                        </li>
+                        <li class="list-group-item">
+                            <h4 class="list-group-item-heading">{%trans "CEA score distribution" %}</h4>
+                            <p>{{ the_div.hist_ci|safe }}</p>
                         </li>
                         {% endif %}
                 </div>
@@ -119,17 +135,13 @@
     {% if 'coexist' in tools %}
     <div class="row">
         <div class="col-md-12">
-            <h4>COEXIST Analysis</h4>
+            <h4>MUC Analysis</h4>
             <li class="list-group-item">
-                <h4>COEXIST input scores</h4>
+                <h4>MUC input scores</h4>
                 {{ the_div.heat_coexist|safe }}
             </li>
             <li class="list-group-item">
-                <h4>Cell's COEXIST score distribution</h4>
-                {{ the_div.hist_coexist|safe }}
-            </li>
-            <li class="list-group-item">
-                <h4>COEXIST score by co-use</h4>
+                <h4>MUC score by co-use</h4>
                 {{ the_div.heat_couses|safe }}
             </li>
             <li>
@@ -140,7 +152,7 @@
     {% if 'ci' in tools %}
     <div class="row">
         <div class="col-md-12">
-            <h4>Cumulative Impact Analysis</h4>
+            <h4>CEA Analysis</h4>
             {% if user.is_superuser %}
             <li class="list-group-item">
                 <h4>Input sensitivities</h4>
@@ -148,15 +160,11 @@
             </li>
             {% endif %}
             <li class="list-group-item">
-                <h4>Cell's CI score distribution</h4>
-                {{ the_div.hist_ci|safe }}
-            </li>
-            <li class="list-group-item">
-                <h4>Cumulative Impact Score by Uses</h4>
+                <h4>CEA Score by Uses</h4>
                 {{ the_div.bar_ci_uses|safe }}
             </li>
             <li class="list-group-item">
-                <h4>Cumulative Impact Score by Environmental Components</h4>
+                <h4>CEA Score by Environmental Components</h4>
                 {{ the_div.bar_ci_envs|safe }}
             </li>
         </div>
@@ -205,7 +213,7 @@ var gridLayer = new ol.layer.Tile({
             'TILED': true
         }
     }),
-    opacity: 0.5
+    opacity: 1. //0.5
 })
 {% endif %}
 

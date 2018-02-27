@@ -625,18 +625,44 @@ def layers_to_raster(layers, grid, column=None, compute_area=False, value=1.):
     return raster
 
 
-def layer_to_raster(l, grid=None, **kwargs):
+def layer_to_raster(l, grid=None, res=None, **kwargs):
     if isinstance(l, int):
         l = Layer.objects.get(pk=l)
 
     gdf = None
+
     if hasattr(l, 'name'):
+        if l.typename == 'geonode:traffic_density_2014':
+            _r = rg.read_raster('/var/www/geonode/uploaded/layers/traffic_density_2014.tif')
+            raster = grid.copy()
+            raster.reproject(_r)
+            raster.positive()
+            print "OLD TRAFFIC"
+            return raster
+        elif l.typename == 'geonode:traffic_density_lines_gener_2014_2015_ais_3857_nocolor':
+            _r = rg.read_raster('/var/www/geonode/uploaded/layers/traffic_density_lines_gener_2014_2015_ais_3857_nocolor.tiff')
+            raster = grid.copy()
+            raster.reproject(_r.astype(np.float))
+            raster.positive()
+            print "NEW TRAFFIC"
+            return raster
+        elif l.name in ['lba_pressure_plume_threshold',
+                        'lba_pressure_om',
+                        'lba_pressure_nptot']:
+            _r = rg.read_raster('/var/www/geonode/uploaded/layers/{}.tiff'.format(l.name), masked=True)
+            _r[:] = _r.filled(0)
+            raster = grid.copy()
+            raster.reproject(_r)
+            return raster
         if not l.is_vector():
             raise Exception("RASTER is not implemented")
         gdf = get_df(l.name)
     elif isinstance(l, str) or isinstance(l, unicode):
         gdf = get_df(l)
-    raster = rg.read_df_like(grid, gdf, **kwargs)
+    if grid is not None:
+        raster = rg.read_df_like(grid, gdf, **kwargs)
+    else:
+        raster = rg.read_df(gdf, res, **kwargs)
     return raster
 
 
@@ -847,6 +873,30 @@ def get_abruzzo_molise_adriatic_apulia_grid(to_srs):
     return rg.read_features(geos, 1000, 3035, eea=True)
 
 
+def get_conflict_by_uses(use1, use2):
+    if isinstance(use1, int):
+        use1 = ActivityAndUse.objects.get(pk=use1)
+    if isinstance(use2, int):
+        use2 = ActivityAndUse.objects.get(pk=use2)
+
+    vscale1 = use1.vertical_scale.value
+    vscale2 = use2.vertical_scale.value
+    # Rule 1
+    if vscale1 != 3 and vscale2 != 3 and vscale1 != vscale2:
+        return 0
+    mobility1 = use1.mobility.value
+    mobility2 = use2.mobility.value
+    spatial1 = use1.spatial_scale.value
+    spatial2 = use2.spatial_scale.value
+    time1 = use1.time_scale.value
+    time2 = use2.time_scale.value
+    # Rule 2
+    if mobility1 and mobility2:
+        return min(spatial1, spatial2) + min(time1, time2)
+    # Rule 3
+    return max(spatial1, spatial2) + max(time1, time2)
+
+
 def get_sensitivities_by_rule(use, env):
     if isinstance(use, int):
         use = ActivityAndUse.objects.get(pk=use)
@@ -925,8 +975,9 @@ def raster_file_upload(filepath, **kwargs):
 
 
 def get_sld(data, name):
-    maxvalue = data.max()
-    return RASTER_SLD.format(name=name, maxvalue=maxvalue)
+    vmax = data.max()
+    vmean = vmax / 2.
+    return RASTER_SLD.format(name=name, vmax=vmax, vmean=vmean)
 
 RASTER_SLD = """<?xml version="1.0" encoding="UTF-8"?>
 <sld:StyledLayerDescriptor xmlns="http://www.opengis.net/sld" xmlns:sld="http://www.opengis.net/sld" xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml" version="1.0.0">
@@ -941,10 +992,11 @@ RASTER_SLD = """<?xml version="1.0" encoding="UTF-8"?>
           <RasterSymbolizer>
           <Opacity>1.0</Opacity>
             <ColorMap type="ramp">
-              <ColorMapEntry opacity="0" color="#ffffb2" quantity="0"/>
-              <ColorMapEntry color="#ffffb2" quantity="0.00001"/>
-              <ColorMapEntry color="#bd0026" quantity="{maxvalue}"/>
-              <ColorMapEntry opacity="0" color="#bd0026" quantity="{maxvalue}"/>
+              <ColorMapEntry opacity="0" color="#0000ff" quantity="0"/>
+              <ColorMapEntry color="#0000ff" quantity="0.00001"/>
+              <ColorMapEntry color="#ffff00" quantity="{vmean}"/>
+              <ColorMapEntry color="#ff0000" quantity="{vmax}"/>
+              <ColorMapEntry opacity="0" color="#ff0000" quantity="{vmax}"/>
           </ColorMap>
           </RasterSymbolizer>
         </sld:Rule>

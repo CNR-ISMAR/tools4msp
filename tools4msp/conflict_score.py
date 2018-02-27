@@ -50,6 +50,10 @@ class ConflictScoreMixin(object):
         for _use1, _use2 in itertools.combinations(alluses_iter, 2):
             use1id, use1 = _use1
             use2id, use2 = _use2
+
+            if uses is not None and use1id not in uses and use2id not in uses:
+                continue
+
             score = self.get_coexist_score(use1id, use2id)
             if intensity:
                 l1 = use1.layer
@@ -67,6 +71,7 @@ class ConflictScoreMixin(object):
                 _score.mask = outputmask
 
             coexist += _score
+
             couses_data.append([use1.label,
                                 use2.label,
                                 _score.sum(),
@@ -93,6 +98,6 @@ class ConflictScoreMixin(object):
 
     def dump_outputs(self):
         if 'coexist' in self.outputs:
-            self.outputs['coexist'].write_raster(self.get_outpath('coexist.tiff'))
+            self.outputs['coexist'].write_raster(self.get_outpath('coexist.tiff'), dtype='float32')
         if 'coexist_couses_df' in self.outputs:
             self.outputs['coexist_couses_df'].to_csv(self.get_outpath('coexist_couses_df.csv'))

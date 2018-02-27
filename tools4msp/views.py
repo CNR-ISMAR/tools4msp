@@ -45,6 +45,9 @@ from os import path
 from os import makedirs
 
 from msptools.cumulative_impact.models import CICaseStudy, Sensitivity, EnvironmentalComponent, Pressure
+
+from .models import CaseStudy as CaseStudyModel
+
 from .models import CaseStudyRun
 from .utils import raster_file_upload
 
@@ -105,6 +108,8 @@ class Tools4MPSBaseView(ContextMixin):
             self.tool_label = 'Cumulative Impact'
         elif self.tool == 'coexist':
             self.tool_label = 'COEXIST'
+        elif self.tool == 'mes':
+            self.tool_label = 'Marine Ecosystem Services'
 
         return super(Tools4MPSBaseView, self).dispatch(request, *args, **kwargs)
 
@@ -119,7 +124,8 @@ class Tools4MPSBaseView(ContextMixin):
 
 
 class CaseStudyListView(ListView, Tools4MPSBaseView):
-    model = CICaseStudy
+    # model = CICaseStudy
+    model = CaseStudyModel
 
     # def get_context_data(self, **kwargs):
     #     context = super(CaseStudyListView, self).get_context_data(**kwargs)
@@ -133,12 +139,14 @@ class CaseStudyListView(ListView, Tools4MPSBaseView):
 
     def get_queryset(self):
         tool = self.tool
-        qs = CICaseStudy.objects.filter(tools4msp=True)
+        qs = self.model.objects.filter(tools4msp=True)
 
         if tool == 'coexist':
             qs = qs.filter(tool_coexist=True)
         if tool == 'ci':
             qs = qs.filter(tool_ci=True)
+        if tool == 'mes':
+            qs = qs.filter(tool_mes=True)
         if self.request.user.is_superuser:
             return qs
         return qs.filter(is_published=True)
@@ -168,30 +176,45 @@ class CaseStudyRunConfigurationView(TemplateView, Tools4MPSBaseView):
 
     def get_context_data(self, **kwargs):
         context = super(CaseStudyRunConfigurationView, self).get_context_data(**kwargs)
-        cs = CICaseStudy.objects.get(pk=self.id)
-        guses = cs._group_uses()
-        genvs = cs._group_envs()
-        uses = json.dumps([{'id': guse.id,
-                            'label': guse.label,
+        # cs = CICaseStudy.objects.get(pk=self.id)
+        cs = CaseStudyModel.objects.get(pk=self.id)
+        # get grid. layer
+        grid_layer = cs.grid_dataset.get_layers_qs()[0]
+        grid_typename = grid_layer.typename
+        guses = cs.casestudyuse_set.all()
+        genvs = cs.casestudyenv_set.all()
+        pressures_list = cs.get_pressures_list()
+
+        uses = json.dumps([{'id': guse.name.id,
+                            'label': guse.name.label,
                             'selected': True} for guse in guses ])
-        envs = json.dumps([{'id': genv.id,
-                            'label': genv.label,
+        envs = json.dumps([{'id': genv.name.id,
+                            'label': genv.name.label,
                             'selected': True} for genv in genvs ])
+        # TODO: get presseures from sensitivities and from extra pressure layers
+        press = json.dumps([{'id': p.id,
+                            'label': p.label,
+                            'selected': True} for p in pressures_list])
         context['cs'] = cs
         context['uses'] = uses
         context['envs'] = envs
+        context['press'] = press
+        context['grid_typename'] = grid_typename
         return context
 
 
 @login_required
 def casestudy_run_save(request, tool, id):
+    a = request.body
     body = json.loads(request.body)
     uses = body['uses']
     envs = body['envs']
+    press = body['press']
     area = body.get('area', None)
     tools = body.get('tools', [])
 
-    cs = CICaseStudy.objects.get(pk=id)
+    # cs = CICaseStudy.objects.get(pk=id)
+    cs = CaseStudyModel.objects.get(pk=id)
     csr = CaseStudyRun(casestudy=cs)
     csr.owner = request.user
     # TODO: da ripristinare
@@ -200,7 +223,8 @@ def casestudy_run_save(request, tool, id):
 
     # temporary configuration
     conf = {'uses': uses,
-            'envs': envs}
+            'envs': envs,
+            'press': press}
     if area is not None:
         conf['geometry'] = json.loads(area)['geometry']
     csr.configuration = conf
@@ -211,7 +235,8 @@ def casestudy_run_save(request, tool, id):
         geo = geometry.shape(json.loads(area)['geometry'])
         geo3035 = rg.transform(geo, 3857, 3035)
         # analysis area
-        aoi = rg.read_features([(geo3035, 1)], 10000, 3035, eea=True)
+        res = cs.grid_resolution
+        aoi = rg.read_features([(geo3035, 1)], res, 3035, eea=True)
 
     # area_geojson =
     # a.aa
@@ -224,6 +249,7 @@ def casestudy_run_save(request, tool, id):
     for u in envs:
         c.load_layers("e{}".format(u))
 
+    pressures = ["p{}".format(p) for p in press]
     c.load_inputs()
 
     _grid = c.grid.copy()
@@ -235,9 +261,9 @@ def casestudy_run_save(request, tool, id):
 
     layer = None
     if 'ci' in tools:
-        c.cumulative_impact(outputmask=_grid == 0)
+        c.cumulative_impact(outputmask=_grid == 0, pressures=pressures)
         _cia = c.outputs['ci']
-
+        # _cia.unmask(0)
         # set original extension
         if area is not None:
             cia = aoi.copy()
@@ -249,7 +275,7 @@ def casestudy_run_save(request, tool, id):
             # temp dir
             _tempdir = tempfile.mkdtemp()
             filepath = _tempdir + '/' + c.get_outfile('ci.tiff')
-            cia.write_raster(filepath)
+            cia.write_raster(filepath, dtype='float32', nodata=-9999)
             layer, style = raster_file_upload(filepath, user=request.user)
             layer.is_published = True
             layer.save()
@@ -269,7 +295,7 @@ def casestudy_run_save(request, tool, id):
             # temp dir
             _tempdir = tempfile.mkdtemp()
             filepath = _tempdir + '/' + c.get_outfile('coexist.tiff')
-            coexista.write_raster(filepath, nodata=-1)
+            coexista.write_raster(filepath, dtype='float32', nodata=-9999)
             layer, style = raster_file_upload(filepath, user=request.user)
             layer.is_published = True
             layer.save()
@@ -315,7 +341,8 @@ class CaseStudyRunView(TemplateView, Tools4MPSBaseView):
         id = self.id
         rid = self.rid
 
-        cs = CICaseStudy.objects.get(pk=id)
+        # cs = CICaseStudy.objects.get(pk=id)
+        cs = CaseStudyModel.objects.get(pk=id)
         csr = CaseStudyRun.objects.get(pk=rid)
         c = CaseStudy(None, '/var/www/geonode/static/cumulative_impact',
                       id, rtype="r{}".format(rid))
@@ -339,8 +366,8 @@ class CaseStudyRunView(TemplateView, Tools4MPSBaseView):
             a.columns = ['use1', 'use2', 'score']
             uselabels = _layers[['lid', 'label']]
 
-            _a = pd.merge(pd.merge(a, uselabels, how="left", left_on='use1', right_on='lid'),
-                          uselabels, how="left", left_on='use2', right_on='lid')
+            _a = pd.merge(pd.merge(a, uselabels, how="inner", left_on='use1', right_on='lid'),
+                          uselabels, how="inner", left_on='use2', right_on='lid')
 
             hover = HoverTool(
                 tooltips=[
@@ -370,7 +397,7 @@ class CaseStudyRunView(TemplateView, Tools4MPSBaseView):
             plots['hist_ci'] = Histogram(cia[cia > 0],
                                          xlabel="Cell's CI score",
                                          ylabel="Number of cells",
-                                         bins=20)
+                                         bins=20, plot_width=330, plot_height=300)
 
             use_score_df = ciscores.groupby('uselabel').sum()[['score']]
             env_score_df = ciscores.groupby('envlabel').sum()[['score']]
