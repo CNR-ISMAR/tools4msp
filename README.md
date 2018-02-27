@@ -9,4 +9,3 @@ integrated GeoNode Plugin providing additional functionalities to
 geospatial CMS and enhancing usability through a graphical user
 interface (GUI).
 
-## Tools to support Maritime Spatial Planning.
