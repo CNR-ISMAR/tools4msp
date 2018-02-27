@@ -96,7 +96,7 @@ class CumulativeImpactMixin(object):
         # cienv_uses = {}
         cienv_pressures_uses = {}
 
-        for sid, s in self.sensitivities.sort(['envid', 'presid']).iterrows():
+        for sid, s in self.sensitivities.sort_values(['envid', 'presid']).iterrows():
             if uses is not None and s.useid not in uses:
                 continue
             if envs is not None and s.envid not in envs:
@@ -412,9 +412,9 @@ class CumulativeImpactMixin(object):
 
     def load_inputs(self):
         try:
-            self.sensitivities = pd.DataFrame.from_csv(self.get_outpath('cisensitivities.csv'))
+            self.sensitivities = pd.read_csv(self.get_outpath('cisensitivities.csv'), index_col=0)
         except IOError:
-            self.sensitivities = pd.DataFrame.from_csv(self.get_outpath('cisensitivities.csv', rtype='full'))
+            self.sensitivities = pd.read_csv(self.get_outpath('cisensitivities.csv', rtype='full'), index_col=0)
         if 'nrf' not in self.sensitivities.columns:
             self.sensitivities['nrf'] = None
         if 'nrf' not in self.sensitivities.columns:

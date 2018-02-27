@@ -92,9 +92,9 @@ class ConflictScoreMixin(object):
 
     def load_inputs(self):
         try:
-            self.coexist_scores = pd.DataFrame.from_csv(self.get_outpath('coexist_scores.csv'))
+            self.coexist_scores = pd.read_csv(self.get_outpath('coexist_scores.csv'), index_col=0)
         except IOError:
-            self.coexist_scores = pd.DataFrame.from_csv(self.get_outpath('coexist_scores.csv', rtype='full'))
+            self.coexist_scores = pd.read_csv(self.get_outpath('coexist_scores.csv', rtype='full'), index_col=0)
 
     def dump_outputs(self):
         if 'coexist' in self.outputs:
