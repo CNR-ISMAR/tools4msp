@@ -10,22 +10,26 @@ import operator
 import scipy
 import pandas as pd
 import rectifiedgrid as rg
-from rasterio.warp import reproject, RESAMPLING
+from rasterio.warp import reproject
 
-from geonode.base.models import DataAvailabilityArea
-from msptools.conflict_score.models import ActivityAndUse
-from msptools.cumulative_impact.models import CICaseStudy, Sensitivity, EnvironmentalComponent, Pressure
-from geonode.layers.models import Layer
-from msptools.base.utils import get_model
+try:
+    from geonode.base.models import DataAvailabilityArea
+    from msptools.conflict_score.models import ActivityAndUse
+    from msptools.cumulative_impact.models import CICaseStudy, Sensitivity, EnvironmentalComponent, Pressure
+    from geonode.layers.models import Layer
+    from msptools.base.utils import get_model
+    from mamat import CumulativeImpact
+    from geonode.layers.utils import file_upload
+    from geonode.geoserver.helpers import gs_catalog
+    from djsld import generator
+except ImportError:
+    pass
+
 from shapely.geometry import shape
 from geopandas import GeoDataFrame
 from django.db.transaction import get_connection
-from mamat import CumulativeImpact
 import matplotlib.pyplot as plt
-from geonode.layers.utils import file_upload
-from geonode.geoserver.helpers import gs_catalog
 
-from djsld import generator
 
 from .casestudy import CaseStudy
 
