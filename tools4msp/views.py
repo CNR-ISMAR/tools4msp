@@ -105,9 +105,9 @@ class Tools4MPSBaseView(ContextMixin):
         self.rid = kwargs.get('rid', None)
 
         if self.tool == 'ci':
-            self.tool_label = 'Cumulative Impact'
+            self.tool_label = 'Cumulative Effects Assessment'
         elif self.tool == 'coexist':
-            self.tool_label = 'COEXIST'
+            self.tool_label = 'Maritime Use Conflict'
         elif self.tool == 'mes':
             self.tool_label = 'Marine Ecosystem Services'
 
@@ -360,7 +360,8 @@ class CaseStudyRunView(TemplateView, Tools4MPSBaseView):
             plots['hist_coexist'] = Histogram(coexista[coexista > 0],
                                               xlabel="Cell's Coexist score",
                                               ylabel="Number of cells",
-                                              bins=20)
+                                              bins=20,
+                                              plot_width=330, plot_height=300)
 
             a = coexist_scores.unstack().reset_index()
             a.columns = ['use1', 'use2', 'score']
@@ -397,7 +398,8 @@ class CaseStudyRunView(TemplateView, Tools4MPSBaseView):
             plots['hist_ci'] = Histogram(cia[cia > 0],
                                          xlabel="Cell's CI score",
                                          ylabel="Number of cells",
-                                         bins=20, plot_width=330, plot_height=300)
+                                         bins=20,
+                                         plot_width=330, plot_height=300)
 
             use_score_df = ciscores.groupby('uselabel').sum()[['score']]
             env_score_df = ciscores.groupby('envlabel').sum()[['score']]
