@@ -152,7 +152,7 @@ class CaseStudy(CumulativeImpactMixin, ConflictScoreMixin):
         mddf = self.layers[['lid', 'label', 'msptype', 'ltype',]]
         mddf.to_csv(self.datadir + 'layersmd.csv')
 
-    def load_layers(self, lid=None):
+    def load_layers(self, lid=None, availability=False):
         """Load the layers from 'datadir' directory."""
         if self.datadir is None:
             raise Exception("datadir is not configured: cannot load the data")
@@ -160,13 +160,13 @@ class CaseStudy(CumulativeImpactMixin, ConflictScoreMixin):
         # read metadata
         columns = ['lid', 'label', 'msptype', 'ltype', 'layer',
                    'source', 'availability']
-        _layers = pd.DataFrame.from_csv(self.datadir + 'layersmd.csv')
+        _layers = pd.read_csv(self.datadir + 'layersmd.csv', index_col=0)
 
         if lid is not None:
             layer = _layers.loc[lid]
-            try:
+            if availability:
                 raster = self.read_raster('av_' + lid)
-            except:
+            else:
                 raster = None
             self.add_layer(self.read_raster(lid),
                            layer.msptype,
@@ -176,9 +176,9 @@ class CaseStudy(CumulativeImpactMixin, ConflictScoreMixin):
             return True
 
         for lid, layer in _layers.iterrows():
-            try:
+            if availability:
                 raster = self.read_raster('av_' + lid)
-            except:
+            else:
                 raster = None
             self.add_layer(self.read_raster(lid),
                            layer.msptype,
