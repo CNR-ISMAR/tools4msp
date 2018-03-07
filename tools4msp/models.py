@@ -241,7 +241,7 @@ class Dataset(models.Model):
 
     def get_resources_urls(self):
         urls = []
-        for l in self.get_layers_qs:
+        for l in self.get_layers_qs():
             urls.append((l.get_absolute_url(),
                          l.title))
         return urls
