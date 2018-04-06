@@ -14,6 +14,7 @@ from .utils import layer_to_raster, get_sensitivities_by_rule, get_conflict_by_u
 from .casestudy import CaseStudy as CS
 import itertools
 
+
 DATASET_TYPE_CHOICES = (
     ('grid', 'Grid'),
     ('use', 'Activity & Uses'),
@@ -51,6 +52,14 @@ class CaseStudy(models.Model):
 
     def __unicode__(self):
         return self.label
+
+    class Meta:
+        verbose_name_plural = "Case studies"
+        permissions = (
+            ('view_casestudy', 'View case study'),
+            ('download_casestudy', 'Download case study'),
+            ('run_casestudy', 'Run case study'),
+        )
 
     def get_CS(self):
         if self.CS is not None:
