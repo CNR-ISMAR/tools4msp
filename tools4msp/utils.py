@@ -148,20 +148,20 @@ def get_use_raster(ci_id, use, grid):
     elif (ci_id == 15 or ci_id == 16) and use.label == 'Military Areas':
         raster = layers_to_raster(use_layers, grid, compute_area=False)
         raster[~scipy.ndimage.binary_erosion(raster)] = 0
-        raster.gaussian_filter(2000 / grid.resolution, truncate=3.0)
+        raster.gaussian_conv(2000, truncate=3.0)
         raster = raster / 3. # come in andersen
         return raster
     elif (ci_id == 18) and use.label == 'Military Areas':
         print "Process military areas 2"
         raster = layers_to_raster(use_layers, grid, compute_area=False)
         # raster[~scipy.ndimage.binary_erosion(raster)] = 0
-        # raster.gaussian_filter(2000 / grid.resolution, truncate=3.0)
+        # raster.gaussian_conv(2000, truncate=3.0)
         raster = raster / 3. # come in andersen
         return raster
     elif ci_id == 15 and use.label == 'Oil & Gas research':
         raster = layers_to_raster(use_layers, grid, compute_area=False)
         raster[~scipy.ndimage.binary_erosion(raster)] = 0
-        raster.gaussian_filter(2000 / grid.resolution, truncate=3.0)
+        raster.gaussian_conv(2000, truncate=3.0)
         raster = raster / 3. # come in andersen
         return raster
     elif ci_id == 15 and use.label == 'Oil & Gas extraction':
@@ -375,7 +375,7 @@ def get_naval_base_activities(grid):
 
     buffer = 10000
     r1 = layers_to_raster([l1], grid, 'ports_CLAS')
-    r1.gaussian_filter(buffer / grid.resolution, truncate=3.0)
+    r1.gaussian_conv(buffer, truncate=3.0)
     r1.norm()
     return r1
 
@@ -404,11 +404,11 @@ def get_coastal_and_maritime_tourism(grid):
     # si suppone un media di 200 barche
     buffer = 20000
     r1 = layers_to_raster([l1], grid, 'ORIG_FID', value=200)
-    r1.gaussian_filter(buffer / grid.resolution / 2., truncate=3.0)
+    r1.gaussian_conv(buffer / 2., truncate=3.0)
 
     r2 = layers_to_raster([l2], grid, 'barche', value=200)
 
-    r2.gaussian_filter(buffer / grid.resolution / 2., truncate=3.0)
+    r2.gaussian_conv(buffer / 2., truncate=3.0)
 
     r12 = r1 + r2
     r12.lognorm()
@@ -419,7 +419,7 @@ def get_ray(grid):
     l = Layer.objects.get(name='giantdevilray_count')
     raster = layers_to_raster([l], grid, 'count')
     raster.norm()
-    raster.gaussian_filter(2500 / grid.resolution, truncate=3.0)
+    raster.gaussian_conv(2500, truncate=3.0)
     return raster
 
 
@@ -427,7 +427,7 @@ def get_turtles(grid):
     l = Layer.objects.get(name='loggerheadturtles_gridcount')
     raster = layers_to_raster([l], grid, 'turtle_c')
     raster.norm()
-    raster.gaussian_filter(2500 / grid.resolution, truncate=3.0)
+    raster.gaussian_conv(2500, truncate=3.0)
     return raster
 
 
@@ -435,7 +435,7 @@ def get_marine_mammals(grid):
     l = Layer.objects.get(name='marinemammals_gridcount_1')
     raster = layers_to_raster([l], grid, 'count')
     raster.norm()
-    raster.gaussian_filter(2500 / grid.resolution, truncate=3.0)
+    raster.gaussian_conv(2500, truncate=3.0)
     return raster
 
 

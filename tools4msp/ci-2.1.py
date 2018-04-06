@@ -160,7 +160,7 @@ class CumulativeImpactMixin(object):
                     # convolution
                     max_value = _use_layer.layer.max()
                     pressure_layer = _use_layer.layer.copy()
-                    pressure_layer.gaussian_filter(s.distance / self.grid.resolution / 2., truncate=3.)
+                    pressure_layer.gaussian_conv(s.distance / 2., truncate=3.)
                     if pressure_layer.max() != 0.: # TODO spostare il controllo nella funzione norm()
                         pressure_layer = pressure_layer.norm() * max_value
                 else:
@@ -395,7 +395,7 @@ class CumulativeImpactMixin(object):
             if not ispressure and _use_layer is not None and _env_layer is not None:
                 print s.uselabel, s.envlabel, s.preslabel, s.distance, s.score
                 use_layer = _use_layer.layer.copy()
-                ci.gaussian_filter(s.distance / self.grid.resolution / 2., truncate=3.)
+                ci.gaussian_conv(s.distance / 2., truncate=3.)
 
                 _bci = use_layer * ci * s.score
                 print _bci.sum()
