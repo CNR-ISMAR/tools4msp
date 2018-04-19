@@ -5,7 +5,6 @@ matplotlib.use('agg')
 import matplotlib.pyplot as plt
 from django.contrib.gis.db import models
 from geonode.layers.models import Layer
-from msptools.cumulative_impact.models import CICaseStudy
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from jsonfield import JSONField
