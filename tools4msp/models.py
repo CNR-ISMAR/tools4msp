@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-
+2
 import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
@@ -23,6 +23,13 @@ DATASET_TYPE_CHOICES = (
 )
 
 TOOLS4MSP_BASEDIR = '/var/www/geonode/static/cumulative_impact'
+
+
+class Context(models.Model):
+    """Model for storing information on data context."""
+    label = models.CharField(max_length=100)
+    description = models.CharField(max_length=200, null=True, blank=True)
+    reference_date = models.DateField(auto_now_add=True)
 
 
 class CaseStudy(models.Model):
@@ -358,7 +365,6 @@ class CaseStudyPressure(CaseStudyDataset):
 
 
 class CaseStudyRun(models.Model):
-    # casestudy = models.ForeignKey(CICaseStudy)
     casestudy = models.ForeignKey(CaseStudy)
     name = models.CharField(max_length=100, blank=True, null=True)
     out_ci = models.ForeignKey(Layer, blank=True, null=True, related_name='casestudyrun_ci')
