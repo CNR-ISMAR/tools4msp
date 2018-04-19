@@ -221,6 +221,25 @@ class Env(models.Model):
         ordering = ['label']
 
 
+class Weight(models.Model):
+    """Model for storing use-specific relative pressure weights.
+    """
+    use = models.ForeignKey(Use)
+    pressure = models.ForeignKey(Pressure)
+    weight = models.FloatField()
+    context = models.ForeignKey(Context)
+
+
+class Sensitivity(models.Model):
+    """Model for storing sensitivities of the environmental components to
+    the pressures.
+    """
+    pressure = models.ForeignKey(Pressure)
+    env = models.ForeignKey(Env)
+    sensitivity = models.FloatField()
+    context = models.ForeignKey(Context)
+
+
 class Dataset(models.Model):
     slug = models.SlugField(max_length=100)
     label = models.CharField(max_length=100)
