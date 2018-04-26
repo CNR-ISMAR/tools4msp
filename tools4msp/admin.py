@@ -3,7 +3,32 @@ from django.contrib.gis import admin
 from guardian.admin import GuardedModelAdmin
 from .models import Env, Use, Pressure, CaseStudy, \
     CaseStudyUse, CaseStudyEnv, CaseStudyPressure, \
-    Dataset, ESCapacity, CaseStudyRun
+    Dataset, ESCapacity, CaseStudyRun, Weight, Sensitivity, \
+    Context
+
+
+class ContextAdmin(admin.ModelAdmin):
+    model = Context
+
+admin.site.register(Context, ContextAdmin)
+
+
+class WeightAdmin(admin.ModelAdmin):
+    model = Weight
+    list_display = ['context', 'use', 'pressure',
+                    'weight', 'distance']
+    list_filter = ['context', 'use', 'pressure']
+
+admin.site.register(Weight, WeightAdmin)
+
+
+class SensitivityAdmin(admin.ModelAdmin):
+    model = Sensitivity
+    list_display = ['context', 'pressure',
+                    'env', 'sensitivity']
+    list_filter = ['context', 'pressure', 'env']
+
+admin.site.register(Sensitivity, SensitivityAdmin)
 
 
 class CaseStudyDatasetInline(admin.TabularInline):
