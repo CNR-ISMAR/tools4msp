@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-2
+
 import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
@@ -12,6 +12,7 @@ from .expression import Expression
 from .utils import layer_to_raster, get_sensitivities_by_rule, get_conflict_by_uses
 from .casestudy import CaseStudy as CS
 import itertools
+import datetime
 
 
 DATASET_TYPE_CHOICES = (
@@ -28,7 +29,10 @@ class Context(models.Model):
     """Model for storing information on data context."""
     label = models.CharField(max_length=100)
     description = models.CharField(max_length=200, null=True, blank=True)
-    reference_date = models.DateField(auto_now_add=True)
+    reference_date = models.DateField(default=datetime.date.today)
+
+    def __unicode__(self):
+        return self.label
 
 
 class CaseStudy(models.Model):
@@ -227,7 +231,12 @@ class Weight(models.Model):
     use = models.ForeignKey(Use)
     pressure = models.ForeignKey(Pressure)
     weight = models.FloatField()
+    distance = models.FloatField(default=0)
     context = models.ForeignKey(Context)
+
+    def __unicode__(self):
+        return u"{}: {} - {}".format(self.context, self.use,
+                                          self.pressure)
 
 
 class Sensitivity(models.Model):
@@ -238,6 +247,12 @@ class Sensitivity(models.Model):
     env = models.ForeignKey(Env)
     sensitivity = models.FloatField()
     context = models.ForeignKey(Context)
+
+    def __unicode__(self):
+        return u"%s" % self.label
+
+    class Meta:
+        verbose_name_plural = "Sensitivities"
 
 
 class Dataset(models.Model):
@@ -425,6 +440,9 @@ class ESCapacity(models.Model):
                    'non_use_ethical_values_iconic_species']
     supporting_gr = ['photosynthesis', 'nutrient_cycling',
                      'nursery', 'biodiversity']
+
+    class Meta:
+        verbose_name_plural = "ES Capacities"
 
     def get_capacity(self, group=None):
         val = 0
