@@ -236,7 +236,7 @@ class Weight(models.Model):
 
     def __unicode__(self):
         return u"{}: {} - {}".format(self.context, self.use,
-                                          self.pressure)
+                                     self.pressure)
 
 
 class Sensitivity(models.Model):
@@ -249,7 +249,8 @@ class Sensitivity(models.Model):
     context = models.ForeignKey(Context)
 
     def __unicode__(self):
-        return u"%s" % self.label
+        return u"{}: {} - {}".format(self.context, self.pressure,
+                                     self.env)
 
     class Meta:
         verbose_name_plural = "Sensitivities"
