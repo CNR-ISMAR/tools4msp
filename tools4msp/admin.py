@@ -31,9 +31,15 @@ class SensitivityAdmin(admin.ModelAdmin):
 admin.site.register(Sensitivity, SensitivityAdmin)
 
 
+class PressureAdmin(admin.ModelAdmin):
+    model = Pressure
+
+admin.site.register(Pressure, PressureAdmin)
+
+
 class CaseStudyDatasetInline(admin.TabularInline):
-    fields = ('name', 'dataset', 'thumbnail_tag', 'dataset_urls_tag')
-    readonly_fields = ('thumbnail_tag', 'dataset_urls_tag')
+    fields = ('name', 'dataset', 'thumbnail_tag', 'expression_tag', 'dataset_urls_tag')
+    readonly_fields = ('thumbnail_tag', 'expression_tag', 'dataset_urls_tag')
     # exclude = ('description',)
     # ordering = ('name__label',)
 
@@ -53,9 +59,12 @@ class CaseStudyPressureInline(CaseStudyDatasetInline):
 class CaseStudyAdmin(GuardedModelAdmin):
     list_display = ['label', 'tools4msp', 'is_published',
                     'tool_coexist', 'tool_ci', 'tool_mes']
-    # readonly_fields = ['html_layer_url']
+    readonly_fields = ['thumbnail_tag']
     fields = ('label', 'description',
-              'grid_resolution', 'grid_dataset', 'grid_output', 'tools4msp', 'is_published',
+              'grid_resolution',
+              ('grid_dataset', 'thumbnail_tag'),
+              # 'grid_output',
+              'tools4msp', 'is_published',
               ('tool_coexist', 'tool_ci', 'tool_mes')) #, 'area_of_interest']
     inlines = [
         CaseStudyUseInline,

@@ -44,8 +44,11 @@ class CaseStudy(models.Model):
                                        help_text=_('Should this Case Study be published?'))
     tools4msp = models.BooleanField(_("Tools4MSP Case Study"), default=False,
                                     help_text=_('Is this a Tools4MSP Case Study?'))
-    grid_dataset = models.ForeignKey("Dataset", blank=True, null=True)
-    grid_output = models.ForeignKey("Dataset", blank=True, null=True, related_name="casestudy_output")
+    grid_dataset = models.ForeignKey("Dataset", blank=True, null=True,
+                                     verbose_name="Area of analysis")
+    grid_output = models.ForeignKey("Dataset", blank=True, null=True,
+                                    related_name="casestudy_output",
+                                    verbose_name="")
     tool_coexist = models.BooleanField()
     tool_ci = models.BooleanField()
     tool_mes = models.BooleanField()
@@ -94,7 +97,9 @@ class CaseStudy(models.Model):
         for d in self.casestudypressure_set.all():
             d.update_dataset()
         self.sync_coexist_scores()
+        self.sync_weights()
         self.sync_sensitivities()
+        self.sync_pres_sensitivities()
         cs.dump_inputs()
         cs.dump_layers()
 
@@ -128,6 +133,38 @@ class CaseStudy(models.Model):
 
         return pressures
 
+    # new structure
+    def sync_weights(self):
+        cs = self.get_CS()
+        cs.weights = cs.weights[0:0]  # empty
+        uses = self.casestudyuse_set.all()
+        for csuse in uses:
+            use = csuse.name
+            for w in Weight.objects.filter(use=use):
+                # print use, w
+                cs.add_weights(
+                    'u{}'.format(use.id),
+                    use.label,
+                    'p{}'.format(w.pressure.id),
+                    w.pressure.label,
+                    w.weight, w.distance)
+
+    def sync_pres_sensitivities(self):
+        cs = self.get_CS()
+        cs.pres_sensitivities = cs.pres_sensitivities[0:0]  # empty
+        envs = self.casestudyenv_set.all()
+        for cenv in envs:
+            env = cenv.name
+            for s in Sensitivity.objects.filter(env=env):
+                # print use, w
+                cs.add_pres_sensitivities(
+                    'p{}'.format(s.pressure.id),
+                    s.pressure.label,
+                    'e{}'.format(s.env.id),
+                    s.env.label,
+                    s.sensitivity)
+
+    # old structure
     def sync_sensitivities(self):
         cs = self.get_CS()
         combs = self._get_combs()
@@ -159,7 +196,7 @@ class CaseStudy(models.Model):
 
         for use1, use2 in itertools.combinations(uses, 2):
             score = get_conflict_by_uses(use1, use2)
-            print score
+            # print score
             if use1 != use2:
                 u1 = Use.objects.get(pk=use1)
                 u2 = Use.objects.get(pk=use2)
@@ -190,6 +227,14 @@ class CaseStudy(models.Model):
     @property
     def thumbnail_url(self):
         return self.get_thumbnail_url()
+
+    def thumbnail_tag(self):
+        if self.thumbnail_url is not None:
+            return u'<img src="{}" width="200"/>'.format(self.thumbnail_url)
+        else:
+            return ''
+    thumbnail_tag.short_description = 'Thumbnail'
+    thumbnail_tag.allow_tags = True
 
 
 class Pressure(models.Model):
@@ -259,7 +304,7 @@ class Sensitivity(models.Model):
 class Dataset(models.Model):
     slug = models.SlugField(max_length=100)
     label = models.CharField(max_length=100)
-    expression = models.TextField(null=True, blank=True)
+    expression = models.TextField(null=True, blank=True, verbose_name="Pre-processing expression")
     dataset_type = models.CharField(max_length=5, choices=DATASET_TYPE_CHOICES)
 
     def __unicode__(self):
@@ -290,10 +335,10 @@ class Dataset(models.Model):
         return Layer.objects.filter(typename__in=layers)
 
     def get_resources_urls(self):
-        urls = []
+        urls = {}
         for l in self.get_layers_qs():
-            urls.append((l.get_absolute_url(),
-                         l.title))
+            urls[l.typename] = ((l.get_absolute_url(),
+                                 l.title))
         return urls
 
     def parse_expression(self):
@@ -309,10 +354,10 @@ class Dataset(models.Model):
     def urls_tag(self):
         urls = self.get_resources_urls()
         if len(urls) > 0:
-            return u', '.join(['<a href="{}">{}</a>'.format(u[0], u[1]) for u in urls])
+            return u'; '.join(['<a href="{}">{}</a>'.format(u[0], u[1].capitalize()) for k, u in urls.iteritems()])
         return ''
 
-    urls_tag.short_description = 'Resources'
+    urls_tag.short_description = 'Layers'
     urls_tag.allow_tags = True
 
 
@@ -350,7 +395,10 @@ class CaseStudyDataset(models.Model):
         out = cs.get_outpath('{}.png'.format(self.dataset.slug))
         print out
         plt.figure()
-        self.get_dataset().plot()
+        d = self.get_dataset()
+        grid = self.casestudy.get_grid()
+        d.mask = ~(grid > 0)
+        d.plot(cmap='jet')
 
         plt.savefig(out)
 
@@ -367,12 +415,20 @@ class CaseStudyDataset(models.Model):
     thumbnail_tag.short_description = 'Thumbnail'
     thumbnail_tag.allow_tags = True
 
+    def expression_tag(self):
+        if self.dataset is not None:
+            return self.dataset.expression
+        else:
+            return ''
+    expression_tag.short_description = 'Pre-processing expression'
+    expression_tag.allow_tags = True
+
     def dataset_urls_tag(self):
         if self.dataset is not None:
             return self.dataset.urls_tag()
         else:
             return ''
-    dataset_urls_tag.short_description = 'Involved layers'
+    dataset_urls_tag.short_description = 'Layers'
     dataset_urls_tag.allow_tags = True
 
 
