@@ -73,6 +73,11 @@ class CaseStudyAdmin(GuardedModelAdmin):
         ]
     save_as = True
 
+    class Media:
+        css = {
+            "all": ("tools4msp/css/admin.css",)
+        }
+
 
 class DatasetAdmin(admin.ModelAdmin):
     model = Dataset

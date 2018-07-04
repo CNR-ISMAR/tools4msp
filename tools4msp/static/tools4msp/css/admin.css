@@ -1,0 +1,5 @@
+.expression_tag div {
+    white-space: normal;
+    width: 300px;
+    overflow-wrap: break-word;
+}
