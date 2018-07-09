@@ -36,12 +36,12 @@ Tools4MSP is currenlty implemented into the Tools4MPS Geoplatform (http://data.t
 
 How to Cite
 ===========
-Please, when you use tools4MSP cite as:
+Please, when you use the Tools4MSP software cite it as:
 
 Menegon S, Sarretta A, Barbanti A, Gissi E, Venier C. (2016) Open
 source tools to support Integrated Coastal Management and Maritime
 Spatial Planning. PeerJ Preprints 4:e2245v2. doi: [10.5334/jors.106]
-(https://doi.org/10.7287/peerj.preprints.2245v2)
+(https://doi.org/10.7287/peerj.preprints.2245)
 
 The CEA model is fully described in:
 
