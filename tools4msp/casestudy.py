@@ -10,7 +10,7 @@ import rectifiedgrid as rg
 import json
 from rasterio.warp import reproject, RESAMPLING
 
-from .ci import CumulativeImpactMixin
+from .ci_2_1 import CumulativeImpactMixin
 from .ci_3_0 import CumulativeImpactMixin as CumulativeImpactMixin3
 from .conflict_score import ConflictScoreMixin
 

@@ -183,7 +183,7 @@ class CaseStudyRunConfigurationView(TemplateView, Tools4MPSBaseView):
         # cs = CICaseStudy.objects.get(pk=self.id)
         cs = CaseStudyModel.objects.get(pk=self.id)
         # get grid. layer
-        grid_layer = cs.grid_dataset.get_layers_qs()[0]
+        grid_layer = cs.grid.get_layers_qs()[0]
         grid_typename = grid_layer.typename
         guses = cs.casestudyuse_set.all()
         genvs = cs.casestudyenv_set.all()
