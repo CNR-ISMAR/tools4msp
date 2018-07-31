@@ -37,11 +37,26 @@ class PressureAdmin(admin.ModelAdmin):
 admin.site.register(Pressure, PressureAdmin)
 
 
-class CaseStudyDatasetInline(admin.TabularInline):
-    fields = ('name', 'dataset', 'thumbnail_tag', 'expression_tag', 'dataset_urls_tag')
-    readonly_fields = ('thumbnail_tag', 'expression_tag', 'dataset_urls_tag')
+# class CaseStudyDatasetInline(admin.TabularInline):
+# fields = ('name', 'dataset', 'thumbnail_tag', 'expression_tag', 'dataset_urls_tag')
+class CaseStudyDatasetInline(admin.StackedInline):
+    fields = ('name',
+              'dataset',
+              'expression',
+              'urls_tag',
+              'thumbnail_tag',
+              ('updated_tag', 'button'))
+    readonly_fields = ('thumbnail_tag', 'urls_tag', 'button', 'updated_tag')
     # exclude = ('description',)
     # ordering = ('name__label',)
+    classes = ('grp-open',)
+    inline_classes = ('grp-collapse grp-open',)
+
+    def button(self, obj):
+        return """<button class="grp-button" type='button' onclick='tools4msp.chackValidate({});'>Update dataset</button>""".format(obj.pk)
+
+    button.short_description = ''
+    button.allow_tags = True
 
 
 class CaseStudyUseInline(CaseStudyDatasetInline):
@@ -54,6 +69,12 @@ class CaseStudyEnvInline(CaseStudyDatasetInline):
 
 class CaseStudyPressureInline(CaseStudyDatasetInline):
     model = CaseStudyPressure
+    fields = ('name',
+              'source_use',
+              'dataset',
+              'expression',
+              'urls_tag',
+              'thumbnail_tag')
 
 
 class CaseStudyAdmin(GuardedModelAdmin):
@@ -77,6 +98,7 @@ class CaseStudyAdmin(GuardedModelAdmin):
         css = {
             "all": ("tools4msp/css/admin.css",)
         }
+        js = ("tools4msp/js/admin.js",)
 
 
 class DatasetAdmin(admin.ModelAdmin):

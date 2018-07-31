@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+import logging
 import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
@@ -8,12 +9,14 @@ from geonode.layers.models import Layer
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from jsonfield import JSONField
-from .expression import Expression
+from .processing import Expression
 from .utils import layer_to_raster, get_sensitivities_by_rule, get_conflict_by_uses
-from .casestudy import CaseStudy as CS
+from .casestudy import CaseStudy3 as CS
 import itertools
 import datetime
+import hashlib
 
+logger = logging.getLogger('tools4msp.models')
 
 DATASET_TYPE_CHOICES = (
     ('grid', 'Grid'),
@@ -44,8 +47,12 @@ class CaseStudy(models.Model):
                                        help_text=_('Should this Case Study be published?'))
     tools4msp = models.BooleanField(_("Tools4MSP Case Study"), default=False,
                                     help_text=_('Is this a Tools4MSP Case Study?'))
+    grid = models.ForeignKey("CaseStudyGrid", blank=True, null=True,
+                             verbose_name="Area of analysis")
+
     grid_dataset = models.ForeignKey("Dataset", blank=True, null=True,
                                      verbose_name="Area of analysis")
+
     grid_output = models.ForeignKey("Dataset", blank=True, null=True,
                                     related_name="casestudy_output",
                                     verbose_name="")
@@ -90,17 +97,22 @@ class CaseStudy(models.Model):
     def sync_CS(self):
         cs = self.get_CS()
         cs.grid = self.get_grid()
-        for d in self.casestudyuse_set.all():
-            d.update_dataset()
-        for d in self.casestudyenv_set.all():
-            d.update_dataset()
-        for d in self.casestudypressure_set.all():
-            d.update_dataset()
+        self.sync_datasets(grid=cs.grid.copy())
         self.sync_coexist_scores()
         self.sync_weights()
         self.sync_sensitivities()
         self.sync_pres_sensitivities()
         cs.dump_inputs()
+
+    def sync_datasets(self, grid):
+        cs = self.get_CS()
+        # cs.load_layers()
+        for d in self.casestudyuse_set.all():
+            d.update_dataset('use', grid=grid)
+        for d in self.casestudyenv_set.all():
+            d.update_dataset('env', grid=grid)
+        for d in self.casestudypressure_set.all():
+            d.update_dataset('pre', grid=grid)
         cs.dump_layers()
 
     def _get_combs(self):
@@ -136,14 +148,18 @@ class CaseStudy(models.Model):
     # new structure
     def sync_weights(self):
         cs = self.get_CS()
+        if not hasattr(cs, 'weights'):
+            return False
         cs.weights = cs.weights[0:0]  # empty
-        uses = self.casestudyuse_set.all()
-        for csuse in uses:
-            use = csuse.name
+
+        up = self.casestudypressure_set.filter(source_use__isnull=False)
+        uses = set(up.values_list('source_use', flat=True))
+        uses |= set(self.casestudyuse_set.values_list('name', flat=True))
+        for uid in uses:
+            use = Use.objects.get(pk=uid)
             for w in Weight.objects.filter(use=use):
-                # print use, w
                 cs.add_weights(
-                    'u{}'.format(use.id),
+                    'u{}'.format(uid),
                     use.label,
                     'p{}'.format(w.pressure.id),
                     w.pressure.label,
@@ -151,12 +167,13 @@ class CaseStudy(models.Model):
 
     def sync_pres_sensitivities(self):
         cs = self.get_CS()
+        if not hasattr(cs, 'pres_sensitivities'):
+            return False
         cs.pres_sensitivities = cs.pres_sensitivities[0:0]  # empty
         envs = self.casestudyenv_set.all()
         for cenv in envs:
             env = cenv.name
             for s in Sensitivity.objects.filter(env=env):
-                # print use, w
                 cs.add_pres_sensitivities(
                     'p{}'.format(s.pressure.id),
                     s.pressure.label,
@@ -196,7 +213,6 @@ class CaseStudy(models.Model):
 
         for use1, use2 in itertools.combinations(uses, 2):
             score = get_conflict_by_uses(use1, use2)
-            # print score
             if use1 != use2:
                 u1 = Use.objects.get(pk=use1)
                 u2 = Use.objects.get(pk=use2)
@@ -218,7 +234,8 @@ class CaseStudy(models.Model):
         cs.add_coexist_score('u91', None, 'u84', None, score=0)
 
     def get_grid(self):
-        return self.grid_dataset.eval_expression(res=self.grid_resolution)
+        # TODO: move expression
+        return self.grid.get_dataset(res=self.grid_resolution)
 
     def get_thumbnail_url(self):
         l = self.grid_dataset.get_layers_qs()[0]
@@ -362,12 +379,16 @@ class Dataset(models.Model):
 
 
 class CaseStudyDataset(models.Model):
-    casestudy = models.ForeignKey(CaseStudy)
     dataset = models.ForeignKey(Dataset, blank=True, null=True)
+    expression = models.TextField(null=True, blank=True,
+                                  verbose_name="Pre-processing expression")
     resource_file = models.CharField(max_length=500,
                                      null=True, blank=True)
     thumbnail_url = models.CharField(max_length=500,
                                      null=True, blank=True)
+
+    expression_hash = models.CharField(max_length=32, blank=True)
+
     maxvalue = models.FloatField(blank=True, null=True)
     minvalue = models.FloatField(blank=True, null=True)
 
@@ -375,29 +396,32 @@ class CaseStudyDataset(models.Model):
         abstract = True
         ordering = ['name__label']
 
-    def get_dataset(self):
-        raster = self.dataset.eval_expression(grid=self.casestudy.get_grid())
-        print "dataset={} max={} min={}".format(self.pk, raster.max(), raster.min())
+    def get_dataset(self, res=None, grid=None):
+        raster = self.eval_expression(res=res, grid=grid)
+        logger.debug('get_dataset dataset={} max={} min={}'.format(self.pk,
+                                                                   raster.max(),
+                                                                   raster.min()))
         return raster
 
-    def update_dataset(self):
+    def update_dataset(self, dataset_type, res=None, grid=None):
+        logger.debug('update_dataset res={} grid_input={}'.format(res, grid is not None))
         cs = self.casestudy.get_CS()
-        raster = self.get_dataset()
+        raster = self.get_dataset(res=res, grid=grid)
         print raster.gtransform
         cs.add_layer(raster,
-                     self.dataset.dataset_type,
+                     dataset_type,
                      self.get_lid(),
                      self.name.label)
         pass
 
-    def save_thumbnail(self):
+    def save_thumbnail(self, res=None, grid=None):
         cs = self.casestudy.get_CS()
-        out = cs.get_outpath('{}.png'.format(self.dataset.slug))
+        out = cs.get_outpath('{}.png'.format(self.pk))
         print out
         plt.figure()
-        d = self.get_dataset()
-        grid = self.casestudy.get_grid()
-        d.mask = ~(grid > 0)
+        d = self.get_dataset(res=res, grid=grid)
+        if grid is not None:
+            d.mask = ~(grid > 0)
         d.plot(cmap='jet')
 
         plt.savefig(out)
@@ -409,30 +433,69 @@ class CaseStudyDataset(models.Model):
 
     def thumbnail_tag(self):
         if self.thumbnail_url is not None:
-            return u'<img src="{}" width="200"/>'.format(self.thumbnail_url)
+            return u'<img src="{}" width="210"/>'.format(self.thumbnail_url)
         else:
             return ''
     thumbnail_tag.short_description = 'Thumbnail'
     thumbnail_tag.allow_tags = True
 
-    def expression_tag(self):
-        if self.dataset is not None:
-            return self.dataset.expression
-        else:
-            return ''
-    expression_tag.short_description = 'Pre-processing expression'
-    expression_tag.allow_tags = True
+    # def dataset_urls_tag(self):
+    #     if self.dataset is not None:
+    #         return self.dataset.urls_tag()
+    #     else:
+    #         return ''
+    # dataset_urls_tag.short_description = 'Layers'
+    # dataset_urls_tag.allow_tags = True
 
-    def dataset_urls_tag(self):
-        if self.dataset is not None:
-            return self.dataset.urls_tag()
+    def updated_tag(self):
+        if not self.expression_hash or hashlib.md5("whatever your string is").hexdigest() != self.expression_hash:
+            return False
+        return True
+
+    updated_tag.short_description = 'Updated'
+    updated_tag.allow_tags = True
+
+    def get_layers_qs(self):
+        layers = []
+        e = Expression(self.expression)
+        _layers = e.list()
+        layers = [l[0].split('.')[0] for l in _layers]
+        return Layer.objects.filter(typename__in=layers)
+
+    def get_resources_urls(self):
+        urls = {}
+        for l in self.get_layers_qs():
+            urls[l.typename] = ((l.get_absolute_url(),
+                                 l.title))
+        return urls
+
+    def eval_expression(self, res=None, grid=None):
+        expression = self.expression
+        if expression is not None:
+            e = Expression(self.expression)
+            return e.eval(res=res, grid=grid)
         else:
-            return ''
-    dataset_urls_tag.short_description = 'Layers'
-    dataset_urls_tag.allow_tags = True
+            None
+
+    def urls_tag(self):
+        urls = self.get_resources_urls()
+        if len(urls) > 0:
+            return u'; '.join(['<a href="{}">{}</a>'.format(u[0], u[1].capitalize()) for k, u in urls.iteritems()])
+        return ''
+
+    urls_tag.short_description = 'Layers'
+    urls_tag.allow_tags = True
+
+
+class CaseStudyGrid(CaseStudyDataset):
+    name = models.CharField(max_length=100)
+
+    def get_lid(self):
+        return "grid"
 
 
 class CaseStudyUse(CaseStudyDataset):
+    casestudy = models.ForeignKey(CaseStudy)
     name = models.ForeignKey(Use)
 
     def get_lid(self):
@@ -440,6 +503,7 @@ class CaseStudyUse(CaseStudyDataset):
 
 
 class CaseStudyEnv(CaseStudyDataset):
+    casestudy = models.ForeignKey(CaseStudy)
     name = models.ForeignKey(Env)
 
     def get_lid(self):
@@ -447,11 +511,17 @@ class CaseStudyEnv(CaseStudyDataset):
 
 
 class CaseStudyPressure(CaseStudyDataset):
+    casestudy = models.ForeignKey(CaseStudy)
     name = models.ForeignKey(Pressure)
+    source_use = models.ForeignKey(Use, blank=True, null=True)
 
     def get_lid(self):
-        # TOGLIERE la cablatura sul'U94 (LBA)
-        return "u94p{}".format(self.name.pk)
+        if self.source_use is not None:
+            uid = "u{}".format(self.source_use.pk)
+        else:
+            uid = ""
+
+        return "{}p{}".format(uid, self.name.pk)
 
 
 class CaseStudyRun(models.Model):
