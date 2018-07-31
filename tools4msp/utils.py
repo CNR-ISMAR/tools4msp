@@ -646,6 +646,27 @@ def layer_to_raster(l, grid=None, res=None, **kwargs):
             raster.positive()
             print "NEW TRAFFIC"
             return raster
+        elif l.typename == 'geonode:malta_aisdata_hm250_r500':
+            _r = rg.read_raster('/var/www/geonode/uploaded/layers/malta_aisdata_hm250_r500.tif')
+            raster = grid.copy()
+            raster.reproject(_r.astype(np.float))
+            raster.positive()
+            print "TRAFFIC MALTA"
+            return raster
+        elif l.typename == 'geonode:loggerheadturtlesclean_quartico_30km_100m_clip':
+            _r = rg.read_raster('/var/www/geonode/uploaded/layers/loggerheadturtlesclean_quartico_30km_100m_clip.tif')
+            raster = grid.copy()
+            raster.reproject(_r.astype(np.float))
+            raster.positive()
+            print "NEW TURTLES"
+            return raster
+        elif l.typename == 'geonode:marinemammals_quartico_60km_100m_clip':
+            _r = rg.read_raster('/var/www/geonode/uploaded/layers/marinemammals_quartico_60km_100m_clip_UdCUElw.tif')
+            raster = grid.copy()
+            raster.reproject(_r.astype(np.float))
+            raster.positive()
+            print "NEW MAMMALS"
+            return raster
         elif l.name in ['lba_pressure_plume_threshold',
                         'lba_pressure_om',
                         'lba_pressure_nptot']:
@@ -878,6 +899,11 @@ def get_conflict_by_uses(use1, use2):
         use1 = ActivityAndUse.objects.get(pk=use1)
     if isinstance(use2, int):
         use2 = ActivityAndUse.objects.get(pk=use2)
+
+    if use1 is None or use2 is None:
+        return 0
+    if use1.vertical_scale is None or use2.vertical_scale is None:
+        return 0
 
     vscale1 = use1.vertical_scale.value
     vscale2 = use2.vertical_scale.value
