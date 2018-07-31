@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+import logging
 from os import path
 from os import makedirs
 from slugify import slugify
@@ -12,6 +13,8 @@ from rasterio.warp import reproject, RESAMPLING
 from .ci import CumulativeImpactMixin
 from .ci_3_0 import CumulativeImpactMixin as CumulativeImpactMixin3
 from .conflict_score import ConflictScoreMixin
+
+logger = logging.getLogger('tools4msp.casestudy')
 
 
 def read_casestudy(csmetadata):
@@ -159,8 +162,6 @@ class CaseStudy(CumulativeImpactMixin, ConflictScoreMixin):
             raise Exception("datadir is not configured: cannot load the data")
 
         # read metadata
-        columns = ['lid', 'label', 'msptype', 'ltype', 'layer',
-                   'source', 'availability']
         _layers = pd.read_csv(self.datadir + 'layersmd.csv', index_col=0)
 
         if lid is not None:
@@ -373,9 +374,11 @@ class CaseStudy3(CumulativeImpactMixin3, ConflictScoreMixin):
             raise Exception("datadir is not configured: cannot load the data")
 
         # read metadata
-        columns = ['lid', 'label', 'msptype', 'ltype', 'layer',
-                   'source', 'availability']
-        _layers = pd.read_csv(self.datadir + 'layersmd.csv', index_col=0)
+        try:
+            _layers = pd.read_csv(self.datadir + 'layersmd.csv', index_col=0)
+        except IOError:
+            logger.warning('load_layers: layersmd file does not exist')
+            return False
 
         if lid is not None:
             layer = _layers.loc[lid]
