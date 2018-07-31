@@ -1,0 +1,122 @@
+{% extends "tools4msp/tools4msp_base.html" %}
+
+{% load i18n %}
+
+{% block body %}
+  <ol class = "breadcrumb">
+      <li class="active">Tools4MSP - step 0</a></li>
+      <!--li><a href="#">Coexist</a></li>
+      <li><a href="#">Configuration</a></li>
+      <li class = "active">Output</li-->
+  </ol>
+  <div class="page-header">
+    <h1>Tools4MSP</h1>
+    <div class="row">
+        <div class="col-md-12">
+            <p class="text-justify">The Tools4MSP are a set of web and open source tools
+            developed to support the implementation of Maritime
+            Spatial Planning (MSP), with a specific focus on the
+            analysis of conflicts between marine uses and the analysis
+            of cumulative impacts (CI) of human activities on marine environments.
+            </p>
+
+            <p class="text-justify">
+            For a short tutorial on how to use the Tools4MSP, click <a href="http://data.adriplan.eu/documentation/tutorial/tools4msp">here.</a></p>
+
+            <h3>Maritime Use Conflicts (MUC) Analysis</h3>
+	    <p class="text-justify"><b>The Maritime Use Conflicts Analysis tool</b>
+              was developed during ADRIPLAN project. The tool is based
+              on a methodology developed for the FP7
+              <a href="http://www.coexistproject.eu/">COEXIST Project</a>  and
+              has the aim to (1) support MSP process through
+              reallocation of maritime uses, (2) creation of
+              collaborative conflict scores analysis; (3) iteration of
+              the analysis over different time periods trough
+              integration of new conflict scores and geospatial
+              datasets on sea uses, (4) sea use scenario analysis and
+              (5) overlay analysis. For more information on the
+              methodology press the botton below.
+
+              The MUC tool was initially developed during the ADRIPLAN Project and
+              further development in a newer version within the
+              Italian Flagship Project RITMARE (Italian Research for
+              the Sea).
+            </p>
+
+	    <a href="{% url "coexistinfo" %}"class="btn btn-info" aria-label="Left Align">
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                Maritime Use Conflicts Analysis - more info
+            </a>
+	    <p></p>
+
+            <h3>Cumulative Effects Assessment (CEA)</h3>
+	    <p class="text-justify"><b>The Cumulative Effects Assessment tool</b> aims to
+                support the MSP process under an Ecosystem-Based
+                Approach (EBA) by assessing the potential cumulative
+                impacts of maritime activities on the marine
+                environment.  The CI assessment tool was developed
+                during the ADRIPLAN project (http://adriplan.eu). It
+                is the core tool of the Tools4MSP, an open source
+                geopython library. The tool was tested for the
+                Adriatic-Ionian sub-basin, but can be deployed to any
+                research area around the globe. For more information on the methodology press the botton below.
+              The CEA tool was initially developed during the ADRIPLAN Project and
+              further development in a newer version within the
+              Italian Flagship Project RITMARE (Italian Research for
+              the Sea).
+            </p>
+            <a href="{% url "ciinfo" %}"class="btn btn-info" aria-label="Left Align">
+              <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+              Cumulative Effects Assesment - more info
+            </a>
+
+            <h3>Marine Ecosystem Services Threat Assessment (MES-Threat)</h3>
+	    <p class="text-justify"><b>The MES-Threat tool</b>
+                 is based on an expert-based MES services supply index
+                (0 - none/neglectable to 2 - high) for EUNIS habitats
+                developed by Galparsoro et al., 2012 and adopted for
+                the Adriatic Sea by Depellegrin et al. (2017). The
+                webtool combines the expert-based MES supply index
+                with the CEA modelling capabilities
+                generating a threat index describing the risk of
+                reduction of ES capacity, loss or impairment of use
+                due to cumulative effects from anthropogenic impacts
+                (Worm et al., 2007; Maron et al., 2017).
+            </p>
+            <a href="{% url "esinfo" %}"class="btn btn-info" aria-label="Left Align">
+              <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+              Marine Ecosystem Services Threat Assessment - more info
+            </a>
+
+            <h3>Credits</h3>
+            <p>
+                When using the data and citing the software package and algorithms please include the following citation:
+            </p>
+            <p>
+                "Menegon, S., Sarretta, A., Barbanti, A., Gissi, E., Venier, C., 2016. <cite>Open source tools to support Integrated Coastal Management and Maritime Spatial Planning.</cite> PeerJ Preprints 4:e2245v2 <a href="https://doi.org/10.7287/peerj.preprints.2245v2">https://doi.org/10.7287/peerj.preprints.2245v2</a>."
+            </p>
+
+            <p>When citing the portal, please include the following:</p>
+
+            <p>"Tools4MSP, ADRIPLAN Data Portal, 2016 http://data.adriplan.eu/"</p>
+        </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block sidebar %}
+  <div class="row">
+      <div class="col-md-12">
+          <h2>Tools selection</h2>
+
+          <a href="{% url 'casestudy-list' 'coexist' %}" id="coexist-analysis-btn" class="btn btn-primary btn-md btn-block">Run Maritime Use Conflicts Analysis</a>
+          <a href="{% url 'casestudy-list' 'ci' %}" id="ci-analysis-btn" class="btn btn-primary btn-md btn-block">Run Cumulative Impact Analysis</a>
+      <!--button  id="coexist-analysis-btn" class="btn btn-primary btn-md btn-block" data-toggle="modal" data-target="#run-coexist-md">Run COEXIST Analysis</button>
+      <button id="ci-analysis-btn" class="btn btn-primary btn-md btn-block" data-toggle="modal" data-target="#run-ci-md">Run Cumulative Impact Analysis</button-->
+          <a href="{% url 'casestudy-list' 'mes' %}" id="mes-analysis-btn" class="btn btn-primary btn-md btn-block">
+              Marine Ecosystem Services Assesment
+          </a>
+          <p class=""></p>
+      </div>
+  </div>
+{% endblock %}

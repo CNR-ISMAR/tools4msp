@@ -1,0 +1,57 @@
+{% extends "tools4msp/tools4msp_base.html" %}
+
+{% load i18n %}
+{% block title %} {% trans "Case study" %} — {{ block.super }}{% endblock %}
+
+
+{% block body %}
+
+  <ol class = "breadcrumb">
+      <li><a href="{% url 'tools4msp-home' %}">Tools4MSP - Step 0</a></li>
+      <li class = "active">Step 1</li>
+  </ol>
+
+  <div class="row">
+      <div class="col-md-12">
+          <h2>Step 1: Case Study selection</h2>
+          <p>
+              In Step 1 you can select a case study available for
+              three domains: Mediterranean Sea (2018), Adriatic Sea
+              (2017) and Emilia-Romagna Region (2017). Each of the
+              case study provides a pre-configured datasets, time
+              reference and gird resolution to run the webtools.
+
+              <!-- In step 1 you can select a predefined set of input data
+              that you can use for your geospatial analyses.  The Case
+              Study areas can be differentiated by region
+              (e.g. Adriatic Ionian Region - AIR), resolution and
+              temporal scenario (e.g. 2014, 2020). -->
+          </p>
+      </div>
+  </div>
+  <article>
+    {% for casestudy in object_list %}
+    <div class="row items-list">
+      <div class="col-xs-4 thumb">
+        <img src="{{ casestudy.thumbnail_url }}" />
+      </div>
+      <div class="col-xs-8 item-info">
+        <a  class="btn btn-default btn-xs pull-right" href="{% url "casestudy-conf" tool=tool id=casestudy.id %}">Select</a>
+        <h4><a href="{% url "casestudy-conf" tool=tool id=casestudy.id %}">{{ casestudy.label }}</a></h4>
+        <p class="abstract">{{ casestudy.description }}</p>
+        <p class="actions">
+          <i class="fa fa-th"></i>Resolution: {{ casestudy.grid_resolution }} m |
+          <i class="fa fa-ship"></i>Uses: {{ casestudy.casestudyuse_set.count }} |
+          <i class="fa fa-th"></i>Envs: {{ casestudy.casestudyenv_set.count }}
+        </p>
+      </div>
+    </div>
+    {% empty %}
+    <p>
+        <div class="alert alert-info" role="alert">
+            No available Case Studies found for the current user
+        </div>
+    </p>
+    {% endfor %}
+  </article>
+{% endblock %}
