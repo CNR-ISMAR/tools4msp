@@ -238,7 +238,7 @@ class CaseStudy(models.Model):
         return self.grid.get_dataset(res=self.grid_resolution)
 
     def get_thumbnail_url(self):
-        l = self.grid_dataset.get_layers_qs()[0]
+        l = self.grid.get_layers_qs()[0]
         return l.thumbnail_url
 
     @property
