@@ -31,11 +31,32 @@ class SensitivityAdmin(admin.ModelAdmin):
 admin.site.register(Sensitivity, SensitivityAdmin)
 
 
-class CaseStudyDatasetInline(admin.TabularInline):
-    fields = ('name', 'dataset', 'thumbnail_tag', 'dataset_urls_tag')
-    readonly_fields = ('thumbnail_tag', 'dataset_urls_tag')
+class PressureAdmin(admin.ModelAdmin):
+    model = Pressure
+
+admin.site.register(Pressure, PressureAdmin)
+
+
+# class CaseStudyDatasetInline(admin.TabularInline):
+# fields = ('name', 'dataset', 'thumbnail_tag', 'expression_tag', 'dataset_urls_tag')
+class CaseStudyDatasetInline(admin.StackedInline):
+    fields = ('name',
+              'dataset',
+              'expression',
+              'urls_tag',
+              'thumbnail_tag',
+              ('updated_tag', 'button'))
+    readonly_fields = ('thumbnail_tag', 'urls_tag', 'button', 'updated_tag')
     # exclude = ('description',)
     # ordering = ('name__label',)
+    classes = ('grp-open',)
+    inline_classes = ('grp-collapse grp-open',)
+
+    def button(self, obj):
+        return """<button class="grp-button" type='button' onclick='tools4msp.chackValidate({});'>Update dataset</button>""".format(obj.pk)
+
+    button.short_description = ''
+    button.allow_tags = True
 
 
 class CaseStudyUseInline(CaseStudyDatasetInline):
@@ -48,14 +69,23 @@ class CaseStudyEnvInline(CaseStudyDatasetInline):
 
 class CaseStudyPressureInline(CaseStudyDatasetInline):
     model = CaseStudyPressure
+    fields = ('name',
+              'source_use',
+              'dataset',
+              'expression',
+              'urls_tag',
+              'thumbnail_tag')
 
 
 class CaseStudyAdmin(GuardedModelAdmin):
     list_display = ['label', 'tools4msp', 'is_published',
                     'tool_coexist', 'tool_ci', 'tool_mes']
-    # readonly_fields = ['html_layer_url']
+    readonly_fields = ['thumbnail_tag']
     fields = ('label', 'description',
-              'grid_resolution', 'grid_dataset', 'grid_output', 'tools4msp', 'is_published',
+              'grid_resolution',
+              ('grid_dataset', 'thumbnail_tag'),
+              # 'grid_output',
+              'tools4msp', 'is_published',
               ('tool_coexist', 'tool_ci', 'tool_mes')) #, 'area_of_interest']
     inlines = [
         CaseStudyUseInline,
@@ -63,6 +93,12 @@ class CaseStudyAdmin(GuardedModelAdmin):
         CaseStudyPressureInline,
         ]
     save_as = True
+
+    class Media:
+        css = {
+            "all": ("tools4msp/css/admin.css",)
+        }
+        js = ("tools4msp/js/admin.js",)
 
 
 class DatasetAdmin(admin.ModelAdmin):

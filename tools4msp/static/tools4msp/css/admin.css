@@ -1,0 +1,54 @@
+#casestudyuse_set-group .thumbnail_tag,
+#casestudyenv_set-group .thumbnail_tag,
+#casestudypressure_set-group .thumbnail_tag {
+  position: absolute !important;
+  width: 300px !important;
+  left: 800px !important;
+}
+
+#casestudyuse_set-group .thumbnail_tag .c-1,
+#casestudyenv_set-group .thumbnail_tag .c-1,
+#casestudypressure_set-group .thumbnail_tag .c-1 {
+  display: none !important;
+}
+
+
+.expression_tag div, .dataset_urls_tag div {
+/*     white-space: normal; */
+     width: 600px;
+     overflow-wrap: break-word;
+}
+
+.expression textarea {
+  width: 600px !important;
+}
+
+.button button {
+  width: 100% !important;
+}
+
+/* #casestudyuse_set-group .grp-module, */
+/* #casestudyenv_set-group .grp-module, */
+/* #casestudypressure_set-group .grp-module { */
+/*     overflow-y: auto !important; */
+/*     max-height: 750px !important; */
+/*     display: block !important; */
+/* } */
+
+/* #casestudyuse_set-group:after, */
+/* #casestudyenv_set-group:after, */
+/* #casestudypressure_set-group:after { */
+/*     content: ' '; */
+/*     position: absolute; */
+/*     left: 0; */
+/*     right: 17px; */
+/*     height: 20em; */
+/*     bottom: 0em; */
+/*     background: linear-gradient( */
+/*       to bottom, */
+/*       rgba(255, 255, 255, 0), */
+/*       rgba(255, 255, 255, 0.9) 50% */
+/*     ); */
+/*     z-index: 1; */
+
+/* } */

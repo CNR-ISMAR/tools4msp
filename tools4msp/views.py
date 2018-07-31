@@ -2,6 +2,7 @@
 
 from __future__ import absolute_import
 
+import logging
 import tempfile
 import urlparse
 from django.shortcuts import render
@@ -50,6 +51,9 @@ from .models import CaseStudy as CaseStudyModel
 
 from .models import CaseStudyRun
 from .utils import raster_file_upload
+
+logger = logging.getLogger('tools4msp.view')
+
 
 # import sys
 # sys.path.append('/root/ciadriplan')
@@ -179,7 +183,7 @@ class CaseStudyRunConfigurationView(TemplateView, Tools4MPSBaseView):
         # cs = CICaseStudy.objects.get(pk=self.id)
         cs = CaseStudyModel.objects.get(pk=self.id)
         # get grid. layer
-        grid_layer = cs.grid_dataset.get_layers_qs()[0]
+        grid_layer = cs.grid.get_layers_qs()[0]
         grid_typename = grid_layer.typename
         guses = cs.casestudyuse_set.all()
         genvs = cs.casestudyenv_set.all()
@@ -205,6 +209,8 @@ class CaseStudyRunConfigurationView(TemplateView, Tools4MPSBaseView):
 
 @login_required
 def casestudy_run_save(request, tool, id):
+    logger.debug("casestudy_run_save: tool: {}, id: {}".format(tool, id))
+
     a = request.body
     body = json.loads(request.body)
     uses = body['uses']
