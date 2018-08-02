@@ -432,16 +432,22 @@ class CaseStudy3(CumulativeImpactMixin3, ConflictScoreMixin):
         self.load_grid()
         super(CaseStudy3, self).load_inputs()
 
-    def set_mask(self, mask):
+    def set_mask(self, mask, overwrite=True):
         """Apply a mask to grid, all layers and availability areas"""
         self.grid.mask = mask.copy()
         for idx, l in self.layers.iterrows():
-            l.layer.mask = np.ma.nomask
-            l.layer.mask = mask.copy()
+            if overwrite:
+                l.layer.mask = np.ma.nomask
+                l.layer.mask = mask.copy()
+            else:
+                l.layer[mask] = np.ma.masked
             #
             if l.availability is not None:
-                l.availability.mask = np.ma.nomask
-                l.availability.mask = mask.copy()
+                if overwrite:
+                    l.availability.mask = np.ma.nomask
+                    l.availability.mask = mask.copy()
+                else:
+                    l.availability[mask] = np.ma.masked
 
     def set_grid(self, grid, resampling=RESAMPLING.nearest):
         """Reproject the self on the new grid"""
