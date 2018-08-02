@@ -219,6 +219,12 @@ def casestudy_run_save(request, tool, id):
     area = body.get('area', None)
     tools = body.get('tools', [])
 
+    logger.debug("casestudy_run_save: uses = {}".format(uses))
+    logger.debug("casestudy_run_save: envs = {}".format(envs))
+    logger.debug("casestudy_run_save: press = {}".format(press))
+    logger.debug("casestudy_run_save: area = {}".format(area))
+    logger.debug("casestudy_run_save: tools = {}".format(tools))
+
     # cs = CICaseStudy.objects.get(pk=id)
     cs = CaseStudyModel.objects.get(pk=id)
     csr = CaseStudyRun(casestudy=cs)
@@ -261,6 +267,8 @@ def casestudy_run_save(request, tool, id):
     _grid = c.grid.copy()
     if aoi is not None:
         _grid.reproject(aoi)
+
+    logger.debug("casestudy_run_save: grid shape {}".format(_grid.shape))
 
     c.rtype = rtype
     c.set_dirs()
@@ -382,8 +390,26 @@ class CaseStudyRunView(TemplateView, Tools4MPSBaseView):
                 ]
             )
 
-            plots['heat_coexist'] = HeatMap(_a, x='label_x', y='label_y', values='score', stat=None, tools=[hover])
-            plots['heat_couses'] = HeatMap(coexist_couses, x='use1', y='use2', values='score', stat=None)
+            plots['heat_coexist'] = HeatMap(_a,
+                                            x='label_x',
+                                            y='label_y',
+                                            values='score',
+                                            stat=None,
+                                            tools=[hover])
+            if coexist_couses.shape[0] > 1:
+                hover = HoverTool(
+                    tooltips=[
+                        ("value", "@score"),
+                    ]
+                )
+                plots['heat_couses'] = HeatMap(coexist_couses,
+                                               x='use1',
+                                               y='use2',
+                                               values='score',
+                                               stat=None,
+                                               tools=[hover])
+            else:
+                plots['heat_couses'] = None
 
             # use_score_df = ciscores.groupby('uselabel').sum()[['score']]
             # env_score_df = ciscores.groupby('envlabel').sum()[['score']]
