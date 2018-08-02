@@ -50,12 +50,12 @@ class CaseStudy(models.Model):
     grid = models.ForeignKey("CaseStudyGrid", blank=True, null=True,
                              verbose_name="Area of analysis")
 
-    grid_dataset = models.ForeignKey("Dataset", blank=True, null=True,
-                                     verbose_name="Area of analysis")
+    # grid_dataset = models.ForeignKey("Dataset", blank=True, null=True,
+    #                                  verbose_name="Area of analysis")
 
-    grid_output = models.ForeignKey("Dataset", blank=True, null=True,
-                                    related_name="casestudy_output",
-                                    verbose_name="")
+    # grid_output = models.ForeignKey("Dataset", blank=True, null=True,
+    #                                 related_name="casestudy_output",
+    #                                 verbose_name="")
     tool_coexist = models.BooleanField()
     tool_ci = models.BooleanField()
     tool_mes = models.BooleanField()
@@ -140,7 +140,7 @@ class CaseStudy(models.Model):
         # adding direct pressures
         pres_layers = self.casestudypressure_set.all()
         for pres_layer in pres_layers:
-            if pres_layer.name not in pressures:
+            if pres_layer.name.pk not in [p.id for p in pressures]:
                 pressures.append(pres_layer.name)
 
         return pressures
@@ -379,7 +379,7 @@ class Dataset(models.Model):
 
 
 class CaseStudyDataset(models.Model):
-    dataset = models.ForeignKey(Dataset, blank=True, null=True)
+    # dataset = models.ForeignKey(Dataset, blank=True, null=True)
     expression = models.TextField(null=True, blank=True,
                                   verbose_name="Pre-processing expression")
     resource_file = models.CharField(max_length=500,
@@ -394,7 +394,6 @@ class CaseStudyDataset(models.Model):
 
     class Meta:
         abstract = True
-        ordering = ['name__label']
 
     def get_dataset(self, res=None, grid=None):
         raster = self.eval_expression(res=res, grid=grid)
@@ -486,12 +485,19 @@ class CaseStudyDataset(models.Model):
     urls_tag.short_description = 'Layers'
     urls_tag.allow_tags = True
 
+    def __unicode__(self):
+        return self.name
+
 
 class CaseStudyGrid(CaseStudyDataset):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, blank=True, null=True)
+    pass
 
     def get_lid(self):
         return "grid"
+
+    class Meta:
+        ordering = ['name']
 
 
 class CaseStudyUse(CaseStudyDataset):
@@ -501,6 +507,9 @@ class CaseStudyUse(CaseStudyDataset):
     def get_lid(self):
         return "u{}".format(self.name.pk)
 
+    class Meta:
+        ordering = ['name__label']
+
 
 class CaseStudyEnv(CaseStudyDataset):
     casestudy = models.ForeignKey(CaseStudy)
@@ -508,6 +517,9 @@ class CaseStudyEnv(CaseStudyDataset):
 
     def get_lid(self):
         return "e{}".format(self.name.pk)
+
+    class Meta:
+        ordering = ['name__label']
 
 
 class CaseStudyPressure(CaseStudyDataset):
@@ -522,6 +534,9 @@ class CaseStudyPressure(CaseStudyDataset):
             uid = ""
 
         return "{}p{}".format(uid, self.name.pk)
+
+    class Meta:
+        ordering = ['name__label']
 
 
 class CaseStudyRun(models.Model):
