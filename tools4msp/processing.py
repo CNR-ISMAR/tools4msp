@@ -45,7 +45,11 @@ def get_resource(resource, grid=None, res=None, **kwargs):
 
     if grid is not None:
         if isinstance(geodataset, gpd.GeoDataFrame):
-            raster = rg.read_df_like(grid, geodataset, column=column)
+            if 'eunismedscale' in typename:
+                compute_area = True
+            else:
+                compute_area = False
+            raster = rg.read_df_like(grid, geodataset, column=column, compute_area=compute_area)
         else:
             logger.debug('get_resource geodataset.dtype={}'.format(geodataset.dtype))
             raster = geodataset.astype(np.float).to_srs_like(grid.astype(np.float))
