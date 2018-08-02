@@ -108,6 +108,9 @@ class CaseStudy(CumulativeImpactMixin, ConflictScoreMixin):
     def get_envs(self):
         return self.layers[self.layers.msptype == 'env']
 
+    def get_pressures(self):
+        return self.layers[self.layers.msptype == 'pre']
+
     def get_uses(self):
         return self.layers[self.layers.msptype == 'use']
 
