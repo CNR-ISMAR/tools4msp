@@ -4,7 +4,7 @@ from guardian.admin import GuardedModelAdmin
 from .models import Env, Use, Pressure, CaseStudy, \
     CaseStudyUse, CaseStudyEnv, CaseStudyPressure, \
     Dataset, ESCapacity, CaseStudyRun, Weight, Sensitivity, \
-    Context
+    Context, CaseStudyGrid
 
 
 class ContextAdmin(admin.ModelAdmin):
@@ -41,7 +41,7 @@ admin.site.register(Pressure, PressureAdmin)
 # fields = ('name', 'dataset', 'thumbnail_tag', 'expression_tag', 'dataset_urls_tag')
 class CaseStudyDatasetInline(admin.StackedInline):
     fields = ('name',
-              'dataset',
+              # 'dataset',
               'expression',
               'urls_tag',
               'thumbnail_tag',
@@ -71,7 +71,7 @@ class CaseStudyPressureInline(CaseStudyDatasetInline):
     model = CaseStudyPressure
     fields = ('name',
               'source_use',
-              'dataset',
+              # 'dataset',
               'expression',
               'urls_tag',
               'thumbnail_tag')
@@ -83,7 +83,7 @@ class CaseStudyAdmin(GuardedModelAdmin):
     readonly_fields = ['thumbnail_tag']
     fields = ('label', 'description',
               'grid_resolution',
-              ('grid_dataset', 'thumbnail_tag'),
+              ('grid', 'thumbnail_tag'),
               # 'grid_output',
               'tools4msp', 'is_published',
               ('tool_coexist', 'tool_ci', 'tool_mes')) #, 'area_of_interest']
@@ -103,14 +103,25 @@ class CaseStudyAdmin(GuardedModelAdmin):
 
 class DatasetAdmin(admin.ModelAdmin):
     model = Dataset
-    list_display = ['label', 'expression', 'dataset_type']
-    list_filter = ['dataset_type',]
+    list_display = ['label', 'expression']
+    # list_filter = ['dataset_type',]
     readonly_fields = ('urls_tag',)
     search_fields = ['label', 'expression']
     save_as = True
 
 admin.site.register(CaseStudy, CaseStudyAdmin)
 admin.site.register(Dataset, DatasetAdmin)
+
+
+class CaseStudyGridAdmin(admin.ModelAdmin):
+    model = CaseStudyGrid
+    # list_display = ['id', 'name', 'expression']
+    # list_filter = ['dataset_type',]
+    # readonly_fields = ('thumbnail_tag', 'urls_tag', 'updated_tag')
+    # search_fields = ['name', 'expression']
+    # save_as = True
+
+admin.site.register(CaseStudyGrid, CaseStudyGridAdmin)
 
 
 class ESCapacityAdmin(admin.ModelAdmin):
