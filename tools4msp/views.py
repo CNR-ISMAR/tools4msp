@@ -16,6 +16,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.conf import settings
+from guardian.shortcuts import get_objects_for_user
 
 import json
 
@@ -151,9 +152,11 @@ class CaseStudyListView(ListView, Tools4MPSBaseView):
             qs = qs.filter(tool_ci=True)
         if tool == 'mes':
             qs = qs.filter(tool_mes=True)
-        if self.request.user.is_superuser:
-            return qs
-        return qs.filter(is_published=True)
+        qs_obj_perm = get_objects_for_user(self.request.user,
+                                           'run_casestudy',
+                                           qs)
+        qs_published = qs.filter(is_published=True)
+        return qs_published | qs_obj_perm
 
     # @method_decorator(login_required)
     # def dispatch(self, *args, **kwargs):
