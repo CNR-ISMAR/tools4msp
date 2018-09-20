@@ -16,6 +16,8 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
+
 from guardian.shortcuts import get_objects_for_user
 
 import json
@@ -116,6 +118,12 @@ class Tools4MPSBaseView(ContextMixin):
         elif self.tool == 'mes':
             self.tool_label = 'Marine Ecosystem Services'
 
+        # check per-object permission (if applicable)
+        if self.id is not None:
+            cs = CaseStudyModel.objects.get(pk=self.id)
+            if not request.user.has_perm('run_casestudy', cs) and not cs.is_published:
+                raise PermissionDenied
+
         return super(Tools4MPSBaseView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -214,7 +222,10 @@ class CaseStudyRunConfigurationView(TemplateView, Tools4MPSBaseView):
 def casestudy_run_save(request, tool, id):
     logger.debug("casestudy_run_save: tool: {}, id: {}".format(tool, id))
 
-    a = request.body
+    cs = CaseStudyModel.objects.get(pk=id)
+    if not request.user.has_perm('run_casestudy', cs) and not cs.is_published:
+        raise PermissionDenied
+
     body = json.loads(request.body)
     uses = body['uses']
     envs = body['envs']
@@ -228,8 +239,6 @@ def casestudy_run_save(request, tool, id):
     logger.debug("casestudy_run_save: area = {}".format(area))
     logger.debug("casestudy_run_save: tools = {}".format(tools))
 
-    # cs = CICaseStudy.objects.get(pk=id)
-    cs = CaseStudyModel.objects.get(pk=id)
     csr = CaseStudyRun(casestudy=cs)
     csr.owner = request.user
     # TODO: da ripristinare
