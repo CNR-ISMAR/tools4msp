@@ -38,10 +38,9 @@ How to Cite
 ===========
 Please, when you use the Tools4MSP software cite it as:
 
-Menegon S, Sarretta A, Barbanti A, Gissi E, Venier C. (2016) Open
-source tools to support Integrated Coastal Management and Maritime
-Spatial Planning. PeerJ Preprints 4:e2245v2. doi: [10.5334/jors.106]
-(https://doi.org/10.7287/peerj.preprints.2245)
+Menegon, S., Sarretta, A., Barbanti, A., Gissi, E., Venier, C., 2016. Open source tools to support Integrated Coastal Management and Maritime Spatial Planning, in: Marchesini, I., Pierleoni, A. (Eds.), Proceedings of the 4th Open Source Geospatial Research and Education Symposium (OGRS2016). Perugia. https://doi.org/10.30437/ogrs2016_paper_22
+
+Menegon, S., Depellegrin, D., Farella, G., Sarretta, A., Venier, C., Barbanti, A., 2018. Addressing cumulative effects, maritime conflicts and ecosystem services threats through MSP-oriented geospatial webtools. Ocean & Coastal Management 163, 417–436. https://doi.org/10.1016/j.ocecoaman.2018.07.009
 
 The CEA model is fully described in:
 
