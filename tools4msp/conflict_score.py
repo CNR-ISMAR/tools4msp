@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from __future__ import absolute_import
+
 
 import itertools
 import numpy as np
@@ -36,7 +36,7 @@ class ConflictScoreMixin(object):
                           score=None):
         if use1conf is not None and use2conf is not None:
             score = coexist_rules(use1conf, use2conf)
-        print use1id, use2id
+        print(use1id, use2id)
         self.coexist_scores.loc[use1id, use2id] = score
         self.coexist_scores.loc[use2id, use1id] = score
 

@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+
 from django.contrib.gis import admin
 from guardian.admin import GuardedModelAdmin
 from .models import Env, Use, Pressure, CaseStudy, \

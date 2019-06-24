@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from __future__ import absolute_import
+
 
 import itertools
 import numpy as np
@@ -354,7 +354,7 @@ class CumulativeImpactMixin(object):
 
         # global CI computation
         ci = np.zeros_like(self.grid)
-        for k, e in self.outputs['cienvs'].iteritems():
+        for k, e in self.outputs['cienvs'].items():
             ci += e
 
             # for uk, u in ciuses.iteritems():
@@ -418,7 +418,7 @@ class CumulativeImpactMixin(object):
 
         if self.cipres_info:
             cipres = self.outputs['cipres']
-            for pid, p in cienv_pressures.iteritems():
+            for pid, p in cienv_pressures.items():
                 if pid not in cipres:
                     cipres[pid] = np.zeros_like(self.grid)
 
@@ -430,8 +430,8 @@ class CumulativeImpactMixin(object):
 
         if self.ciuses_info:
             ciuses = self.outputs['ciuses']
-            for pid, udict in cienv_pressures_uses.iteritems():
-                for uid, u in udict.iteritems():
+            for pid, udict in cienv_pressures_uses.items():
+                for uid, u in udict.items():
                     _ciuse = np.zeros_like(self.grid)
                     _ciuse[cienv_dominant_pid == pid] += u[cienv_dominant_pid == pid]
                     _ciuse_env_pres = u * (1. - mscf) + _ciuse * mscf
@@ -509,12 +509,12 @@ class CumulativeImpactMixin(object):
             _env_layer = self.get_layer(s.envid)
 
             if not ispressure and _use_layer is not None and _env_layer is not None:
-                print s.uselabel, s.envlabel, s.preslabel, s.distance, s.score
+                print(s.uselabel, s.envlabel, s.preslabel, s.distance, s.score)
                 use_layer = _use_layer.layer.copy()
                 ci.gaussian_conv(s.distance / 2., truncate=3.)
 
                 _bci = use_layer * ci * s.score
-                print _bci.sum()
+                print(_bci.sum())
                 if outputmask is not None:
                     _bci.mask = outputmask
 
@@ -553,10 +553,10 @@ class CumulativeImpactMixin(object):
         if 'ci' in self.outputs:
             self.outputs['ci'].write_raster(self.get_outpath('ci.tiff'), dtype='float32')
         if 'ciuses' in self.outputs:
-            for (idx, d) in self.outputs['ciuses'].iteritems():
+            for (idx, d) in self.outputs['ciuses'].items():
                 d.write_raster(self.get_outpath('ciuse_{}.tiff'.format(idx)), dtype='float32')
         if 'cienvs' in self.outputs:
-            for (idx, d) in self.outputs['cienvs'].iteritems():
+            for (idx, d) in self.outputs['cienvs'].items():
                 d.write_raster(self.get_outpath('cienv_{}.tiff'.format(idx)), dtype='float32')
         if 'ciscores' in self.outputs:
             self.outputs['ciscores'].to_csv(self.get_outpath('ciscores.csv'))

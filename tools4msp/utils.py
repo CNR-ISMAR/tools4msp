@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from __future__ import absolute_import
+
 
 import re
 import simplejson
@@ -52,13 +52,13 @@ def get_casestudy(ci_id, cellsize, basedir,
     cics, uses, envs = _get_adriplan_cics(ci_id)
 
     # USES
-    for use, use_layers in list(uses.iteritems()):
+    for use, use_layers in list(uses.items()):
         # print "USE", use
         update_use(casestudy, ci_id, use, cache=cache)
         # print casestudy.layers.loc['u{}'.format(use.id), 'availability']
 
     # ENVS
-    for env, env_layers in list(envs.iteritems()):
+    for env, env_layers in list(envs.items()):
         # print "ENVS", env
         # if env.label == 'A5.39 - Mediterranean biocenosis of coastal terrigenous muds':
         update_env(casestudy, ci_id, env, cache=cache)
@@ -96,7 +96,7 @@ def get_use_obj(use):
         return use
     elif isinstance(use, int):
         return ActivityAndUse.objects.get(pk=use)
-    elif isinstance(use, str) or isinstance(use, unicode):
+    elif isinstance(use, str) or isinstance(use, str):
         return ActivityAndUse.objects.get(label=use)
 
 
@@ -105,7 +105,7 @@ def get_env_obj(env):
         return env
     elif isinstance(env, int):
         return EnvironmentalComponent.objects.get(pk=env)
-    elif isinstance(env, str) or isinstance(env, unicode):
+    elif isinstance(env, str) or isinstance(env, str):
         return EnvironmentalComponent.objects.get(label=env)
 
 
@@ -152,7 +152,7 @@ def get_use_raster(ci_id, use, grid):
         raster = raster / 3. # come in andersen
         return raster
     elif (ci_id == 18) and use.label == 'Military Areas':
-        print "Process military areas 2"
+        print("Process military areas 2")
         raster = layers_to_raster(use_layers, grid, compute_area=False)
         # raster[~scipy.ndimage.binary_erosion(raster)] = 0
         # raster.gaussian_conv(2000, truncate=3.0)
@@ -218,42 +218,42 @@ def get_env_raster(ci_id, env, grid):
     env_layers = get_env_layers(ci_id, env)
 
     if env.id == 26:
-        print "Nursery"
+        print("Nursery")
         raster = get_nursery_habitats(grid)
         raster.mask = grid.mask
         return raster
     if env.label == 'TU - Turtles':
-        print "Turtles"
+        print("Turtles")
         raster = get_turtles(grid)
         raster.mask = grid.mask
         return raster
     elif env.label == 'GDR - Giant devil ray':
-        print "Ray"
+        print("Ray")
         raster = get_ray(grid)
         raster.mask = grid.mask
         return raster
     elif env.label == 'MM - Marine mammals':
-        print "Mammals"
+        print("Mammals")
         raster = get_marine_mammals(grid)
         raster.mask = grid.mask
         return raster
     elif env.label == 'SB - Seabirds':
-        print "Seabirds"
+        print("Seabirds")
         return get_marine_seabirds(grid)
     elif env.label == 'A4.26 - Mediterranean coralligenous communities':
-        print "Coralligenous"
+        print("Coralligenous")
         return get_coralligenous(grid)
     elif env.label == 'A5.535 - Posidonia beds':
-        print "Posidonia"
+        print("Posidonia")
         return get_posidonia_beds(grid)
     elif re.match(r'A\d\d?', env.label):
-        print "AREA", env.label
+        print("AREA", env.label)
         return layers_to_raster(env_layers, grid, compute_area=True) # rimettere a True quando sarà finito
     elif re.match(r'EM', env.label):
-        print "AREA", env.label
+        print("AREA", env.label)
         return layers_to_raster(env_layers, grid, compute_area=True) # rimettere a True quando sarà finito
     else:
-        print "OTHER", env.label
+        print("OTHER", env.label)
         return layers_to_raster(env_layers, grid, compute_area=False)
 
 
@@ -266,7 +266,7 @@ def update_use(casestudy, ci_id, use, cache=True):
     if cache:
         raster = casestudy.read_raster(lid)
     else:
-        print use
+        print(use)
         raster = get_use_raster(ci_id, use, grid)
     if cache:
         raster_availability = casestudy.read_raster('av_' + lid)
@@ -287,7 +287,7 @@ def update_env(casestudy, ci_id, env, cache=True):
     if cache:
         raster = casestudy.read_raster(lid)
     else:
-        print env
+        print(env)
         raster = get_env_raster(ci_id, env, grid)
     if cache:
         raster_availability = casestudy.read_raster('av_' + lid)
@@ -314,13 +314,13 @@ def get_adriplan_cics(ci_id, cellsize, datadir=None, casestudy=None, cache=True)
     cics, uses, envs = _get_adriplan_cics(ci_id)
 
     # USES
-    for use, use_layers in list(uses.iteritems()):
+    for use, use_layers in list(uses.items()):
         # print "USE", use
         update_use(casestudy, ci_id, use, cache=cache)
         # print casestudy.layers.loc['u{}'.format(use.id), 'availability']
 
     # ENVS
-    for env, env_layers in list(envs.iteritems()):
+    for env, env_layers in list(envs.items()):
         # print "ENVS", env
         # if env.label == 'A5.39 - Mediterranean biocenosis of coastal terrigenous muds':
         update_env(casestudy, ci_id, env, cache=cache)
@@ -637,35 +637,35 @@ def layer_to_raster(l, grid=None, res=None, **kwargs):
             raster = grid.copy()
             raster.reproject(_r)
             raster.positive()
-            print "OLD TRAFFIC"
+            print("OLD TRAFFIC")
             return raster
         elif l.typename == 'geonode:traffic_density_lines_gener_2014_2015_ais_3857_nocolor':
             _r = rg.read_raster('/var/www/geonode/uploaded/layers/traffic_density_lines_gener_2014_2015_ais_3857_nocolor.tiff')
             raster = grid.copy()
             raster.reproject(_r.astype(np.float))
             raster.positive()
-            print "NEW TRAFFIC"
+            print("NEW TRAFFIC")
             return raster
         elif l.typename == 'geonode:malta_aisdata_hm250_r500':
             _r = rg.read_raster('/var/www/geonode/uploaded/layers/malta_aisdata_hm250_r500.tif')
             raster = grid.copy()
             raster.reproject(_r.astype(np.float))
             raster.positive()
-            print "TRAFFIC MALTA"
+            print("TRAFFIC MALTA")
             return raster
         elif l.typename == 'geonode:loggerheadturtlesclean_quartico_30km_100m_clip':
             _r = rg.read_raster('/var/www/geonode/uploaded/layers/loggerheadturtlesclean_quartico_30km_100m_clip.tif')
             raster = grid.copy()
             raster.reproject(_r.astype(np.float))
             raster.positive()
-            print "NEW TURTLES"
+            print("NEW TURTLES")
             return raster
         elif l.typename == 'geonode:marinemammals_quartico_60km_100m_clip':
             _r = rg.read_raster('/var/www/geonode/uploaded/layers/marinemammals_quartico_60km_100m_clip_UdCUElw.tif')
             raster = grid.copy()
             raster.reproject(_r.astype(np.float))
             raster.positive()
-            print "NEW MAMMALS"
+            print("NEW MAMMALS")
             return raster
         elif l.name in ['lba_pressure_plume_threshold',
                         'lba_pressure_om',
@@ -678,7 +678,7 @@ def layer_to_raster(l, grid=None, res=None, **kwargs):
         if not l.is_vector():
             raise Exception("RASTER is not implemented")
         gdf = get_df(l.name)
-    elif isinstance(l, str) or isinstance(l, unicode):
+    elif isinstance(l, str) or isinstance(l, str):
         gdf = get_df(l)
     if grid is not None:
         raster = rg.read_df_like(grid, gdf, **kwargs)

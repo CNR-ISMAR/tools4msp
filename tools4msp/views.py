@@ -1,10 +1,10 @@
 # coding: utf-8
 
-from __future__ import absolute_import
+
 
 import logging
 import tempfile
-import urlparse
+import urllib.parse
 from django.shortcuts import render
 from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
@@ -344,7 +344,7 @@ def casestudy_run_save(request, tool, id):
     elif tool == 'coexist':
         tool_label = 'COEXIST'
 
-    absolute_reverse_url = urlparse.urljoin(settings.SITEURL, reverse_url)
+    absolute_reverse_url = urllib.parse.urljoin(settings.SITEURL, reverse_url)
     abstract = 'This layer was produced using the tool "{}" and configuration and statistical outputs can be accessed here: {}'.format(tool_label,
                                                                                                                                        absolute_reverse_url)
     if layer is not None:

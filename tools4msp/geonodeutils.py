@@ -4,7 +4,7 @@ TODO: they will be moved on models
 TODO: a models.CaseStudy - casestudy.CaseStudy connection must be defined
 """
 
-from __future__ import absolute_import
+
 
 from .utils import raster_file_upload
 

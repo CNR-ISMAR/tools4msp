@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from __future__ import absolute_import
+
 
 import itertools
 import numpy as np
@@ -279,10 +279,10 @@ class CumulativeImpactMixin(object):
         if 'ci' in self.outputs:
             self.outputs['ci'].write_raster(self.get_outpath('ci.tiff'))
         if 'ciuses' in self.outputs:
-            for (idx, d) in self.outputs['ciuses'].iteritems():
+            for (idx, d) in self.outputs['ciuses'].items():
                 d.write_raster(self.get_outpath('ciuse_{}.tiff'.format(idx)))
         if 'cienvs' in self.outputs:
-            for (idx, d) in self.outputs['cienvs'].iteritems():
+            for (idx, d) in self.outputs['cienvs'].items():
                 d.write_raster(self.get_outpath('cienv_{}.tiff'.format(idx)))
         if 'ciscores' in self.outputs:
             self.outputs['ciscores'].to_csv(self.get_outpath('ciscores.csv'))

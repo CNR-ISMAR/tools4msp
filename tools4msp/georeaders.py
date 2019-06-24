@@ -14,7 +14,7 @@ def localgeonode(l):
     """
     if isinstance(l, int):
         l = Layer.objects.get(pk=l)
-    elif isinstance(l, basestring):
+    elif isinstance(l, str):
         l = Layer.objects.get(typename=l)
 
     if l.is_vector():

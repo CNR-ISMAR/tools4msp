@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+
 from django.conf.urls import patterns, url, include
 from .views import CaseStudyListView, CumulativeImpactInfo, CoexistInfo, \
     ESInfo, CaseStudyRunConfigurationView, casestudy_run_save, CaseStudyRunView, \

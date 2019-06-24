@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+
 
 import logging
 import matplotlib
@@ -247,7 +247,7 @@ class CaseStudy(models.Model):
 
     def thumbnail_tag(self):
         if self.thumbnail_url is not None:
-            return u'<img src="{}" width="200"/>'.format(self.thumbnail_url)
+            return '<img src="{}" width="200"/>'.format(self.thumbnail_url)
         else:
             return ''
     thumbnail_tag.short_description = 'Thumbnail'
@@ -259,7 +259,7 @@ class Pressure(models.Model):
     description = models.TextField(blank=True)
 
     def __unicode__(self):
-        return u"%s" % self.label
+        return "%s" % self.label
 
     class Meta:
         ordering = ['label']
@@ -270,7 +270,7 @@ class Use(models.Model):
     description = models.TextField(blank=True)
 
     def __unicode__(self):
-        return u"%s" % self.label
+        return "%s" % self.label
 
     class Meta:
         ordering = ['label']
@@ -281,7 +281,7 @@ class Env(models.Model):
     description = models.TextField(blank=True)
 
     def __unicode__(self):
-        return u"%s" % self.label
+        return "%s" % self.label
 
     class Meta:
         ordering = ['label']
@@ -297,7 +297,7 @@ class Weight(models.Model):
     context = models.ForeignKey(Context)
 
     def __unicode__(self):
-        return u"{}: {} - {}".format(self.context, self.use,
+        return "{}: {} - {}".format(self.context, self.use,
                                      self.pressure)
 
 
@@ -311,7 +311,7 @@ class Sensitivity(models.Model):
     context = models.ForeignKey(Context)
 
     def __unicode__(self):
-        return u"{}: {} - {}".format(self.context, self.pressure,
+        return "{}: {} - {}".format(self.context, self.pressure,
                                      self.env)
 
     class Meta:
@@ -325,7 +325,7 @@ class Dataset(models.Model):
     dataset_type = models.CharField(max_length=5, choices=DATASET_TYPE_CHOICES)
 
     def __unicode__(self):
-        return u"{} - {}".format(self.pk, self.label)
+        return "{} - {}".format(self.pk, self.label)
 
     def read_resource(self, resource):
         _resource = resource.split('.')
@@ -371,7 +371,7 @@ class Dataset(models.Model):
     def urls_tag(self):
         urls = self.get_resources_urls()
         if len(urls) > 0:
-            return u'; '.join(['<a href="{}">{}</a>'.format(u[0], u[1].capitalize()) for k, u in urls.iteritems()])
+            return '; '.join(['<a href="{}">{}</a>'.format(u[0], u[1].capitalize()) for k, u in urls.items()])
         return ''
 
     urls_tag.short_description = 'Layers'
@@ -406,7 +406,7 @@ class CaseStudyDataset(models.Model):
         logger.debug('update_dataset res={} grid_input={}'.format(res, grid is not None))
         cs = self.casestudy.get_CS()
         raster = self.get_dataset(res=res, grid=grid)
-        print raster.gtransform
+        print(raster.gtransform)
         cs.add_layer(raster,
                      dataset_type,
                      self.get_lid(),
@@ -416,7 +416,7 @@ class CaseStudyDataset(models.Model):
     def save_thumbnail(self, res=None, grid=None):
         cs = self.casestudy.get_CS()
         out = cs.get_outpath('{}.png'.format(self.pk))
-        print out
+        print(out)
         plt.figure()
         d = self.get_dataset(res=res, grid=grid)
         if grid is not None:
@@ -432,7 +432,7 @@ class CaseStudyDataset(models.Model):
 
     def thumbnail_tag(self):
         if self.thumbnail_url is not None:
-            return u'<img src="{}" width="210"/>'.format(self.thumbnail_url)
+            return '<img src="{}" width="210"/>'.format(self.thumbnail_url)
         else:
             return ''
     thumbnail_tag.short_description = 'Thumbnail'
@@ -479,7 +479,7 @@ class CaseStudyDataset(models.Model):
     def urls_tag(self):
         urls = self.get_resources_urls()
         if len(urls) > 0:
-            return u'; '.join(['<a href="{}">{}</a>'.format(u[0], u[1].capitalize()) for k, u in urls.iteritems()])
+            return '; '.join(['<a href="{}">{}</a>'.format(u[0], u[1].capitalize()) for k, u in urls.items()])
         return ''
 
     urls_tag.short_description = 'Layers'

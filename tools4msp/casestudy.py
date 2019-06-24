@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+
 
 import logging
 from os import path
@@ -149,7 +149,7 @@ class CaseStudy(CumulativeImpactMixin, ConflictScoreMixin):
             raise Exception("datadir is not configured: cannot save the data")
         for idx, layer in self.layers.iterrows():
             layerpath = self.datadir + idx
-            print layer.label, layerpath
+            print(layer.label, layerpath)
             layer.layer.write_raster(layerpath)
             #
             av_layerpath = self.datadir + 'av_' + idx
@@ -361,7 +361,7 @@ class CaseStudy3(CumulativeImpactMixin3, ConflictScoreMixin):
             raise Exception("datadir is not configured: cannot save the data")
         for idx, layer in self.layers.iterrows():
             layerpath = self.datadir + idx
-            print layer.label, layerpath
+            print(layer.label, layerpath)
             layer.layer.write_raster(layerpath)
             #
             av_layerpath = self.datadir + 'av_' + idx
