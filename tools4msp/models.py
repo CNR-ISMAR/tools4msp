@@ -5,9 +5,17 @@ import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 from django.contrib.gis.db import models
-from geonode.layers.models import Layer
+# TODO: make GeoNode dependency non mandatory
+try:
+    from geonode.layers.models import Layer
+    geonode = True
+except ImportError:
+    geonode = False
+
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
+from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 from jsonfield import JSONField
 from .processing import Expression
 from .utils import layer_to_raster, get_sensitivities_by_rule, get_conflict_by_uses
@@ -27,6 +35,11 @@ DATASET_TYPE_CHOICES = (
 
 TOOLS4MSP_BASEDIR = '/var/www/geonode/static/cumulative_impact'
 
+
+if not geonode:
+    # fake model
+    class Layer(models.Model):
+        pass
 
 class Context(models.Model):
     """Model for storing information on data context."""
@@ -48,7 +61,8 @@ class CaseStudy(models.Model):
     tools4msp = models.BooleanField(_("Tools4MSP Case Study"), default=False,
                                     help_text=_('Is this a Tools4MSP Case Study?'))
     grid = models.ForeignKey("CaseStudyGrid", blank=True, null=True,
-                             verbose_name="Area of analysis")
+                             verbose_name="Area of analysis",
+                             on_delete=models.CASCADE)
 
     # grid_dataset = models.ForeignKey("Dataset", blank=True, null=True,
     #                                  verbose_name="Area of analysis")
@@ -60,10 +74,14 @@ class CaseStudy(models.Model):
     tool_ci = models.BooleanField()
     tool_mes = models.BooleanField()
 
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
     # created_at = models.DateTimeField(auto_now_add=True)
     # updated_at = models.DateTimeField(auto_now=True)
 
-    objects = models.GeoManager()
+    # this has been removed in Django 2.2
+    # objects = models.GeoManager()
 
     output_layer_model_config = None
     _output_layer_model = None
@@ -76,7 +94,8 @@ class CaseStudy(models.Model):
     class Meta:
         verbose_name_plural = "Case studies"
         permissions = (
-            ('view_casestudy', 'View case study'),
+            # New Django version already support view permission
+            # ('view_casestudy', 'View case study'),
             ('download_casestudy', 'Download case study'),
             ('run_casestudy', 'Run case study'),
         )
@@ -245,13 +264,30 @@ class CaseStudy(models.Model):
     def thumbnail_url(self):
         return self.get_thumbnail_url()
 
+    @mark_safe
     def thumbnail_tag(self):
         if self.thumbnail_url is not None:
             return '<img src="{}" width="200"/>'.format(self.thumbnail_url)
         else:
             return ''
     thumbnail_tag.short_description = 'Thumbnail'
-    thumbnail_tag.allow_tags = True
+
+    def run(self):
+        return {'success': True}
+
+
+class CaseStudyLayer(models.Model):
+    "Model for layer description and storage"
+    casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE,
+                                  related_name="layers")
+    name = models.CharField(max_length=100)
+
+
+class CaseStudyInput(models.Model):
+    "Model for input description and storage"
+    casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE,
+                                  related_name="inputs")
+    name = models.CharField(max_length=100)
 
 
 class Pressure(models.Model):
@@ -290,11 +326,11 @@ class Env(models.Model):
 class Weight(models.Model):
     """Model for storing use-specific relative pressure weights.
     """
-    use = models.ForeignKey(Use)
-    pressure = models.ForeignKey(Pressure)
+    use = models.ForeignKey(Use, on_delete=models.CASCADE)
+    pressure = models.ForeignKey(Pressure, on_delete=models.CASCADE)
     weight = models.FloatField()
     distance = models.FloatField(default=0)
-    context = models.ForeignKey(Context)
+    context = models.ForeignKey(Context, on_delete=models.CASCADE)
 
     def __unicode__(self):
         return "{}: {} - {}".format(self.context, self.use,
@@ -305,10 +341,10 @@ class Sensitivity(models.Model):
     """Model for storing sensitivities of the environmental components to
     the pressures.
     """
-    pressure = models.ForeignKey(Pressure)
-    env = models.ForeignKey(Env)
+    pressure = models.ForeignKey(Pressure, on_delete=models.CASCADE)
+    env = models.ForeignKey(Env, on_delete=models.CASCADE)
     sensitivity = models.FloatField()
-    context = models.ForeignKey(Context)
+    context = models.ForeignKey(Context, on_delete=models.CASCADE)
 
     def __unicode__(self):
         return "{}: {} - {}".format(self.context, self.pressure,
@@ -368,6 +404,7 @@ class Dataset(models.Model):
         # TODO: rendere meno pericoloso
         return eval(self.parse_expression())
 
+    @mark_safe
     def urls_tag(self):
         urls = self.get_resources_urls()
         if len(urls) > 0:
@@ -375,7 +412,6 @@ class Dataset(models.Model):
         return ''
 
     urls_tag.short_description = 'Layers'
-    urls_tag.allow_tags = True
 
 
 class CaseStudyDataset(models.Model):
@@ -430,13 +466,13 @@ class CaseStudyDataset(models.Model):
         self.save()
         return out
 
+    @mark_safe
     def thumbnail_tag(self):
         if self.thumbnail_url is not None:
             return '<img src="{}" width="210"/>'.format(self.thumbnail_url)
         else:
             return ''
     thumbnail_tag.short_description = 'Thumbnail'
-    thumbnail_tag.allow_tags = True
 
     # def dataset_urls_tag(self):
     #     if self.dataset is not None:
@@ -446,13 +482,13 @@ class CaseStudyDataset(models.Model):
     # dataset_urls_tag.short_description = 'Layers'
     # dataset_urls_tag.allow_tags = True
 
+    @mark_safe
     def updated_tag(self):
         if not self.expression_hash or hashlib.md5("whatever your string is").hexdigest() != self.expression_hash:
             return False
         return True
 
     updated_tag.short_description = 'Updated'
-    updated_tag.allow_tags = True
 
     def get_layers_qs(self):
         layers = []
@@ -462,11 +498,14 @@ class CaseStudyDataset(models.Model):
         return Layer.objects.filter(typename__in=layers)
 
     def get_resources_urls(self):
-        urls = {}
-        for l in self.get_layers_qs():
-            urls[l.typename] = ((l.get_absolute_url(),
-                                 l.title))
-        return urls
+        expression = self.expression
+        if expression is not None:
+            urls = {}
+            for l in self.get_layers_qs():
+                urls[l.typename] = ((l.get_absolute_url(),
+                                     l.title))
+            return urls
+        return []
 
     def eval_expression(self, res=None, grid=None):
         expression = self.expression
@@ -476,14 +515,15 @@ class CaseStudyDataset(models.Model):
         else:
             None
 
+    @mark_safe
     def urls_tag(self):
+        # return "ciccio3"
         urls = self.get_resources_urls()
         if len(urls) > 0:
             return '; '.join(['<a href="{}">{}</a>'.format(u[0], u[1].capitalize()) for k, u in urls.items()])
         return ''
 
     urls_tag.short_description = 'Layers'
-    urls_tag.allow_tags = True
 
     def __unicode__(self):
         return self.name
@@ -501,8 +541,8 @@ class CaseStudyGrid(CaseStudyDataset):
 
 
 class CaseStudyUse(CaseStudyDataset):
-    casestudy = models.ForeignKey(CaseStudy)
-    name = models.ForeignKey(Use)
+    casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE)
+    name = models.ForeignKey(Use, on_delete=models.CASCADE)
 
     def get_lid(self):
         return "u{}".format(self.name.pk)
@@ -512,8 +552,8 @@ class CaseStudyUse(CaseStudyDataset):
 
 
 class CaseStudyEnv(CaseStudyDataset):
-    casestudy = models.ForeignKey(CaseStudy)
-    name = models.ForeignKey(Env)
+    casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE)
+    name = models.ForeignKey(Env, on_delete=models.CASCADE)
 
     def get_lid(self):
         return "e{}".format(self.name.pk)
@@ -523,9 +563,9 @@ class CaseStudyEnv(CaseStudyDataset):
 
 
 class CaseStudyPressure(CaseStudyDataset):
-    casestudy = models.ForeignKey(CaseStudy)
-    name = models.ForeignKey(Pressure)
-    source_use = models.ForeignKey(Use, blank=True, null=True)
+    casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE)
+    name = models.ForeignKey(Pressure, on_delete=models.CASCADE)
+    source_use = models.ForeignKey(Use, blank=True, null=True, on_delete=models.CASCADE)
 
     def get_lid(self):
         if self.source_use is not None:
@@ -540,19 +580,22 @@ class CaseStudyPressure(CaseStudyDataset):
 
 
 class CaseStudyRun(models.Model):
-    casestudy = models.ForeignKey(CaseStudy)
+    casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE)
     name = models.CharField(max_length=100, blank=True, null=True)
-    out_ci = models.ForeignKey(Layer, blank=True, null=True, related_name='casestudyrun_ci')
-    out_coexist = models.ForeignKey(Layer, blank=True, null=True, related_name='casestudyrun_coexist')
+    out_ci = models.ForeignKey(Layer, blank=True, null=True,
+                               related_name='casestudyrun_ci', on_delete=models.CASCADE)
+    out_coexist = models.ForeignKey(Layer, blank=True, null=True,
+                                    related_name='casestudyrun_coexist', on_delete=models.CASCADE)
     area_of_interest = models.MultiPolygonField(blank=True, null=True)
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, related_name='owned_casestudyrun',
-                              verbose_name=_("Owner"))
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True,
+                              related_name='owned_casestudyrun',
+                              verbose_name=_("Owner"), on_delete=models.CASCADE)
     # temporary storage for uses a
     configuration = JSONField()
 
 
 class ESCapacity(models.Model):
-    env = models.ForeignKey(Env)
+    env = models.ForeignKey(Env, on_delete=models.CASCADE)
     # MESProv
     food_provisioning = models.FloatField(blank=True, null=True)
     raw_material = models.FloatField(blank=True, null=True)

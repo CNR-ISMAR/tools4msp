@@ -1,6 +1,12 @@
 import logging
 from django.db.transaction import get_connection
-from geonode.layers.models import Layer
+try:
+    geonode = True
+    from geonode.layers.models import Layer
+except:
+    geonode = False
+
+
 import pandas as pd
 import geopandas as gpd
 import rectifiedgrid as rg
@@ -12,6 +18,9 @@ def localgeonode(l):
     """Get a geo dataset from local GeoNonde installation. It returns a
        Rectifiedgrid object for raster layers and a GeoDataFrame for vector layers.
     """
+    if not geonode:
+        raise ModuleNotFoundError("GeoNode module is not installed or not configured in the project")
+        return False
     if isinstance(l, int):
         l = Layer.objects.get(pk=l)
     elif isinstance(l, str):

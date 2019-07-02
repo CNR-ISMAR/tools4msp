@@ -21,6 +21,9 @@ class Expression(object):
                      self.exp)
 
     def list(self):
+        exp = self.exp
+        if exp is None:
+            return []
         return p.findall(self.exp)
 
     def eval(self, grid=None, res=None):

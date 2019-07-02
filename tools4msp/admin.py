@@ -1,10 +1,14 @@
-
 from django.contrib.gis import admin
-from guardian.admin import GuardedModelAdmin
+from django.utils.safestring import mark_safe
+try:
+    from guardian.admin import GuardedModelAdmin
+except ImportError:
+    GuardedModelAdmin = admin.ModelAdmin
+
 from .models import Env, Use, Pressure, CaseStudy, \
     CaseStudyUse, CaseStudyEnv, CaseStudyPressure, \
     Dataset, ESCapacity, CaseStudyRun, Weight, Sensitivity, \
-    Context, CaseStudyGrid
+    Context, CaseStudyGrid, CaseStudyLayer, CaseStudyInput
 
 
 class ContextAdmin(admin.ModelAdmin):
@@ -52,6 +56,7 @@ class CaseStudyDatasetInline(admin.StackedInline):
     classes = ('grp-open',)
     inline_classes = ('grp-collapse grp-open',)
 
+    @mark_safe
     def button(self, obj):
         return """<button class="grp-button" type='button' onclick='tools4msp.chackValidate({});'>Update dataset</button>""".format(obj.pk)
 
@@ -77,17 +82,29 @@ class CaseStudyPressureInline(CaseStudyDatasetInline):
               'thumbnail_tag')
 
 
-class CaseStudyAdmin(GuardedModelAdmin):
+class CaseStudyLayerInline(admin.TabularInline):
+    model = CaseStudyLayer
+
+
+class CaseStudyInputInline(admin.TabularInline):
+    model = CaseStudyInput
+
+
+class CaseStudyAdmin(#admin.OSMGeoAdmin, # django 2.2 already provide a map widget
+                     GuardedModelAdmin):
     list_display = ['label', 'tools4msp', 'is_published',
                     'tool_coexist', 'tool_ci', 'tool_mes']
     readonly_fields = ['thumbnail_tag']
     fields = ('label', 'description',
               'grid_resolution',
+              'area_of_interest',
               ('grid', 'thumbnail_tag'),
               # 'grid_output',
               'tools4msp', 'is_published',
               ('tool_coexist', 'tool_ci', 'tool_mes')) #, 'area_of_interest']
     inlines = [
+        CaseStudyLayerInline,
+        CaseStudyInputInline,
         CaseStudyUseInline,
         CaseStudyEnvInline,
         CaseStudyPressureInline,
