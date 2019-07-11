@@ -24,6 +24,7 @@ from .casestudy import CaseStudy3 as CS
 import itertools
 import datetime
 import hashlib
+from django.contrib.gis.geos import MultiPolygon
 
 logger = logging.getLogger('tools4msp.models')
 
@@ -100,6 +101,9 @@ class CaseStudy(models.Model):
     resolution = models.FloatField(default=1000, help_text='resoution of analysis (meters)')
     domain_area = models.MultiPolygonField(blank=True, null=True,
                                            help_text="polygon geometry(Lat Log WGS84)")
+    import_domain_area = models.ManyToManyField("DomainArea",
+                                                blank=True,
+                                                null=True)
 
     # tools4msp = models.BooleanField(_("Tools4MSP Case Study"), default=False,
     #                                 help_text=_('Is this a Tools4MSP Case Study?'))
@@ -139,6 +143,20 @@ class CaseStudy(models.Model):
     _output_layer_model = None
 
     CS = None
+
+    def set_domain_area(self):
+        if self.import_domain_area.count() > 0:
+            print("AAAAAAAAAAAAAAAA")
+            print(self.import_domain_area.all())
+            geounion = self.import_domain_area.aggregate(models.Union('geo'))['geo__union']
+            if geounion.geom_type != 'MultiPolygon':
+                geounion = MultiPolygon(geounion)
+            self.domain_area = geounion
+
+    def save(self, *args, **kwargs):
+        # self.set_domain_area()
+        super().save(*args, **kwargs)
+        # self.import_domain_area.clear()
 
     def __str__(self):
         return self.label
@@ -814,6 +832,18 @@ class ESCapacity(models.Model):
     @property
     def es_supporting(self):
         return self.get_capacity('supporting')
+
+
+class DomainArea(models.Model):
+    geo = models.MultiPolygonField(blank=True, null=True,
+                                   help_text="polygon geometry(Lat Log WGS84)")
+    label = models.CharField(max_length=100)
+
+    def __str__(self):
+        return "%s" % self.label
+
+    class Meta:
+        ordering = ['label']
 
 # class CaseStudyRunLayers(models.Model):
 #     lid = models.CharField(max_length=5)

@@ -117,6 +117,7 @@ class CaseStudyAdmin(#admin.OSMGeoAdmin, # django 2.2 already provide a map widg
     fields = ('label', 'description',
               'resolution',
               'domain_area',
+              'import_domain_area',
               ('domain_area_dataset', 'thumbnail_tag'),
               # 'grid_output',
               'is_published', 'module', 'owner')
@@ -129,12 +130,19 @@ class CaseStudyAdmin(#admin.OSMGeoAdmin, # django 2.2 already provide a map widg
         ]
     save_as = True
 
+    filter_horizontal = ('import_domain_area',)
+
     class Media:
         css = {
             "all": ("tools4msp/css/admin.css",)
         }
         js = ("tools4msp/js/admin.js",)
 
+    def save_related(self, request, form, formsets, change):
+        super(CaseStudyAdmin, self).save_related(request, form, formsets, change)
+        form.instance.set_domain_area()
+        form.instance.save()
+        form.instance.import_domain_area.clear()
 
 class DatasetAdmin(admin.ModelAdmin):
     model = Dataset
