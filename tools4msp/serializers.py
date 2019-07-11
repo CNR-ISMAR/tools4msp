@@ -6,13 +6,14 @@ from .models import CaseStudy, CaseStudyLayer, CaseStudyInput
 class CaseStudyLayerSerializer(serializers.ModelSerializer):
     class Meta:
         model = CaseStudyLayer
-        fields = ('name', 'casestudy', 'layer')
+        fields = ('layer_type', 'layerfile', 'casestudy')
 
 
 class CaseStudyInputSerializer(serializers.ModelSerializer):
     class Meta:
         model = CaseStudyInput
-        fields = ('name',)
+        fields = ('input_type',
+                  'inputfile',)
 
 
 class CaseStudySerializer(GeoModelSerializer):
