@@ -56,7 +56,7 @@ def get_resource(resource, grid=None, res=None, **kwargs):
         else:
             logger.debug('get_resource geodataset.dtype={}'.format(geodataset.dtype))
             raster = geodataset.astype(np.float).to_srs_like(grid.astype(np.float))
-            # raster = grid.copy()
+            # raster = domain_area_dataset.copy()
             # raster.reproject(geodataset)
     else:
         if isinstance(geodataset, gpd.GeoDataFrame):

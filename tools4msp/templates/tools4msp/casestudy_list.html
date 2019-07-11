@@ -40,7 +40,7 @@
         <h4><a href="{% url "casestudy-conf" tool=tool id=casestudy.id %}">{{ casestudy.label }}</a></h4>
         <p class="abstract">{{ casestudy.description }}</p>
         <p class="actions">
-          <i class="fa fa-th"></i>Resolution: {{ casestudy.grid_resolution }} m |
+          <i class="fa fa-th"></i>Resolution: {{ casestudy.resolution }} m |
           <i class="fa fa-ship"></i>Uses: {{ casestudy.casestudyuse_set.count }} |
           <i class="fa fa-th"></i>Envs: {{ casestudy.casestudyenv_set.count }}
         </p>

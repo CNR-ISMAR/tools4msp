@@ -10,7 +10,7 @@ from .utils import raster_file_upload
 
 
 def publish_grid(c, cs):
-    """Publish the grid raster file and configure the CaseStudy
+    """Publish the domain_area_dataset raster file and configure the CaseStudy
 
     Parameters
     ----------

@@ -82,7 +82,7 @@ logger = logging.getLogger('tools4msp.view')
 #     makedirs(datadir)
 
 # # casestudy = get_adriplan_cics(adriplan_casestudy_id, cellsize, datadir=datadir, cache=True)
-# # _grid = casestudy.grid
+# # _grid = casestudy.domain_area_dataset
 # # territorial_sea = get_territorialsea(_grid)
 # # update_sensitivities(casestudy, adriplan_casestudy_id)
 # # ci, ciuses, cienvs, confidence, scores = casestudy.cumulative_impact(outputmask=_grid==0)
@@ -193,7 +193,7 @@ class CaseStudyRunConfigurationView(TemplateView, Tools4MPSBaseView):
         context = super(CaseStudyRunConfigurationView, self).get_context_data(**kwargs)
         # cs = CICaseStudy.objects.get(pk=self.id)
         cs = CaseStudyModel.objects.get(pk=self.id)
-        # get grid. layer
+        # get domain_area_dataset. layer
         grid_layer = cs.grid.get_layers_qs()[0]
         grid_typename = grid_layer.typename
         guses = cs.casestudyuse_set.all()

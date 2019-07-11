@@ -19,27 +19,47 @@ admin.site.register(Context, ContextAdmin)
 
 class WeightAdmin(admin.ModelAdmin):
     model = Weight
-    list_display = ['context', 'use', 'pressure',
+    list_display = ['context', 'use', 'pres',
                     'weight', 'distance']
-    list_filter = ['context', 'use', 'pressure']
+    list_filter = ['context', 'use', 'pres']
 
 admin.site.register(Weight, WeightAdmin)
 
 
 class SensitivityAdmin(admin.ModelAdmin):
     model = Sensitivity
-    list_display = ['context', 'pressure',
+    list_display = ['context', 'pres',
                     'env', 'sensitivity']
-    list_filter = ['context', 'pressure', 'env']
+    list_filter = ['context', 'pres', 'env']
 
 admin.site.register(Sensitivity, SensitivityAdmin)
 
 
-class PressureAdmin(admin.ModelAdmin):
+class PresAdmin(admin.ModelAdmin):
     model = Pressure
+    list_display = ['code',
+                   'label',
+                   'msfd']
 
-admin.site.register(Pressure, PressureAdmin)
+admin.site.register(Pressure, PresAdmin)
 
+
+class UseAdmin(admin.ModelAdmin):
+    model = Use
+    list_display = ['code',
+                    'label',
+                    'msfd',]
+
+admin.site.register(Use, UseAdmin)
+
+
+class EnvAdmin(admin.ModelAdmin):
+    model = Env
+    list_display = ['code',
+                    'label',
+                    'msfd',]
+
+admin.site.register(Env, EnvAdmin)
 
 # class CaseStudyDatasetInline(admin.TabularInline):
 # fields = ('name', 'dataset', 'thumbnail_tag', 'expression_tag', 'dataset_urls_tag')
@@ -92,16 +112,14 @@ class CaseStudyInputInline(admin.TabularInline):
 
 class CaseStudyAdmin(#admin.OSMGeoAdmin, # django 2.2 already provide a map widget
                      GuardedModelAdmin):
-    list_display = ['label', 'tools4msp', 'is_published',
-                    'tool_coexist', 'tool_ci', 'tool_mes']
+    list_display = ['label', 'is_published', 'module', 'owner']
     readonly_fields = ['thumbnail_tag']
     fields = ('label', 'description',
-              'grid_resolution',
-              'area_of_interest',
-              ('grid', 'thumbnail_tag'),
+              'resolution',
+              'domain_area',
+              ('domain_area_dataset', 'thumbnail_tag'),
               # 'grid_output',
-              'tools4msp', 'is_published',
-              ('tool_coexist', 'tool_ci', 'tool_mes')) #, 'area_of_interest']
+              'is_published', 'module', 'owner')
     inlines = [
         CaseStudyLayerInline,
         CaseStudyInputInline,

@@ -67,7 +67,7 @@ class CumulativeImpactMixin(object):
 
     def cumulative_impact(self, uses=None, envs=None,
                           outputmask=None, fulloutput=True):
-        # ci = self.grid.copy()
+        # ci = self.domain_area_dataset.copy()
         ci = np.zeros_like(self.grid)
         cimax = np.zeros_like(self.grid)
         confidence = np.zeros_like(self.grid)
@@ -185,7 +185,7 @@ class CumulativeImpactMixin(object):
 
     def inv_cumulative_impact(self, uses=None, envs=None, outputmask=None,
                               envmask=None, fulloutput=True):
-        # ci = self.grid.copy()
+        # ci = self.domain_area_dataset.copy()
         ci = np.zeros_like(self.grid)
         confidence = np.zeros_like(self.grid)
         ciuses = {}

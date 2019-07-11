@@ -6,7 +6,7 @@ from .models import CaseStudy, CaseStudyLayer, CaseStudyInput
 class CaseStudyLayerSerializer(serializers.ModelSerializer):
     class Meta:
         model = CaseStudyLayer
-        fields = ('name', 'casestudy')
+        fields = ('name', 'casestudy', 'layer')
 
 
 class CaseStudyInputSerializer(serializers.ModelSerializer):
@@ -16,17 +16,19 @@ class CaseStudyInputSerializer(serializers.ModelSerializer):
 
 
 class CaseStudySerializer(GeoModelSerializer):
-    layers = CaseStudyLayerSerializer(many=True)
-    inputs = CaseStudyInputSerializer(many=True)
+    layers = CaseStudyLayerSerializer(many=True, read_only=True)
+    inputs = CaseStudyInputSerializer(many=True, read_only=True)
 
     class Meta:
         model = CaseStudy
         fields = ('label',
                   'description',
-                  'grid_resolution',
-                  'area_of_interest',
-                  'created', 'updated',
+                  'module',
+                  'cstype',
+                  'resolution',
+                  'domain_area',
+                  'created',
+                  'updated',
                   'layers',
                   'inputs')
-        read_only_fields = ('created', 'updated')
-        pass
+        read_only_fields = ('created', 'updated',)

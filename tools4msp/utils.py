@@ -386,8 +386,8 @@ def get_oil_and_gas_extraction(grid):
     # l3 = Layer.objects.get(name='developmentareas_croatia')
 
     r1 = layers_to_raster([l1], grid)
-    # r2 = layers_to_raster([l2], grid)
-    # r3 = layers_to_raster([l3], grid)
+    # r2 = layers_to_raster([l2], domain_area_dataset)
+    # r3 = layers_to_raster([l3], domain_area_dataset)
 
     # r123 = r1 + r2*0.2 + r3*0.2
     # r123.norm()
@@ -621,7 +621,7 @@ def layers_to_raster(layers, grid, column=None, compute_area=False, value=1.):
     for l in layers:
         raster.patch(layer_to_raster(l, grid, column=column, value=value,
                                      compute_area=compute_area))
-    # raster.set_mask(~grid._array.astype(bool))
+    # raster.set_mask(~domain_area_dataset._array.astype(bool))
     return raster
 
 

@@ -185,7 +185,7 @@ class CumulativeImpactMixin(object):
         self.ciuses_info = ciuses_info
         self.cipres_info = cipres_info
         self.ciscores_info = ciscores_info
-        # confidence = np.zeros_like(self.grid)
+        # confidence = np.zeros_like(self.domain_area_dataset)
         self.outputs['cienvs'] = {}
         self.outputs['cipres'] = {}
         self.outputs['ciuses'] = {}
@@ -305,11 +305,11 @@ class CumulativeImpactMixin(object):
 
                     # if useid not in cienv_uses:
                     #     cienv_uses[useid] = {}
-                    #     cienv_uses[useid] = np.zeros_like(self.grid)
+                    #     cienv_uses[useid] = np.zeros_like(self.domain_area_dataset)
                     # cienv_uses[useid] += sensarray
 
                 # TODO: calcolare il contributo per singolo uso
-                # cienvsdominant_uid[_env_layer.lid] = np.zeros(self.grid.shape,
+                # cienvsdominant_uid[_env_layer.lid] = np.zeros(self.domain_area_dataset.shape,
                 #                                         dtype='S6')
                 # cienvsdominant_uid[_env_layer.lid][:] = useid
                 # #
@@ -358,7 +358,7 @@ class CumulativeImpactMixin(object):
             ci += e
 
             # for uk, u in ciuses.iteritems():
-            #     _ciuses = np.zeros_like(self.grid)
+            #     _ciuses = np.zeros_like(self.domain_area_dataset)
             #     # for k, a in cienvs.iteritems():
             #     #     _cienvsdominant = cienvsdominant[k]
             #     #     _cienvsdominant_uid = cienvsdominant_uid[k]
@@ -478,7 +478,7 @@ class CumulativeImpactMixin(object):
 
     def inv_cumulative_impact(self, uses=None, envs=None, outputmask=None,
                               fulloutput=True, pressures=None, cioutputmask=None):
-        # ci = self.grid.copy()
+        # ci = self.domain_area_dataset.copy()
         bci = np.zeros_like(self.grid)
 
         for sid, s in self.sensitivities.iterrows():

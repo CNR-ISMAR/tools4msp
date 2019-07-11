@@ -15,6 +15,7 @@ except ImportError:
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
+from django.utils.functional import lazy
 from django.utils.html import format_html
 from jsonfield import JSONField
 from .processing import Expression
@@ -29,12 +30,50 @@ logger = logging.getLogger('tools4msp.models')
 DATASET_TYPE_CHOICES = (
     ('grid', 'Grid'),
     ('use', 'Activity & Uses'),
-    ('env', 'Environmental Component'),
+    ('env', 'Environmental receptor'),
     ('pre', 'Pressure'),
+)
+
+MODULE_TYPE_CHOICES = (
+    ('cea', 'CEA'),
+    ('musc', 'MUSC'),
+    ('partrac', 'Particle tracking'),
+)
+
+CASESTUDY_TYPE_CHOICES = (
+    ('default', 'Default run'),
+    ('customize', 'Customize run'),
+)
+
+INPUT_TYPE_CHOICES = (
+    ('pre_weights', 'Pressure weights'),
+    ('sensitivities', 'Sensitivities'),
+    ('muc_scores', 'MUC scores')
 )
 
 TOOLS4MSP_BASEDIR = '/var/www/geonode/static/cumulative_impact'
 
+def get_layer_type_choices():
+    lt = [("grid", "Analysis grid")]
+    udata = []
+    for u in Use.objects.all():
+        udata.append((u.code, u.label))
+    lt.append(('Uses', udata))
+
+    return [
+    ('Audio', (
+            ('vinyl', 'Vinyl'),
+            ('cd', 'CD'),
+        )
+    ),
+    ('Video', (
+            ('vhs', 'VHS Tape'),
+            ('dvd', 'DVD'),
+        )
+    ),
+    ('unknown', 'Unknown'),
+]
+    return lt
 
 if not geonode:
     # fake model
@@ -47,22 +86,30 @@ class Context(models.Model):
     description = models.CharField(max_length=200, null=True, blank=True)
     reference_date = models.DateField(default=datetime.date.today)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.label
 
 
 class CaseStudy(models.Model):
     label = models.CharField(max_length=100)
     description = models.CharField(max_length=200, null=True, blank=True)
-    grid_resolution = models.FloatField(default=1000, help_text='in meters')
-    area_of_interest = models.MultiPolygonField(blank=True, null=True)
-    is_published = models.BooleanField(_("Is Published"), default=False,
-                                       help_text=_('Should this Case Study be published?'))
-    tools4msp = models.BooleanField(_("Tools4MSP Case Study"), default=False,
-                                    help_text=_('Is this a Tools4MSP Case Study?'))
-    grid = models.ForeignKey("CaseStudyGrid", blank=True, null=True,
-                             verbose_name="Area of analysis",
-                             on_delete=models.CASCADE)
+
+    cstype = models.CharField(_('CS Type'), max_length=10, choices=CASESTUDY_TYPE_CHOICES)
+    module = models.CharField(_('Module type'), max_length=10, choices=MODULE_TYPE_CHOICES)
+
+    resolution = models.FloatField(default=1000, help_text='resoution of analysis (meters)')
+    domain_area = models.MultiPolygonField(blank=True, null=True,
+                                           help_text="polygon geometry(Lat Log WGS84)")
+
+    # tools4msp = models.BooleanField(_("Tools4MSP Case Study"), default=False,
+    #                                 help_text=_('Is this a Tools4MSP Case Study?'))
+
+    # reference to source dataset/layer
+    domain_area_dataset = models.ForeignKey("CaseStudyGrid",
+                                            blank=True,
+                                            null=True,
+                                            verbose_name="Domain area (source dataset)",
+                                            on_delete=models.CASCADE)
 
     # grid_dataset = models.ForeignKey("Dataset", blank=True, null=True,
     #                                  verbose_name="Area of analysis")
@@ -70,13 +117,18 @@ class CaseStudy(models.Model):
     # grid_output = models.ForeignKey("Dataset", blank=True, null=True,
     #                                 related_name="casestudy_output",
     #                                 verbose_name="")
-    tool_coexist = models.BooleanField()
-    tool_ci = models.BooleanField()
-    tool_mes = models.BooleanField()
+    # tool_coexist = models.BooleanField()
+    # tool_ci = models.BooleanField()
+    # tool_mes = models.BooleanField()
+
+    is_published = models.BooleanField(_("Is Published"), default=False,
+                                       help_text=_('Should this Case Study be published?'))
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    owner = models.ForeignKey('auth.User',
+                              on_delete=models.CASCADE)
     # created_at = models.DateTimeField(auto_now_add=True)
     # updated_at = models.DateTimeField(auto_now=True)
 
@@ -88,7 +140,7 @@ class CaseStudy(models.Model):
 
     CS = None
 
-    def __unicode__(self):
+    def __str__(self):
         return self.label
 
     class Meta:
@@ -254,10 +306,10 @@ class CaseStudy(models.Model):
 
     def get_grid(self):
         # TODO: move expression
-        return self.grid.get_dataset(res=self.grid_resolution)
+        return self.domain_area_dataset.get_dataset(res=self.resolution)
 
     def get_thumbnail_url(self):
-        l = self.grid.get_layers_qs()[0]
+        l = self.domain_area_dataset.get_layers_qs()[0]
         return l.thumbnail_url
 
     @property
@@ -275,48 +327,139 @@ class CaseStudy(models.Model):
     def run(self):
         return {'success': True}
 
+def generate_layer_filename(self, filename):
+    url = "casestudies/{}/layers/{}".format(self.casestudy.id, filename)
+    return url
+
+def generate_input_filename(self, filename):
+    url = "casestudies/{}/inputs/{}".format(self.casestudy.id, self.input_type)
+    return url
+
 
 class CaseStudyLayer(models.Model):
     "Model for layer description and storage"
-    casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE,
+    casestudy = models.ForeignKey(CaseStudy,
+                                  on_delete=models.CASCADE,
                                   related_name="layers")
-    name = models.CharField(max_length=100)
+    layer_type = models.ForeignKey("CodedLabel", limit_choices_to={'cltype__in': ['grid',
+                                                                                  'pre',
+                                                                                  'env',
+                                                                                  'use']},
+                                   on_delete=models.CASCADE)
+    layerfile = models.FileField(blank=True,
+                                 null=True,
+                                 upload_to=generate_layer_filename)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
 
 
 class CaseStudyInput(models.Model):
     "Model for input description and storage"
     casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE,
                                   related_name="inputs")
-    name = models.CharField(max_length=100)
+    input_type = models.CharField(max_length=15, choices=INPUT_TYPE_CHOICES)
+    inputfile = models.FileField(blank=True,
+                                 null=True,
+                                 upload_to=generate_input_filename)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
 
 
-class Pressure(models.Model):
+class CodedLabel(models.Model):
+    cltype = models.CharField(max_length=10, choices=DATASET_TYPE_CHOICES)
+    code = models.CharField(max_length=10)
     label = models.CharField(max_length=100)
     description = models.TextField(blank=True)
+    old_label = models.CharField(max_length=100, blank=True, null=True)
 
-    def __unicode__(self):
+    def __str__(self):
+        return "%s" % self.label
+
+
+class MsfdPres(models.Model):
+    theme = models.CharField(max_length=100,
+                             blank=True,
+                             null=True)
+    msfd_pressure = models.CharField(max_length=200,
+                                     blank=True,
+                                     null=True
+                                     )
+
+    def __str__(self):
+        return "{} - {}".format(self.theme, self.msfd_pressure)
+
+
+class Pressure(CodedLabel):
+    msfd = models.ForeignKey(MsfdPres,
+                             on_delete=models.CASCADE)
+
+    def __init__(self, *args, **kwargs):
+        super(Pressure, self).__init__(*args, **kwargs)
+        self.cltype = 'pre'
+
+    def __str__(self):
         return "%s" % self.label
 
     class Meta:
         ordering = ['label']
 
 
-class Use(models.Model):
-    label = models.CharField(max_length=100)
-    description = models.TextField(blank=True)
+class MsfdUse(models.Model):
+    theme = models.CharField(max_length=100,
+                             blank=True,
+                             null=True
+                             )
+    activity = models.CharField(max_length=200,
+                                blank=True,
+                                null=True
+                                )
 
-    def __unicode__(self):
+    def __str__(self):
+        return "{} - {}".format(self.theme, self.activity)
+
+
+class Use(CodedLabel):
+    msfd = models.ForeignKey(MsfdUse,
+                             on_delete=models.CASCADE)
+
+    def __init__(self, *args, **kwargs):
+        super(Use, self).__init__(*args, **kwargs)
+        self.cltype = 'use'
+
+    def __str__(self):
         return "%s" % self.label
 
     class Meta:
         ordering = ['label']
 
 
-class Env(models.Model):
-    label = models.CharField(max_length=100)
-    description = models.TextField(blank=True)
+class MsfdEnv(models.Model):
+    theme = models.CharField(max_length=100,
+                             blank=True,
+                             null=True
+                             )
+    ecosystem_element = models.CharField(max_length=200,
+                                         blank=True,
+                                         null=True
+                                         )
+    broad_group = models.CharField(max_length=200,
+                                   blank=True,
+                                   null=True
+                                   )
+    def __str__(self):
+        return "{} -> {} -> {}".format(self.theme,
+                                 self.ecosystem_element,
+                                 self.broad_group)
 
-    def __unicode__(self):
+class Env(CodedLabel):
+    msfd = models.ForeignKey(MsfdEnv,
+                             on_delete=models.CASCADE)
+
+    def __init__(self, *args, **kwargs):
+        super(Env, self).__init__(*args, **kwargs)
+        self.cltype = 'env'
+
+    def __str__(self):
         return "%s" % self.label
 
     class Meta:
@@ -327,27 +470,27 @@ class Weight(models.Model):
     """Model for storing use-specific relative pressure weights.
     """
     use = models.ForeignKey(Use, on_delete=models.CASCADE)
-    pressure = models.ForeignKey(Pressure, on_delete=models.CASCADE)
+    pres = models.ForeignKey(Pressure, on_delete=models.CASCADE)
     weight = models.FloatField()
     distance = models.FloatField(default=0)
     context = models.ForeignKey(Context, on_delete=models.CASCADE)
 
-    def __unicode__(self):
+    def __str__(self):
         return "{}: {} - {}".format(self.context, self.use,
-                                     self.pressure)
+                                     self.pres)
 
 
 class Sensitivity(models.Model):
     """Model for storing sensitivities of the environmental components to
     the pressures.
     """
-    pressure = models.ForeignKey(Pressure, on_delete=models.CASCADE)
+    pres = models.ForeignKey(Pressure, on_delete=models.CASCADE)
     env = models.ForeignKey(Env, on_delete=models.CASCADE)
     sensitivity = models.FloatField()
     context = models.ForeignKey(Context, on_delete=models.CASCADE)
 
-    def __unicode__(self):
-        return "{}: {} - {}".format(self.context, self.pressure,
+    def __str__(self):
+        return "{}: {} - {}".format(self.context, self.pres,
                                      self.env)
 
     class Meta:
@@ -360,7 +503,7 @@ class Dataset(models.Model):
     expression = models.TextField(null=True, blank=True, verbose_name="Pre-processing expression")
     dataset_type = models.CharField(max_length=5, choices=DATASET_TYPE_CHOICES)
 
-    def __unicode__(self):
+    def __str__(self):
         return "{} - {}".format(self.pk, self.label)
 
     def read_resource(self, resource):
@@ -525,7 +668,7 @@ class CaseStudyDataset(models.Model):
 
     urls_tag.short_description = 'Layers'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 

@@ -209,7 +209,7 @@ class CaseStudy(CumulativeImpactMixin, ConflictScoreMixin):
     def dump_inputs(self):
         # self.dump_layers()
 
-        self.grid.write_raster(self.datadir + 'grid.tiff')
+        self.grid.write_raster(self.datadir + 'domain_area_dataset.tiff')
 
         super(CaseStudy, self).dump_inputs()
 
@@ -217,7 +217,7 @@ class CaseStudy(CumulativeImpactMixin, ConflictScoreMixin):
         super(CaseStudy, self).dump_outputs()
 
     def load_grid(self):
-        self.grid = rg.read_raster(self.datadir + 'grid.tiff')
+        self.grid = rg.read_raster(self.datadir + 'domain_area_dataset.tiff')
 
     def load_inputs(self):
         self.load_grid()
@@ -425,7 +425,7 @@ class CaseStudy3(CumulativeImpactMixin3, ConflictScoreMixin):
     def dump_inputs(self):
         # self.dump_layers()
 
-        self.grid.write_raster(self.datadir + 'grid.tiff')
+        self.grid.write_raster(self.datadir + 'domain_area_dataset.tiff')
 
         super(CaseStudy3, self).dump_inputs()
 
@@ -433,7 +433,7 @@ class CaseStudy3(CumulativeImpactMixin3, ConflictScoreMixin):
         super(CaseStudy3, self).dump_outputs()
 
     def load_grid(self):
-        self.grid = rg.read_raster(self.datadir + 'grid.tiff')
+        self.grid = rg.read_raster(self.datadir + 'domain_area_dataset.tiff')
 
     def load_inputs(self):
         self.load_grid()
