@@ -8,7 +8,8 @@ except ImportError:
 from .models import Env, Use, Pressure, CaseStudy, \
     CaseStudyUse, CaseStudyEnv, CaseStudyPressure, \
     Dataset, ESCapacity, CaseStudyRun, Weight, Sensitivity, \
-    Context, CaseStudyGrid, CaseStudyLayer, CaseStudyInput
+    Context, CaseStudyGrid, CaseStudyLayer, CaseStudyInput, \
+    MsfdUse, MsfdPres, MsfdEnv
 
 
 class ContextAdmin(admin.ModelAdmin):
@@ -197,7 +198,8 @@ class ESCapacityAdmin(admin.ModelAdmin):
     save_as = True
 
 
-admin.site.register(ESCapacity, ESCapacityAdmin)
+#
+# admin.site.register(ESCapacity, ESCapacityAdmin)
 
 
 class CaseStudyRunAdmin(admin.ModelAdmin):
@@ -206,3 +208,24 @@ class CaseStudyRunAdmin(admin.ModelAdmin):
 
 
 admin.site.register(CaseStudyRun, CaseStudyRunAdmin)
+
+## MSFD alignment
+class MsfdUseAdmin(admin.ModelAdmin):
+    model = MsfdUse
+    list_display = ['theme', 'activity']
+
+admin.site.register(MsfdUse, MsfdUseAdmin)
+
+
+class MsfdPresAdmin(admin.ModelAdmin):
+    model = MsfdPres
+    list_display = ['theme', 'msfd_pressure']
+
+admin.site.register(MsfdPres, MsfdPresAdmin)
+
+
+class MsfdEnvAdmin(admin.ModelAdmin):
+    model = MsfdEnv
+    list_display = ['theme', 'ecosystem_element', 'broad_group']
+
+admin.site.register(MsfdEnv, MsfdEnvAdmin)
