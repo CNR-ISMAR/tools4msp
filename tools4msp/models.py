@@ -149,6 +149,7 @@ class CaseStudy(models.Model):
             print("AAAAAAAAAAAAAAAA")
             print(self.import_domain_area.all())
             geounion = self.import_domain_area.aggregate(models.Union('geo'))['geo__union']
+            geounion = geounion.simplify(0.01)
             if geounion.geom_type != 'MultiPolygon':
                 geounion = MultiPolygon(geounion)
             self.domain_area = geounion
@@ -391,8 +392,10 @@ class CodedLabel(models.Model):
     old_label = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
-        return "%s" % self.label
+        return "{} -> {}".format(self.cltype, self.label)
 
+    class Meta:
+        ordering = ['cltype', 'label']
 
 class MsfdPres(models.Model):
     theme = models.CharField(max_length=100,

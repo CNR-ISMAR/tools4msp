@@ -9,13 +9,21 @@ from .models import Env, Use, Pressure, CaseStudy, \
     CaseStudyUse, CaseStudyEnv, CaseStudyPressure, \
     Dataset, ESCapacity, CaseStudyRun, Weight, Sensitivity, \
     Context, CaseStudyGrid, CaseStudyLayer, CaseStudyInput, \
-    MsfdUse, MsfdPres, MsfdEnv
+    MsfdUse, MsfdPres, MsfdEnv, DomainArea
 
 
+#############
+## CaseStudy drive approach
 class ContextAdmin(admin.ModelAdmin):
     model = Context
 
 admin.site.register(Context, ContextAdmin)
+
+
+class DomainAreaAdmin(admin.ModelAdmin):
+    model = DomainArea
+
+admin.site.register(DomainArea, DomainAreaAdmin)
 
 
 class WeightAdmin(admin.ModelAdmin):
@@ -209,6 +217,7 @@ class CaseStudyRunAdmin(admin.ModelAdmin):
 
 admin.site.register(CaseStudyRun, CaseStudyRunAdmin)
 
+#################
 ## MSFD alignment
 class MsfdUseAdmin(admin.ModelAdmin):
     model = MsfdUse
@@ -229,3 +238,5 @@ class MsfdEnvAdmin(admin.ModelAdmin):
     list_display = ['theme', 'ecosystem_element', 'broad_group']
 
 admin.site.register(MsfdEnv, MsfdEnvAdmin)
+
+
