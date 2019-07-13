@@ -9,7 +9,7 @@ from .models import Env, Use, Pressure, CaseStudy, \
     CaseStudyUse, CaseStudyEnv, CaseStudyPressure, \
     Dataset, ESCapacity, CaseStudyRun, Weight, Sensitivity, \
     Context, CaseStudyGrid, CaseStudyLayer, CaseStudyInput, \
-    MsfdUse, MsfdPres, MsfdEnv, DomainArea
+    MsfdUse, MsfdPres, MsfdEnv, DomainArea, Grid
 
 
 #############
@@ -42,6 +42,14 @@ class SensitivityAdmin(admin.ModelAdmin):
     list_filter = ['context', 'pres', 'env']
 
 admin.site.register(Sensitivity, SensitivityAdmin)
+
+
+class GridAdmin(admin.ModelAdmin):
+    model = Grid
+    list_display = ['code',
+                    'label']
+
+admin.site.register(Grid, GridAdmin)
 
 
 class PresAdmin(admin.ModelAdmin):

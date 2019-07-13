@@ -397,6 +397,19 @@ class CodedLabel(models.Model):
     class Meta:
         ordering = ['cltype', 'label']
 
+
+class Grid(CodedLabel):
+    def __init__(self, *args, **kwargs):
+        super(Grid, self).__init__(*args, **kwargs)
+        self.cltype = 'grid'
+
+    def __str__(self):
+        return "%s" % self.label
+
+    class Meta:
+        ordering = ['label']
+
+
 class MsfdPres(models.Model):
     theme = models.CharField(max_length=100,
                              blank=True,
