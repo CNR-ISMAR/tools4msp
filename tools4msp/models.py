@@ -102,8 +102,8 @@ class CaseStudy(models.Model):
     domain_area = models.MultiPolygonField(blank=True, null=True,
                                            help_text="polygon geometry(Lat Log WGS84)")
     import_domain_area = models.ManyToManyField("DomainArea",
-                                                blank=True,
-                                                null=True)
+                                                blank=True
+                                                )
 
     # tools4msp = models.BooleanField(_("Tools4MSP Case Study"), default=False,
     #                                 help_text=_('Is this a Tools4MSP Case Study?'))
@@ -404,7 +404,11 @@ class MsfdPres(models.Model):
                                      )
 
     def __str__(self):
-        return "{} - {}".format(self.theme, self.msfd_pressure)
+        return "{} -> {}".format(self.theme, self.msfd_pressure)
+
+    class Meta:
+        verbose_name = "MSFD pressure"
+        ordering = ['theme', 'msfd_pressure']
 
 
 class Pressure(CodedLabel):
@@ -433,7 +437,12 @@ class MsfdUse(models.Model):
                                 )
 
     def __str__(self):
-        return "{} - {}".format(self.theme, self.activity)
+        return "{} -> {}".format(self.theme, self.activity)
+
+    class Meta:
+        verbose_name = "MSFD Activity"
+        verbose_name_plural = "MSFD Activities"
+        ordering = ['theme', 'activity']
 
 
 class Use(CodedLabel):
@@ -469,6 +478,11 @@ class MsfdEnv(models.Model):
                                  self.ecosystem_element,
                                  self.broad_group)
 
+    class Meta:
+        verbose_name = "MSFD environmental receptor"
+        ordering = ['theme', 'ecosystem_element', 'broad_group']
+
+
 class Env(CodedLabel):
     msfd = models.ForeignKey(MsfdEnv,
                              on_delete=models.CASCADE)
@@ -481,6 +495,7 @@ class Env(CodedLabel):
         return "%s" % self.label
 
     class Meta:
+        verbose_name = "Environmental receptor"
         ordering = ['label']
 
 
@@ -496,6 +511,8 @@ class Weight(models.Model):
     def __str__(self):
         return "{}: {} - {}".format(self.context, self.use,
                                      self.pres)
+    class Meta:
+        verbose_name = "Pressure weight"
 
 
 class Sensitivity(models.Model):
