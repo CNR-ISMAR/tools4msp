@@ -221,7 +221,7 @@ class ESCapacityAdmin(admin.ModelAdmin):
 
 class CaseStudyRunAdmin(admin.ModelAdmin):
     model = CaseStudyRun
-    list_display = ['id', 'casestudy', 'name', 'out_ci']
+    list_display = ['id', 'casestudy', 'label']
 
 
 admin.site.register(CaseStudyRun, CaseStudyRunAdmin)
