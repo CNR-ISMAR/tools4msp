@@ -23,7 +23,16 @@ setup(
     packages=['tools4msp',],
     include_package_data=True,
     zip_safe=False,
-    install_requires=['django-import-export', 'matplotlib', 'jsonfield',
-                      'pandas', 'geopandas'
+    install_requires=['django-import-export',
+                      'matplotlib',
+                      'jsonfield',
+                      'pandas',
+                      'geopandas',
+                      'django-extensions',
+                      'django-filter',
+                      'django-import-export',
+                      'django-rest-swagger',
+                      'djangorestframework',
+                      'djangorestframework-gis',
                       ],
 )
