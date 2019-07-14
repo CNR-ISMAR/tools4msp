@@ -347,7 +347,9 @@ class CaseStudy(models.Model):
         return {'success': True}
 
 def generate_layer_filename(self, filename):
-    url = "casestudies/{}/layers/{}".format(self.casestudy.id, filename)
+    url = "casestudies/{}/layers/{}-{}.geotiff".format(self.casestudy.id,
+                                                       self.layer_type.cltype,
+                                                       self.layer_type.code)
     return url
 
 def generate_input_filename(self, filename):
@@ -355,6 +357,7 @@ def generate_input_filename(self, filename):
     return url
 
 
+## TODO: add contraint to avoid multiple CaseStudyLayer with the same layer_type
 class CaseStudyLayer(models.Model):
     "Model for layer description and storage"
     casestudy = models.ForeignKey(CaseStudy,
@@ -396,18 +399,6 @@ class CodedLabel(models.Model):
 
     class Meta:
         ordering = ['cltype', 'label']
-
-
-class Grid(CodedLabel):
-    def __init__(self, *args, **kwargs):
-        super(Grid, self).__init__(*args, **kwargs)
-        self.cltype = 'grid'
-
-    def __str__(self):
-        return "%s" % self.label
-
-    class Meta:
-        ordering = ['label']
 
 
 class MsfdPres(models.Model):
