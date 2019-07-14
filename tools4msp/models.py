@@ -254,7 +254,7 @@ class CaseStudy(models.Model):
                     'p{}'.format(w.pressure.id),
                     w.pressure.label,
                     w.weight, w.distance)
-
+    #
     def sync_pres_sensitivities(self):
         cs = self.get_CS()
         if not hasattr(cs, 'pres_sensitivities'):
@@ -766,17 +766,17 @@ class CaseStudyPressure(CaseStudyDataset):
 
 class CaseStudyRun(models.Model):
     casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE)
-    name = models.CharField(max_length=100, blank=True, null=True)
-    out_ci = models.ForeignKey(Layer, blank=True, null=True,
-                               related_name='casestudyrun_ci', on_delete=models.CASCADE)
-    out_coexist = models.ForeignKey(Layer, blank=True, null=True,
-                                    related_name='casestudyrun_coexist', on_delete=models.CASCADE)
-    area_of_interest = models.MultiPolygonField(blank=True, null=True)
+    label = models.CharField(max_length=100, blank=True, null=True)
+    description = models.CharField(max_length=200, null=True, blank=True)
+    domain_area = models.MultiPolygonField(blank=True, null=True)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True,
                               related_name='owned_casestudyrun',
                               verbose_name=_("Owner"), on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
     # temporary storage for uses a
-    configuration = JSONField()
+    configuration = JSONField(null=True, blank=True)
 
 
 class ESCapacity(models.Model):
