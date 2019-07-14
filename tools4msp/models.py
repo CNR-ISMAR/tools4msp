@@ -1,5 +1,3 @@
-
-
 import logging
 import matplotlib
 matplotlib.use('agg')
@@ -357,8 +355,25 @@ def generate_input_filename(self, filename):
     return url
 
 
-## TODO: add contraint to avoid multiple CaseStudyLayer with the same layer_type
-class CaseStudyLayer(models.Model):
+class LayerBase(models.Model):
+    "Model for layer description and storage"
+    layer_type = models.ForeignKey("CodedLabel", limit_choices_to={'cltype__in': ['grid',
+                                                                                  'pre',
+                                                                                  'env',
+                                                                                  'use']},
+                                   on_delete=models.CASCADE)
+    layerfile = models.FileField(blank=True,
+                                 null=True,
+                                 upload_to=generate_layer_filename)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+
+## TODO: add constrain to avoid multiple CaseStudyLayer with the same layer_type
+class CaseStudyLayer(LayerBase):
     "Model for layer description and storage"
     casestudy = models.ForeignKey(CaseStudy,
                                   on_delete=models.CASCADE,
@@ -373,6 +388,9 @@ class CaseStudyLayer(models.Model):
                                  upload_to=generate_layer_filename)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['layer_type__cltype']
 
 
 class CaseStudyInput(models.Model):
