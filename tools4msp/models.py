@@ -374,7 +374,8 @@ class LayerBase(models.Model):
     layer_type = models.ForeignKey("CodedLabel", limit_choices_to={'cltype__in': ['grid',
                                                                                   'pre',
                                                                                   'env',
-                                                                                  'use']},
+                                                                                  'use',
+                                                                                  'out']},
                                    on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -823,7 +824,7 @@ class CaseStudyRunOutput(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     class Meta:
-        ordering = ['output_type__cltype']
+        ordering = ['output_type']
 
 class ESCapacity(models.Model):
     env = models.ForeignKey(Env, on_delete=models.CASCADE)

@@ -237,8 +237,8 @@ class CaseStudyRunAdmin(admin.ModelAdmin):
                     'casestudy',
                     'label']
     inlines = [
-     #   'CaseStudyRunOutputLayerInline',
-     #          'CaseStudyRunOutputInline',
+        CaseStudyRunOutputLayerInline,
+        CaseStudyRunOutputInline,
     ]
 
 
