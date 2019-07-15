@@ -124,9 +124,18 @@ class CaseStudyPressureInline(CaseStudyDatasetInline):
 class CaseStudyLayerInline(admin.TabularInline):
     model = CaseStudyLayer
 
+    show_change_link = True
+
 
 class CaseStudyInputInline(admin.TabularInline):
     model = CaseStudyInput
+
+    show_change_link = True
+
+class CaseStudyRunInline(admin.TabularInline):
+    model = CaseStudyRun
+    fields = ('label', 'owner')
+    show_change_link = True
 
 
 class CaseStudyAdmin(#admin.OSMGeoAdmin, # django 2.2 already provide a map widget
@@ -143,6 +152,7 @@ class CaseStudyAdmin(#admin.OSMGeoAdmin, # django 2.2 already provide a map widg
     inlines = [
         CaseStudyLayerInline,
         CaseStudyInputInline,
+        CaseStudyRunInline,
         # CaseStudyUseInline,
         # CaseStudyEnvInline,
         # CaseStudyPressureInline,
@@ -265,5 +275,3 @@ class MsfdEnvAdmin(admin.ModelAdmin):
     list_display = ['theme', 'ecosystem_element', 'broad_group']
 
 admin.site.register(MsfdEnv, MsfdEnvAdmin)
-
-
