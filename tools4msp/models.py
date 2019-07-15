@@ -31,6 +31,7 @@ DATASET_TYPE_CHOICES = (
     ('use', 'Activity & Uses'),
     ('env', 'Environmental receptor'),
     ('pre', 'Pressure'),
+    ('out', 'Outputs'),
 )
 
 MODULE_TYPE_CHOICES = (
@@ -48,6 +49,10 @@ INPUT_TYPE_CHOICES = (
     ('pre_weights', 'Pressure weights'),
     ('sensitivities', 'Sensitivities'),
     ('muc_scores', 'MUC scores')
+)
+
+OUTPUT_TYPE_CHOICES = (
+
 )
 
 TOOLS4MSP_BASEDIR = '/var/www/geonode/static/cumulative_impact'
@@ -350,10 +355,19 @@ def generate_layer_filename(self, filename):
                                                        self.layer_type.code)
     return url
 
+def generate_output_layer_filename(self, filename):
+    url = "casestudyruns/{}/outputlayers/{}-{}.geotiff".format(self.casestudyrun.id,
+                                                       self.layer_type.cltype,
+                                                       self.layer_type.code)
+    return url
+
 def generate_input_filename(self, filename):
     url = "casestudies/{}/inputs/{}".format(self.casestudy.id, self.input_type)
     return url
 
+def generate_output_filename(self, filename):
+    url = "casestudyruns/{}/outputs/{}".format(self.casestudyrun.id, self.output_type)
+    return url
 
 class LayerBase(models.Model):
     "Model for layer description and storage"
@@ -362,9 +376,6 @@ class LayerBase(models.Model):
                                                                                   'env',
                                                                                   'use']},
                                    on_delete=models.CASCADE)
-    layerfile = models.FileField(blank=True,
-                                 null=True,
-                                 upload_to=generate_layer_filename)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -378,17 +389,9 @@ class CaseStudyLayer(LayerBase):
     casestudy = models.ForeignKey(CaseStudy,
                                   on_delete=models.CASCADE,
                                   related_name="layers")
-    layer_type = models.ForeignKey("CodedLabel", limit_choices_to={'cltype__in': ['grid',
-                                                                                  'pre',
-                                                                                  'env',
-                                                                                  'use']},
-                                   on_delete=models.CASCADE)
     layerfile = models.FileField(blank=True,
                                  null=True,
                                  upload_to=generate_layer_filename)
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
-
     class Meta:
         ordering = ['layer_type__cltype']
 
@@ -403,7 +406,6 @@ class CaseStudyInput(models.Model):
                                  upload_to=generate_input_filename)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-
 
 class CodedLabel(models.Model):
     cltype = models.CharField(max_length=10, choices=DATASET_TYPE_CHOICES)
@@ -796,6 +798,32 @@ class CaseStudyRun(models.Model):
     # temporary storage for uses a
     configuration = JSONField(null=True, blank=True)
 
+
+class CaseStudyRunOutputLayer(LayerBase):
+    casestudyrun = models.ForeignKey(CaseStudyRun,
+                                     on_delete=models.CASCADE,
+                                     #related_name="outputlayers"
+                                     )
+    layerfile = models.FileField(blank=True,
+                                 null=True,
+                                 upload_to=generate_output_layer_filename)
+    class Meta:
+        ordering = ['layer_type__cltype']
+
+
+class CaseStudyRunOutput(models.Model):
+    casestudyrun = models.ForeignKey(CaseStudyRun,
+                                     on_delete=models.CASCADE,
+                                     #related_name="outputs"
+                                     )
+    output_type = models.CharField(max_length=15, choices=OUTPUT_TYPE_CHOICES)
+    file = models.FileField(blank=True,
+                                 null=True,
+                                 upload_to=generate_output_filename)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    class Meta:
+        ordering = ['output_type__cltype']
 
 class ESCapacity(models.Model):
     env = models.ForeignKey(Env, on_delete=models.CASCADE)

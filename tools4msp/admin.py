@@ -9,7 +9,8 @@ from .models import Env, Use, Pressure, CaseStudy, \
     CaseStudyUse, CaseStudyEnv, CaseStudyPressure, \
     Dataset, ESCapacity, CaseStudyRun, Weight, Sensitivity, \
     Context, CaseStudyGrid, CaseStudyLayer, CaseStudyInput, \
-    MsfdUse, MsfdPres, MsfdEnv, DomainArea, CodedLabel
+    MsfdUse, MsfdPres, MsfdEnv, DomainArea, CodedLabel, \
+    CaseStudyRunOutputLayer, CaseStudyRunOutput
 
 
 #############
@@ -142,9 +143,9 @@ class CaseStudyAdmin(#admin.OSMGeoAdmin, # django 2.2 already provide a map widg
     inlines = [
         CaseStudyLayerInline,
         CaseStudyInputInline,
-        CaseStudyUseInline,
-        CaseStudyEnvInline,
-        CaseStudyPressureInline,
+        # CaseStudyUseInline,
+        # CaseStudyEnvInline,
+        # CaseStudyPressureInline,
         ]
     save_as = True
 
@@ -217,11 +218,28 @@ class ESCapacityAdmin(admin.ModelAdmin):
 
 #
 # admin.site.register(ESCapacity, ESCapacityAdmin)
+class CaseStudyRunOutputLayerAdmin(admin.ModelAdmin):
+    model = CaseStudyRunOutputLayer
 
+admin.site.register(CaseStudyRunOutputLayer, CaseStudyRunOutputLayerAdmin)
+
+
+class CaseStudyRunOutputLayerInline(admin.TabularInline):
+    model = CaseStudyRunOutputLayer
+
+
+class CaseStudyRunOutputInline(admin.TabularInline):
+    model = CaseStudyRunOutput
 
 class CaseStudyRunAdmin(admin.ModelAdmin):
     model = CaseStudyRun
-    list_display = ['id', 'casestudy', 'label']
+    list_display = ['id',
+                    'casestudy',
+                    'label']
+    inlines = [
+     #   'CaseStudyRunOutputLayerInline',
+     #          'CaseStudyRunOutputInline',
+    ]
 
 
 admin.site.register(CaseStudyRun, CaseStudyRunAdmin)
