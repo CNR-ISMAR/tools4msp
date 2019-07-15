@@ -26,7 +26,7 @@ from django.contrib.gis.geos import MultiPolygon
 
 logger = logging.getLogger('tools4msp.models')
 
-DATASET_TYPE_CHOICES = (
+CODEDLABEL_GROUP_CHOICES = (
     ('grid', 'Grid'),
     ('use', 'Activity & Uses'),
     ('env', 'Environmental receptor'),
@@ -351,13 +351,13 @@ class CaseStudy(models.Model):
 
 def generate_layer_filename(self, filename):
     url = "casestudies/{}/layers/{}-{}.geotiff".format(self.casestudy.id,
-                                                       self.layer_type.cltype,
+                                                       self.layer_type.group,
                                                        self.layer_type.code)
     return url
 
 def generate_output_layer_filename(self, filename):
     url = "casestudyruns/{}/outputlayers/{}-{}.geotiff".format(self.casestudyrun.id,
-                                                       self.layer_type.cltype,
+                                                       self.layer_type.group,
                                                        self.layer_type.code)
     return url
 
@@ -371,7 +371,7 @@ def generate_output_filename(self, filename):
 
 class LayerBase(models.Model):
     "Model for layer description and storage"
-    layer_type = models.ForeignKey("CodedLabel", limit_choices_to={'cltype__in': ['grid',
+    layer_type = models.ForeignKey("CodedLabel", limit_choices_to={'group__in': ['grid',
                                                                                   'pre',
                                                                                   'env',
                                                                                   'use',
@@ -394,7 +394,7 @@ class CaseStudyLayer(LayerBase):
                                  null=True,
                                  upload_to=generate_layer_filename)
     class Meta:
-        ordering = ['layer_type__cltype']
+        ordering = ['layer_type__group']
 
 
 class CaseStudyInput(models.Model):
@@ -408,18 +408,19 @@ class CaseStudyInput(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+
 class CodedLabel(models.Model):
-    cltype = models.CharField(max_length=10, choices=DATASET_TYPE_CHOICES)
+    group = models.CharField(max_length=10, choices=CODEDLABEL_GROUP_CHOICES)
     code = models.CharField(max_length=10)
     label = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     old_label = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
-        return "{} -> {}".format(self.cltype, self.label)
+        return "{} -> {}".format(self.group, self.label)
 
     class Meta:
-        ordering = ['cltype', 'label']
+        ordering = ['group', 'label']
 
 
 class MsfdPres(models.Model):
@@ -445,7 +446,7 @@ class Pressure(CodedLabel):
 
     def __init__(self, *args, **kwargs):
         super(Pressure, self).__init__(*args, **kwargs)
-        self.cltype = 'pre'
+        self.group = 'pre'
 
     def __str__(self):
         return "%s" % self.label
@@ -479,7 +480,7 @@ class Use(CodedLabel):
 
     def __init__(self, *args, **kwargs):
         super(Use, self).__init__(*args, **kwargs)
-        self.cltype = 'use'
+        self.group = 'use'
 
     def __str__(self):
         return "%s" % self.label
@@ -517,7 +518,7 @@ class Env(CodedLabel):
 
     def __init__(self, *args, **kwargs):
         super(Env, self).__init__(*args, **kwargs)
-        self.cltype = 'env'
+        self.group = 'env'
 
     def __str__(self):
         return "%s" % self.label
@@ -564,7 +565,7 @@ class Dataset(models.Model):
     slug = models.SlugField(max_length=100)
     label = models.CharField(max_length=100)
     expression = models.TextField(null=True, blank=True, verbose_name="Pre-processing expression")
-    dataset_type = models.CharField(max_length=5, choices=DATASET_TYPE_CHOICES)
+    dataset_type = models.CharField(max_length=5, choices=CODEDLABEL_GROUP_CHOICES)
 
     def __str__(self):
         return "{} - {}".format(self.pk, self.label)
@@ -809,7 +810,7 @@ class CaseStudyRunOutputLayer(LayerBase):
                                  null=True,
                                  upload_to=generate_output_layer_filename)
     class Meta:
-        ordering = ['layer_type__cltype']
+        ordering = ['layer_type__group']
 
 
 class CaseStudyRunOutput(models.Model):

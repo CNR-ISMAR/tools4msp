@@ -47,7 +47,7 @@ admin.site.register(Sensitivity, SensitivityAdmin)
 
 class CodedLabelAdmin(admin.ModelAdmin):
     model = CodedLabel
-    list_display = ['cltype',
+    list_display = ['group',
                     'code',
                     'label']
 
