@@ -57,7 +57,7 @@ OUTPUT_TYPE_CHOICES = (
 
 TOOLS4MSP_BASEDIR = '/var/www/geonode/static/cumulative_impact'
 
-def get_layer_type_choices():
+def get_coded_label_choices():
     lt = [("grid", "Analysis grid")]
     udata = []
     for u in Use.objects.all():
@@ -349,34 +349,83 @@ class CaseStudy(models.Model):
     def run(self):
         return {'success': True}
 
-def generate_layer_filename(self, filename):
-    url = "casestudies/{}/layers/{}-{}.geotiff".format(self.casestudy.id,
-                                                       self.layer_type.group,
-                                                       self.layer_type.code)
-    return url
-
-def generate_output_layer_filename(self, filename):
-    url = "casestudyruns/{}/outputlayers/{}-{}.geotiff".format(self.casestudyrun.id,
-                                                       self.layer_type.group,
-                                                       self.layer_type.code)
-    return url
-
+# def generate_filename(self, filename):
 def generate_input_filename(self, filename):
-    url = "casestudies/{}/inputs/{}".format(self.casestudy.id, self.input_type)
-    return url
+    pass
 
 def generate_output_filename(self, filename):
-    url = "casestudyruns/{}/outputs/{}".format(self.casestudyrun.id, self.output_type)
+    pass
+
+def generate_output_layer_filename(self, filename):
+    pass
+
+def generate_run_layer_filename(self, filename):
+    pass
+
+def generate_run_input_filename(self, filename):
+    pass
+
+def generate_run_output_filename(self, filename):
+    pass
+
+def generate_run_output_layer_filename(self, filename):
+    pass
+
+def generate_layer_filename(self, filename):
+    pass
+
+def generate_filename(self, filename):
+    parent_dir = None
+    parent_id = None
+    file_type = None
+    suffix = None
+    name = "{}-{}".format(self.coded_label.group,
+                          self.coded_label.code)
+    if isinstance(self, (CaseStudyRunInput,
+                         CaseStudyRunLayer,
+                         CaseStudyRunOutput,
+                         CaseStudyRunOutputLayer)):
+        parent_dir = "casestudyruns"
+        parent_id = self.casestudyrun.id
+    else:
+        parent_dir = "casestudy"
+        parent_id = self.casestudy.id
+
+    if isinstance(self, (CaseStudyLayer,
+                         CaseStudyRunLayer)
+                         ):
+        file_type = 'layers'
+        suffix = 'geotiff'
+    elif isinstance(self, CaseStudyRunOutputLayer):
+        file_type = 'outputlayers'
+        suffix = 'geotiff'
+    elif isinstance(self, (CaseStudyRunInput, CaseStudyInput)):
+        file_type = 'inputs'
+        suffix = 'json'
+    elif isinstance(self, CaseStudyRunOutput):
+        file_type = 'outputs'
+        suffix = 'json'
+
+    url = "{}/{}/{}/{}.{}".format(parent_dir,
+                                  parent_id,
+                                  file_type,
+                                  name,
+                                  suffix
+                                  )
     return url
 
-class LayerBase(models.Model):
+
+class FileBase(models.Model):
     "Model for layer description and storage"
-    layer_type = models.ForeignKey("CodedLabel", limit_choices_to={'group__in': ['grid',
+    coded_label = models.ForeignKey("CodedLabel", limit_choices_to={'group__in': ['grid',
                                                                                   'pre',
                                                                                   'env',
                                                                                   'use',
                                                                                   'out']},
                                    on_delete=models.CASCADE)
+    file = models.FileField(blank=True,
+                                 null=True,
+                                 upload_to=generate_filename)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -384,27 +433,20 @@ class LayerBase(models.Model):
         abstract = True
 
 
-## TODO: add constrain to avoid multiple CaseStudyLayer with the same layer_type
-class CaseStudyLayer(LayerBase):
+## TODO: add constrain to avoid multiple CaseStudyLayer with the same coded_label
+class CaseStudyLayer(FileBase):
     "Model for layer description and storage"
     casestudy = models.ForeignKey(CaseStudy,
                                   on_delete=models.CASCADE,
                                   related_name="layers")
-    layerfile = models.FileField(blank=True,
-                                 null=True,
-                                 upload_to=generate_layer_filename)
     class Meta:
-        ordering = ['layer_type__group']
+        ordering = ['coded_label__group']
 
 
-class CaseStudyInput(models.Model):
+class CaseStudyInput(FileBase):
     "Model for input description and storage"
     casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE,
                                   related_name="inputs")
-    input_type = models.CharField(max_length=15, choices=INPUT_TYPE_CHOICES)
-    inputfile = models.FileField(blank=True,
-                                 null=True,
-                                 upload_to=generate_input_filename)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -801,31 +843,40 @@ class CaseStudyRun(models.Model):
     configuration = JSONField(null=True, blank=True)
 
 
-class CaseStudyRunOutputLayer(LayerBase):
+class CaseStudyRunLayer(FileBase):
+    "Model for layer description and storage"
+    casestudy = models.ForeignKey(CaseStudyRun,
+                                  on_delete=models.CASCADE)
+    class Meta:
+        ordering = ['coded_label__group']
+
+
+class CaseStudyRunInput(FileBase):
+    "Model for input description and storage"
+    casestudy = models.ForeignKey(CaseStudyRun, on_delete=models.CASCADE,
+                                  related_name="inputs")
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+
+class CaseStudyRunOutputLayer(FileBase):
     casestudyrun = models.ForeignKey(CaseStudyRun,
                                      on_delete=models.CASCADE,
                                      #related_name="outputlayers"
                                      )
-    layerfile = models.FileField(blank=True,
-                                 null=True,
-                                 upload_to=generate_output_layer_filename)
     class Meta:
-        ordering = ['layer_type__group']
+        ordering = ['coded_label__group']
 
 
-class CaseStudyRunOutput(models.Model):
+class CaseStudyRunOutput(FileBase):
     casestudyrun = models.ForeignKey(CaseStudyRun,
                                      on_delete=models.CASCADE,
                                      #related_name="outputs"
                                      )
-    output_type = models.CharField(max_length=15, choices=OUTPUT_TYPE_CHOICES)
-    file = models.FileField(blank=True,
-                                 null=True,
-                                 upload_to=generate_output_filename)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     class Meta:
-        ordering = ['output_type']
+        ordering = ['coded_label']
 
 class ESCapacity(models.Model):
     env = models.ForeignKey(Env, on_delete=models.CASCADE)

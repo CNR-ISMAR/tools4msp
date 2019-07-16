@@ -29,7 +29,7 @@ def localgeonode(l):
     if l.is_vector():
         return get_df(l.name)
     else:
-        path = l.upload_session.layerfile_set.all()[0].file.path
+        path = l.upload_session.file_set.all()[0].file.path
         return rg.read_raster(path)
 
 

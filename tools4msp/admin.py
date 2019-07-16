@@ -10,7 +10,8 @@ from .models import Env, Use, Pressure, CaseStudy, \
     Dataset, ESCapacity, CaseStudyRun, Weight, Sensitivity, \
     Context, CaseStudyGrid, CaseStudyLayer, CaseStudyInput, \
     MsfdUse, MsfdPres, MsfdEnv, DomainArea, CodedLabel, \
-    CaseStudyRunOutputLayer, CaseStudyRunOutput
+    CaseStudyRunOutputLayer, CaseStudyRunOutput, \
+    CaseStudyRunInput, CaseStudyRunLayer
 
 
 #############
@@ -132,6 +133,7 @@ class CaseStudyInputInline(admin.TabularInline):
 
     show_change_link = True
 
+
 class CaseStudyRunInline(admin.TabularInline):
     model = CaseStudyRun
     fields = ('label', 'owner')
@@ -173,6 +175,7 @@ class CaseStudyAdmin(#admin.OSMGeoAdmin, # django 2.2 already provide a map widg
         form.instance.save()
         form.instance.import_domain_area.clear()
 
+
 class DatasetAdmin(admin.ModelAdmin):
     model = Dataset
     list_display = ['label', 'expression']
@@ -180,6 +183,7 @@ class DatasetAdmin(admin.ModelAdmin):
     readonly_fields = ('urls_tag',)
     search_fields = ['label', 'expression']
     save_as = True
+
 
 admin.site.register(CaseStudy, CaseStudyAdmin)
 admin.site.register(Dataset, DatasetAdmin)
@@ -231,7 +235,16 @@ class ESCapacityAdmin(admin.ModelAdmin):
 class CaseStudyRunOutputLayerAdmin(admin.ModelAdmin):
     model = CaseStudyRunOutputLayer
 
+
 admin.site.register(CaseStudyRunOutputLayer, CaseStudyRunOutputLayerAdmin)
+
+
+class CaseStudyRunLayerInline(admin.TabularInline):
+    model = CaseStudyRunLayer
+
+
+class CaseStudyRunInputInline(admin.TabularInline):
+    model = CaseStudyRunInput
 
 
 class CaseStudyRunOutputLayerInline(admin.TabularInline):
@@ -241,12 +254,15 @@ class CaseStudyRunOutputLayerInline(admin.TabularInline):
 class CaseStudyRunOutputInline(admin.TabularInline):
     model = CaseStudyRunOutput
 
+
 class CaseStudyRunAdmin(admin.ModelAdmin):
     model = CaseStudyRun
     list_display = ['id',
                     'casestudy',
                     'label']
     inlines = [
+        CaseStudyRunLayerInline,
+        CaseStudyRunInputInline,
         CaseStudyRunOutputLayerInline,
         CaseStudyRunOutputInline,
     ]
