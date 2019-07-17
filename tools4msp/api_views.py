@@ -2,6 +2,7 @@ from django.contrib.auth.models import User, Group
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 
 
 # Use customized NestedViewSetMixin (see issue https://github.com/chibisov/drf-extensions/issues/142)
@@ -61,6 +62,7 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
             required: true
             location: form
     """
+    permission_classes = [IsAuthenticated]
     queryset = CaseStudy.objects.all()
     serializer_class = CaseStudySerializer
     filterset_fields = ('cstype', 'module')

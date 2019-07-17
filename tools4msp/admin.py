@@ -150,7 +150,7 @@ class CaseStudyAdmin(#admin.OSMGeoAdmin, # django 2.2 already provide a map widg
               'import_domain_area',
               ('domain_area_dataset', 'thumbnail_tag'),
               # 'grid_output',
-              'is_published', 'module', 'owner')
+              'is_published', 'module', 'cstype', 'owner')
     inlines = [
         CaseStudyLayerInline,
         CaseStudyInputInline,
