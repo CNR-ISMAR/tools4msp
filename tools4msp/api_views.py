@@ -8,10 +8,21 @@ from rest_framework.response import Response
 # from rest_framework_extensions.mixins import NestedViewSetMixin
 from .drf_extensions_patch import NestedViewSetMixin
 
-from .serializers import CaseStudySerializer, CaseStudyLayerSerializer, CaseStudyInputSerializer
+from .serializers import CaseStudySerializer, CaseStudyLayerSerializer, CaseStudyInputSerializer, \
+    CaseStudyListSerializer
 from .models import CaseStudy, CaseStudyLayer, CaseStudyInput
 
-class CaseStudyViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
+
+class ActionSerializerMixin(object):
+    action_serializers = {}
+    def get_serializer_class(self):
+        if self.action in self.action_serializers:
+            return self.action_serializers.get(self.action, None)
+        else:
+            return super().get_serializer_class()
+
+
+class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows CaseStudies to be viewed or edited.
 
@@ -24,8 +35,8 @@ class CaseStudyViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     create:
         Add a new Case Study
         Adds a new Case Study to the server. To ad additional inputs use the following methods:
-        * see [/casestudies/{casestudyName}/layers](#/Layers/postCaseStudyLayers) for adding a new Layer
-        * see [/casestudies/{casestudyName}/inputs](#/Layers/postCaseStudyInputs) from adding new input parameters or datasets
+            * see [/casestudies/{casestudyId}/layers](#api-casestudies-layers-create) for adding a new Layer
+            * see [/casestudies/{casestudyId}/inputs](#api-casestudies-inputs-create) from adding new input parameters or datasets
 
     delete:
         Remove an existing user.
@@ -53,6 +64,9 @@ class CaseStudyViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     queryset = CaseStudy.objects.all()
     serializer_class = CaseStudySerializer
     filterset_fields = ('cstype', 'module')
+
+    # used by Mixin to implement multiple serializer
+    action_serializers = {'list': CaseStudyListSerializer}
 
     @action(detail=True)
     def run(self, request, *args, **kwargs):

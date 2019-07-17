@@ -29,22 +29,43 @@ class CaseStudyInputSerializer(serializers.ModelSerializer):
                   'file',)
 
 
-
-class CaseStudySerializer(serializers.ModelSerializer):
+class CaseStudySerializer(serializers.HyperlinkedModelSerializer): #ModelSerializer):
     layers = CaseStudyLayerSerializer(many=True, read_only=True)
     inputs = CaseStudyInputSerializer(many=True, read_only=True)
-    # extent = serializers.JSONField(read_only=True)
+    extent = serializers.JSONField(source="domain_area.extent",
+                                   read_only=True)
 
     class Meta:
         model = CaseStudy
-        fields = ('label',
+        fields = ('url',
+                  'id',
+                  'label',
                   'description',
                   'module',
                   'cstype',
                   'resolution',
+                  'extent',
                   'domain_area',
                   'created',
                   'updated',
                   'layers',
                   'inputs')
-        read_only_fields = ('created', 'updated',)
+        read_only_fields = ('extent', 'created', 'updated', 'layers', 'inputs')
+
+        # write_only_fields = ('domain_area',)
+
+
+class CaseStudyListSerializer(CaseStudySerializer):
+    class Meta:
+        model = CaseStudy
+        fields = ('url',
+                  'id',
+                  'label',
+                  'description',
+                  'module',
+                  'cstype',
+                  'resolution',
+                  'extent',
+                  'created',
+                  'updated')
+        read_only_fields = ('extent', 'created', 'updated', 'layers', 'inputs')
