@@ -27,16 +27,19 @@ from django.contrib.gis.geos import MultiPolygon
 logger = logging.getLogger('tools4msp.models')
 
 CODEDLABEL_GROUP_CHOICES = (
-    ('grid', 'Grid'),
+    ('casestudy', 'Case Study'),
     ('use', 'Activity & Uses'),
     ('env', 'Environmental receptor'),
     ('pre', 'Pressure'),
     ('out', 'Outputs'),
+    ('cea', 'CEA'),
+    ('muc', 'MUC'),
+    ('partrac', 'Particle tracking'),
 )
 
 MODULE_TYPE_CHOICES = (
     ('cea', 'CEA'),
-    ('musc', 'MUSC'),
+    ('muc', 'MUC'),
     ('partrac', 'Particle tracking'),
 )
 
@@ -45,15 +48,6 @@ CASESTUDY_TYPE_CHOICES = (
     ('customize', 'Customize run'),
 )
 
-INPUT_TYPE_CHOICES = (
-    ('pre_weights', 'Pressure weights'),
-    ('sensitivities', 'Sensitivities'),
-    ('muc_scores', 'MUC scores')
-)
-
-OUTPUT_TYPE_CHOICES = (
-
-)
 
 TOOLS4MSP_BASEDIR = '/var/www/geonode/static/cumulative_impact'
 
