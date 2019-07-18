@@ -12,17 +12,26 @@ from rest_framework_swagger.views import get_swagger_view
 from tools4msp import api_views
 
 router = ExtendedDefaultRouter()
+cs_router = router.register(r'domainareas',
+                            api_views.DomainAreaViewSet,
+                            )
+
+cs_router = router.register(r'codedlabels',
+                            api_views.CodedLabelViewSet,
+                            )
+
 cs_router = router.register(r'casestudies',
                             api_views.CaseStudyViewSet,
                             basename='casestudy')
+
 cs_router.register(r'layers',
                    api_views.CaseStudyLayerViewSet,
-                   basename='casestudy-layers',
+                   basename='casestudylayer',
                    parents_query_lookups=['casestudy__id'])
 
 cs_router.register(r'inputs',
                    api_views.CaseStudyInputViewSet,
-                   basename='casestudy-inputs',
+                   basename='casestudyinput',
                    parents_query_lookups=['casestudy__id'])
 
 # (

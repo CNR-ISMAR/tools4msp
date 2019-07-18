@@ -98,9 +98,9 @@ class CaseStudy(models.Model):
     resolution = models.FloatField(default=1000, help_text='resoution of analysis (meters)')
     domain_area = models.MultiPolygonField(blank=True, null=True,
                                            help_text="polygon geometry(Lat Log WGS84)")
-    import_domain_area = models.ManyToManyField("DomainArea",
-                                                blank=True
-                                                )
+    domain_area_terms = models.ManyToManyField("DomainArea",
+                                               blank=True
+                                               )
 
     # tools4msp = models.BooleanField(_("Tools4MSP Case Study"), default=False,
     #                                 help_text=_('Is this a Tools4MSP Case Study?'))
@@ -142,10 +142,10 @@ class CaseStudy(models.Model):
     CS = None
 
     def set_domain_area(self):
-        if self.import_domain_area.count() > 0:
+        if self.domain_area_terms.count() > 0:
             print("AAAAAAAAAAAAAAAA")
-            print(self.import_domain_area.all())
-            geounion = self.import_domain_area.aggregate(models.Union('geo'))['geo__union']
+            print(self.domain_area_terms.all())
+            geounion = self.domain_area_terms.aggregate(models.Union('geo'))['geo__union']
             geounion = geounion.simplify(0.01)
             if geounion.geom_type != 'MultiPolygon':
                 geounion = MultiPolygon(geounion)
@@ -154,7 +154,7 @@ class CaseStudy(models.Model):
     def save(self, *args, **kwargs):
         # self.set_domain_area()
         super().save(*args, **kwargs)
-        # self.import_domain_area.clear()
+        # self.domain_area_terms.clear()
 
     def __str__(self):
         return self.label
@@ -447,7 +447,7 @@ class CaseStudyInput(FileBase):
 
 class CodedLabel(models.Model):
     group = models.CharField(max_length=10, choices=CODEDLABEL_GROUP_CHOICES)
-    code = models.CharField(max_length=10)
+    code = models.SlugField(max_length=10, unique=True)
     label = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     old_label = models.CharField(max_length=100, blank=True, null=True)

@@ -1,8 +1,10 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets
-from rest_framework.decorators import action
+from rest_framework.decorators import action, parser_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.parsers import FileUploadParser, ParseError
+from rest_framework import status
 
 
 # Use customized NestedViewSetMixin (see issue https://github.com/chibisov/drf-extensions/issues/142)
@@ -10,8 +12,9 @@ from rest_framework.permissions import IsAuthenticated
 from .drf_extensions_patch import NestedViewSetMixin
 
 from .serializers import CaseStudySerializer, CaseStudyLayerSerializer, CaseStudyInputSerializer, \
-    CaseStudyListSerializer
-from .models import CaseStudy, CaseStudyLayer, CaseStudyInput
+    CaseStudyListSerializer, DomainAreaSerializer, CodedLabelSerializer, \
+    FileUploadSerializer
+from .models import CaseStudy, CaseStudyLayer, CaseStudyInput, DomainArea, CodedLabel
 
 
 class ActionSerializerMixin(object):
@@ -21,6 +24,17 @@ class ActionSerializerMixin(object):
             return self.action_serializers.get(self.action, None)
         else:
             return super().get_serializer_class()
+
+
+class DomainAreaViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = DomainArea.objects.all()
+    serializer_class = DomainAreaSerializer
+
+
+class CodedLabelViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = CodedLabel.objects.all()
+    serializer_class = CodedLabelSerializer
+    lookup_field = 'code'
 
 
 class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.ModelViewSet):
@@ -71,7 +85,10 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
     action_serializers = {'list': CaseStudyListSerializer}
 
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+        cs = serializer.save(owner=self.request.user)
+        # TODO: try to avoid double save
+        cs.set_domain_area()
+        cs.save()
 
     @action(detail=True)
     def run(self, request, *args, **kwargs):
@@ -94,6 +111,25 @@ class CaseStudyLayerViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     queryset = CaseStudyLayer.objects.all()
     serializer_class = CaseStudyLayerSerializer
 
+    @action(detail=True, methods=['put'], serializer_class=FileUploadSerializer)
+    @parser_classes([FileUploadParser])
+    def upload(self, request, *args, **kwargs):
+        """
+        Upload the file
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        if 'file' not in request.data:
+            raise ParseError("Empty content")
+
+        f = request.data['file']
+
+        obj = self.get_object()
+        obj.file.save(f.name, f, save=True)
+        return Response(status=status.HTTP_201_CREATED)
+
 
 class CaseStudyInputViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     """
@@ -101,3 +137,22 @@ class CaseStudyInputViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     """
     queryset = CaseStudyInput.objects.all()
     serializer_class = CaseStudyInputSerializer
+
+    @action(detail=True, methods=['put'], serializer_class=FileUploadSerializer)
+    @parser_classes([FileUploadParser])
+    def upload(self, request, *args, **kwargs):
+        """
+        Upload the file
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        if 'file' not in request.data:
+            raise ParseError("Empty content")
+
+        f = request.data['file']
+
+        obj = self.get_object()
+        obj.file.save(f.name, f, save=True)
+        return Response(status=status.HTTP_201_CREATED)
