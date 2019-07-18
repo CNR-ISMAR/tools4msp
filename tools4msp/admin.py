@@ -147,7 +147,7 @@ class CaseStudyAdmin(#admin.OSMGeoAdmin, # django 2.2 already provide a map widg
     fields = ('label', 'description',
               'resolution',
               'domain_area',
-              'import_domain_area',
+              'domain_area_terms',
               ('domain_area_dataset', 'thumbnail_tag'),
               # 'grid_output',
               'is_published', 'module', 'cstype', 'owner')
@@ -161,7 +161,7 @@ class CaseStudyAdmin(#admin.OSMGeoAdmin, # django 2.2 already provide a map widg
         ]
     save_as = True
 
-    filter_horizontal = ('import_domain_area',)
+    filter_horizontal = ('domain_area_terms',)
 
     class Media:
         css = {
@@ -173,7 +173,7 @@ class CaseStudyAdmin(#admin.OSMGeoAdmin, # django 2.2 already provide a map widg
         super(CaseStudyAdmin, self).save_related(request, form, formsets, change)
         form.instance.set_domain_area()
         form.instance.save()
-        form.instance.import_domain_area.clear()
+        form.instance.domain_area_terms.clear()
 
 
 class DatasetAdmin(admin.ModelAdmin):
