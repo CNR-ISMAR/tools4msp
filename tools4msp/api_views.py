@@ -70,6 +70,9 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
     # used by Mixin to implement multiple serializer
     action_serializers = {'list': CaseStudyListSerializer}
 
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
     @action(detail=True)
     def run(self, request, *args, **kwargs):
         """
