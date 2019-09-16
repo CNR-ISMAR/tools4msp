@@ -34,6 +34,11 @@ cs_router.register(r'inputs',
                    basename='casestudyinput',
                    parents_query_lookups=['casestudy__id'])
 
+cs_router.register(r'graphics',
+                   api_views.CaseStudyGraphicViewSet,
+                   basename='casestudygraphic',
+                   parents_query_lookups=['casestudy__id'])
+
 # (
 #     router.register(r'casestudies', api_views.CaseStudyViewSet, base_name='casestudy')
 #           .register(r'layers',

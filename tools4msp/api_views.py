@@ -13,8 +13,8 @@ from .drf_extensions_patch import NestedViewSetMixin
 
 from .serializers import CaseStudySerializer, CaseStudyLayerSerializer, CaseStudyInputSerializer, \
     CaseStudyListSerializer, DomainAreaSerializer, CodedLabelSerializer, \
-    FileUploadSerializer
-from .models import CaseStudy, CaseStudyLayer, CaseStudyInput, DomainArea, CodedLabel
+    FileUploadSerializer, CaseStudyGraphicSerializer
+from .models import CaseStudy, CaseStudyLayer, CaseStudyInput, DomainArea, CodedLabel, CaseStudyGraphic
 
 
 class ActionSerializerMixin(object):
@@ -137,6 +137,33 @@ class CaseStudyInputViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     """
     queryset = CaseStudyInput.objects.all()
     serializer_class = CaseStudyInputSerializer
+
+    @action(detail=True, methods=['put'], serializer_class=FileUploadSerializer)
+    @parser_classes([FileUploadParser])
+    def upload(self, request, *args, **kwargs):
+        """
+        Upload the file
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        if 'file' not in request.data:
+            raise ParseError("Empty content")
+
+        f = request.data['file']
+
+        obj = self.get_object()
+        obj.file.save(f.name, f, save=True)
+        return Response(status=status.HTTP_201_CREATED)
+
+
+class CaseStudyGraphicViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
+    """
+    API endpoint that allows CaseStudy Ggrafic to be viewed or edited.
+    """
+    queryset = CaseStudyGraphic.objects.all()
+    serializer_class = CaseStudyGraphicSerializer
 
     @action(detail=True, methods=['put'], serializer_class=FileUploadSerializer)
     @parser_classes([FileUploadParser])

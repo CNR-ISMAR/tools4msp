@@ -11,7 +11,8 @@ from .models import Env, Use, Pressure, CaseStudy, \
     Context, CaseStudyGrid, CaseStudyLayer, CaseStudyInput, \
     MsfdUse, MsfdPres, MsfdEnv, DomainArea, CodedLabel, \
     CaseStudyRunOutputLayer, CaseStudyRunOutput, \
-    CaseStudyRunInput, CaseStudyRunLayer
+    CaseStudyRunInput, CaseStudyRunLayer, \
+    CaseStudyGraphic, CaseStudyRunGraphic
 
 
 #############
@@ -134,6 +135,12 @@ class CaseStudyInputInline(admin.TabularInline):
     show_change_link = True
 
 
+class CaseStudyGraphicInline(admin.TabularInline):
+    model = CaseStudyGraphic
+
+    show_change_link = True
+
+
 class CaseStudyRunInline(admin.TabularInline):
     model = CaseStudyRun
     fields = ('label', 'owner')
@@ -154,6 +161,7 @@ class CaseStudyAdmin(#admin.OSMGeoAdmin, # django 2.2 already provide a map widg
     inlines = [
         CaseStudyLayerInline,
         CaseStudyInputInline,
+        CaseStudyGraphicInline,
         CaseStudyRunInline,
         # CaseStudyUseInline,
         # CaseStudyEnvInline,
@@ -247,6 +255,10 @@ class CaseStudyRunInputInline(admin.TabularInline):
     model = CaseStudyRunInput
 
 
+class CaseStudyRunGraphicInline(admin.TabularInline):
+    model = CaseStudyRunGraphic
+
+
 class CaseStudyRunOutputLayerInline(admin.TabularInline):
     model = CaseStudyRunOutputLayer
 
@@ -265,6 +277,7 @@ class CaseStudyRunAdmin(admin.ModelAdmin):
         CaseStudyRunInputInline,
         CaseStudyRunOutputLayerInline,
         CaseStudyRunOutputInline,
+        CaseStudyRunGraphicInline,
     ]
 
 

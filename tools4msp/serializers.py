@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoModelSerializer
 from .models import CaseStudy, CaseStudyLayer, CaseStudyInput, \
-    CodedLabel, DomainArea
+    CodedLabel, DomainArea, CaseStudyGraphic
 
 
 class CSChildHyperlinkedIdentityField(serializers.HyperlinkedIdentityField):
@@ -82,9 +82,27 @@ class CaseStudyInputSerializer(serializers.HyperlinkedModelSerializer):
         }
 
 
+class CaseStudyGraphicSerializer(serializers.HyperlinkedModelSerializer):
+    url = CSChildHyperlinkedIdentityField(view_name='casestudygraphic-detail')
+    label = serializers.SlugField(source="coded_label.code",
+                                       read_only=True)
+    class Meta:
+        model = CaseStudyGraphic
+        fields = ('url',
+                  'file',
+                  'coded_label',
+                  'label')
+        read_only_fields = ('file',
+                            'label')
+        extra_kwargs = {
+            'coded_label': {'lookup_field': 'code'}
+        }
+
+
 class CaseStudySerializer(serializers.HyperlinkedModelSerializer): #ModelSerializer):
     layers = CaseStudyLayerSerializer(many=True, read_only=True)
     inputs = CaseStudyInputSerializer(many=True, read_only=True)
+    graphics = CaseStudyGraphicSerializer(many=True, read_only=True)
     extent = serializers.JSONField(source="domain_area.extent",
                                    read_only=True)
     owner = serializers.CharField(source='owner.username',
@@ -106,9 +124,10 @@ class CaseStudySerializer(serializers.HyperlinkedModelSerializer): #ModelSeriali
                   'created',
                   'updated',
                   'layers',
-                  'inputs')
+                  'inputs',
+                  'graphics')
         read_only_fields = ('extent', 'owner', 'created',
-                            'updated', 'layers', 'inputs')
+                            'updated', 'layers', 'inputs', 'graphics')
 
         # write_only_fields = ('domain_area',)
 
@@ -128,4 +147,4 @@ class CaseStudyListSerializer(CaseStudySerializer):
                   'created',
                   'updated')
         read_only_fields = ('extent', 'owner''created',
-                            'updated', 'layers', 'inputs')
+                            'updated', 'layers', 'inputs', 'graphics')

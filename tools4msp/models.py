@@ -376,6 +376,7 @@ def generate_filename(self, filename):
     name = "{}-{}".format(self.coded_label.group,
                           self.coded_label.code)
     if isinstance(self, (CaseStudyRunInput,
+                         CaseStudyRunGraphic,
                          CaseStudyRunLayer,
                          CaseStudyRunOutput,
                          CaseStudyRunOutputLayer)):
@@ -396,6 +397,9 @@ def generate_filename(self, filename):
     elif isinstance(self, (CaseStudyRunInput, CaseStudyInput)):
         file_type = 'inputs'
         suffix = 'json'
+    elif isinstance(self, (CaseStudyRunGraphic, CaseStudyGraphic)):
+        file_type = 'graphics'
+        suffix = 'png'
     elif isinstance(self, CaseStudyRunOutput):
         file_type = 'outputs'
         suffix = 'json'
@@ -411,15 +415,16 @@ def generate_filename(self, filename):
 
 class FileBase(models.Model):
     "Model for layer description and storage"
-    coded_label = models.ForeignKey("CodedLabel", limit_choices_to={'group__in': ['grid',
+    coded_label = models.ForeignKey("CodedLabel", limit_choices_to={'group__in': ['casestudy',
                                                                                   'pre',
                                                                                   'env',
                                                                                   'use',
                                                                                   'out']},
                                    on_delete=models.CASCADE)
+    description = models.CharField(max_length=200, null=True, blank=True)
     file = models.FileField(blank=True,
-                                 null=True,
-                                 upload_to=generate_filename)
+                            null=True,
+                            upload_to=generate_filename)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -441,6 +446,14 @@ class CaseStudyInput(FileBase):
     "Model for input description and storage"
     casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE,
                                   related_name="inputs")
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+
+class CaseStudyGraphic(FileBase):
+    "Model for input description and storage"
+    casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE,
+                                  related_name="graphics")
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -849,6 +862,14 @@ class CaseStudyRunInput(FileBase):
     "Model for input description and storage"
     casestudy = models.ForeignKey(CaseStudyRun, on_delete=models.CASCADE,
                                   related_name="inputs")
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+
+class CaseStudyRunGraphic(FileBase):
+    "Model for input description and storage"
+    casestudy = models.ForeignKey(CaseStudyRun, on_delete=models.CASCADE,
+                                  related_name="graphics")
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
