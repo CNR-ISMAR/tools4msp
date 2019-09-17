@@ -13,8 +13,9 @@ from .drf_extensions_patch import NestedViewSetMixin
 
 from .serializers import CaseStudySerializer, CaseStudyLayerSerializer, CaseStudyInputSerializer, \
     CaseStudyListSerializer, DomainAreaSerializer, CodedLabelSerializer, \
-    FileUploadSerializer, CaseStudyGraphicSerializer
-from .models import CaseStudy, CaseStudyLayer, CaseStudyInput, DomainArea, CodedLabel, CaseStudyGraphic
+    FileUploadSerializer, CaseStudyGraphicSerializer, CaseStudyRunSerializer
+from .models import CaseStudy, CaseStudyLayer, CaseStudyInput, DomainArea, CodedLabel, CaseStudyGraphic, \
+    CaseStudyRun
 
 
 class ActionSerializerMixin(object):
@@ -99,8 +100,17 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
         :param kwargs:
         :return:
         """
+        rjson = {'success': False}
         cs = self.get_object()
-        return Response(cs.run())
+        csr = cs.run()
+        if csr is not None:
+            csr_serializer = CaseStudyRunSerializer(csr, context={'request': request})
+
+            rjson['success'] = True
+            rjson['run'] = csr_serializer.data['url']
+
+        return Response(rjson)
+
 
 class CaseStudyLayerViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     """
@@ -183,3 +193,11 @@ class CaseStudyGraphicViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         obj = self.get_object()
         obj.file.save(f.name, f, save=True)
         return Response(status=status.HTTP_201_CREATED)
+
+class CaseStudyRunViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API endpoint that allows CaseStudyRuns to be viewed.
+    """
+    permission_classes = [IsAuthenticated]
+    queryset = CaseStudyRun.objects.all()
+    serializer_class = CaseStudyRunSerializer

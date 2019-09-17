@@ -341,7 +341,10 @@ class CaseStudy(models.Model):
     thumbnail_tag.short_description = 'Thumbnail'
 
     def run(self):
-        return {'success': True}
+        rlist = self.casestudyrun_set.all()
+        if rlist.count() > 0:
+            return rlist[0]
+        return None
 
 # def generate_filename(self, filename):
 def generate_input_filename(self, filename):
@@ -868,7 +871,7 @@ class CaseStudyRunInput(FileBase):
 
 class CaseStudyRunGraphic(FileBase):
     "Model for input description and storage"
-    casestudy = models.ForeignKey(CaseStudyRun, on_delete=models.CASCADE,
+    casestudyrun = models.ForeignKey(CaseStudyRun, on_delete=models.CASCADE,
                                   related_name="graphics")
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -877,7 +880,7 @@ class CaseStudyRunGraphic(FileBase):
 class CaseStudyRunOutputLayer(FileBase):
     casestudyrun = models.ForeignKey(CaseStudyRun,
                                      on_delete=models.CASCADE,
-                                     #related_name="outputlayers"
+                                     related_name="outputlayers"
                                      )
     class Meta:
         ordering = ['coded_label__group']
@@ -886,7 +889,7 @@ class CaseStudyRunOutputLayer(FileBase):
 class CaseStudyRunOutput(FileBase):
     casestudyrun = models.ForeignKey(CaseStudyRun,
                                      on_delete=models.CASCADE,
-                                     #related_name="outputs"
+                                     related_name="outputs"
                                      )
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
