@@ -13,8 +13,8 @@ from .drf_extensions_patch import NestedViewSetMixin
 
 from .serializers import CaseStudySerializer, CaseStudyLayerSerializer, CaseStudyInputSerializer, \
     CaseStudyListSerializer, DomainAreaSerializer, CodedLabelSerializer, \
-    FileUploadSerializer, CaseStudyGraphicSerializer, CaseStudyRunSerializer
-from .models import CaseStudy, CaseStudyLayer, CaseStudyInput, DomainArea, CodedLabel, CaseStudyGraphic, \
+    FileUploadSerializer, CaseStudyRunSerializer, ThumbnailUploadSerializer
+from .models import CaseStudy, CaseStudyLayer, CaseStudyInput, DomainArea, CodedLabel, \
     CaseStudyRun
 
 
@@ -140,6 +140,25 @@ class CaseStudyLayerViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         obj.file.save(f.name, f, save=True)
         return Response(status=status.HTTP_201_CREATED)
 
+    @action(detail=True, methods=['put'], serializer_class=ThumbnailUploadSerializer)
+    @parser_classes([FileUploadParser])
+    def tupload(self, request, *args, **kwargs):
+        """
+        Upload the thumbnail
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        if 'file' not in request.data:
+            raise ParseError("Empty content")
+
+        f = request.data['file']
+
+        obj = self.get_object()
+        obj.thumbnail.save(f.name, f, save=True)
+        return Response(status=status.HTTP_201_CREATED)
+
 
 class CaseStudyInputViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     """
@@ -167,32 +186,6 @@ class CaseStudyInputViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         obj.file.save(f.name, f, save=True)
         return Response(status=status.HTTP_201_CREATED)
 
-
-class CaseStudyGraphicViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
-    """
-    API endpoint that allows CaseStudy Ggrafic to be viewed or edited.
-    """
-    queryset = CaseStudyGraphic.objects.all()
-    serializer_class = CaseStudyGraphicSerializer
-
-    @action(detail=True, methods=['put'], serializer_class=FileUploadSerializer)
-    @parser_classes([FileUploadParser])
-    def upload(self, request, *args, **kwargs):
-        """
-        Upload the file
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        if 'file' not in request.data:
-            raise ParseError("Empty content")
-
-        f = request.data['file']
-
-        obj = self.get_object()
-        obj.file.save(f.name, f, save=True)
-        return Response(status=status.HTTP_201_CREATED)
 
 class CaseStudyRunViewSet(viewsets.ReadOnlyModelViewSet):
     """

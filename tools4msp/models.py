@@ -1,4 +1,5 @@
 import logging
+from os import path
 import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
@@ -372,14 +373,14 @@ def generate_layer_filename(self, filename):
     pass
 
 def generate_filename(self, filename):
+    # TODO: add control to avoid file overwriting when more than one inline have the same coded_label
     parent_dir = None
     parent_id = None
     file_type = None
-    suffix = None
+    _filename, suffix = path.splitext(filename)
     name = "{}-{}".format(self.coded_label.group,
                           self.coded_label.code)
     if isinstance(self, (CaseStudyRunInput,
-                         CaseStudyRunGraphic,
                          CaseStudyRunLayer,
                          CaseStudyRunOutput,
                          CaseStudyRunOutputLayer)):
@@ -393,19 +394,16 @@ def generate_filename(self, filename):
                          CaseStudyRunLayer)
                          ):
         file_type = 'layers'
-        suffix = 'geotiff'
+        # suffix = 'geotiff'
     elif isinstance(self, CaseStudyRunOutputLayer):
         file_type = 'outputlayers'
-        suffix = 'geotiff'
+        # suffix = 'geotiff'
     elif isinstance(self, (CaseStudyRunInput, CaseStudyInput)):
         file_type = 'inputs'
-        suffix = 'json'
-    elif isinstance(self, (CaseStudyRunGraphic, CaseStudyGraphic)):
-        file_type = 'graphics'
-        suffix = 'png'
+        # suffix = 'json'
     elif isinstance(self, CaseStudyRunOutput):
         file_type = 'outputs'
-        suffix = 'json'
+        # suffix = 'json'
 
     url = "{}/{}/{}/{}.{}".format(parent_dir,
                                   parent_id,
@@ -426,6 +424,9 @@ class FileBase(models.Model):
                                    on_delete=models.CASCADE)
     description = models.CharField(max_length=200, null=True, blank=True)
     file = models.FileField(blank=True,
+                            null=True,
+                            upload_to=generate_filename)
+    thumbnail = models.ImageField(blank=True,
                             null=True,
                             upload_to=generate_filename)
     created = models.DateTimeField(auto_now_add=True)
@@ -449,14 +450,6 @@ class CaseStudyInput(FileBase):
     "Model for input description and storage"
     casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE,
                                   related_name="inputs")
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
-
-
-class CaseStudyGraphic(FileBase):
-    "Model for input description and storage"
-    casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE,
-                                  related_name="graphics")
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -865,14 +858,6 @@ class CaseStudyRunInput(FileBase):
     "Model for input description and storage"
     casestudy = models.ForeignKey(CaseStudyRun, on_delete=models.CASCADE,
                                   related_name="inputs")
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
-
-
-class CaseStudyRunGraphic(FileBase):
-    "Model for input description and storage"
-    casestudyrun = models.ForeignKey(CaseStudyRun, on_delete=models.CASCADE,
-                                  related_name="graphics")
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 

@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoModelSerializer
 from .models import CaseStudy, CaseStudyLayer, CaseStudyInput, \
-    CodedLabel, DomainArea, CaseStudyGraphic, CaseStudyRun, \
-    CaseStudyRunOutputLayer, CaseStudyRunOutput, CaseStudyRunGraphic
+    CodedLabel, DomainArea, CaseStudyRun, \
+    CaseStudyRunOutputLayer, CaseStudyRunOutput
 
 
 class CSChildHyperlinkedIdentityField(serializers.HyperlinkedIdentityField):
@@ -50,6 +50,12 @@ class FileUploadSerializer(serializers.Serializer):
         fields = ('file',)
 
 
+class ThumbnailUploadSerializer(serializers.Serializer):
+    file = serializers.ImageField()
+    class Meta:
+        fields = ('thumbnail',)
+
+
 class CaseStudyLayerSerializer(serializers.HyperlinkedModelSerializer):
     url = CSChildHyperlinkedIdentityField(view_name='casestudylayer-detail')
     label = serializers.SlugField(source="coded_label.code",
@@ -59,6 +65,7 @@ class CaseStudyLayerSerializer(serializers.HyperlinkedModelSerializer):
         model = CaseStudyLayer
         fields = ('url',
                   'file',
+                  'thumbnail',
                   'coded_label',
                   'label')
         read_only_fields = ('file',
@@ -76,6 +83,7 @@ class CaseStudyInputSerializer(serializers.HyperlinkedModelSerializer):
         model = CaseStudyInput
         fields = ('url',
                   'file',
+                  'thumbnail',
                   'coded_label',
                   'label')
         read_only_fields = ('file',
@@ -84,28 +92,11 @@ class CaseStudyInputSerializer(serializers.HyperlinkedModelSerializer):
             'coded_label': {'lookup_field': 'code'}
         }
 
-
-class CaseStudyGraphicSerializer(serializers.HyperlinkedModelSerializer):
-    url = CSChildHyperlinkedIdentityField(view_name='casestudygraphic-detail')
-    label = serializers.SlugField(source="coded_label.code",
-                                       read_only=True)
-    class Meta:
-        model = CaseStudyGraphic
-        fields = ('url',
-                  'file',
-                  'coded_label',
-                  'label')
-        read_only_fields = ('file',
-                            'label')
-        extra_kwargs = {
-            'coded_label': {'lookup_field': 'code'}
-        }
 
 
 class CaseStudySerializer(serializers.HyperlinkedModelSerializer): #ModelSerializer):
     layers = CaseStudyLayerSerializer(many=True, read_only=True)
     inputs = CaseStudyInputSerializer(many=True, read_only=True)
-    graphics = CaseStudyGraphicSerializer(many=True, read_only=True)
     extent = serializers.JSONField(source="domain_area.extent",
                                    read_only=True)
     owner = serializers.CharField(source='owner.username',
@@ -127,10 +118,9 @@ class CaseStudySerializer(serializers.HyperlinkedModelSerializer): #ModelSeriali
                   'created',
                   'updated',
                   'layers',
-                  'inputs',
-                  'graphics')
+                  'inputs',)
         read_only_fields = ('extent', 'owner', 'created',
-                            'updated', 'layers', 'inputs', 'graphics')
+                            'updated', 'layers', 'inputs')
 
         # write_only_fields = ('domain_area',)
 
@@ -150,7 +140,7 @@ class CaseStudyListSerializer(CaseStudySerializer):
                   'created',
                   'updated')
         read_only_fields = ('extent', 'owner''created',
-                            'updated', 'layers', 'inputs', 'graphics')
+                            'updated', 'layers', 'inputs')
 
 class CaseStudyRunInlineBaseSerializer(serializers.ModelSerializer):
     label = serializers.SlugField(source="coded_label.code",
@@ -184,20 +174,13 @@ class CaseStudyRunOutputSerializer(CaseStudyRunInlineBaseSerializer):
         model = CaseStudyRunOutput
 
 
-class CaseStudyRunGraphicSerializer(CaseStudyRunInlineBaseSerializer):
-    class Meta(CaseStudyRunInlineBaseSerializer.Meta):
-        model = CaseStudyRunGraphic
-
-
 class CaseStudyRunSerializer(serializers.HyperlinkedModelSerializer): #ModelSerializer):
     # layers = CaseStudyLayerSerializer(many=True, read_only=True)
     # inputs = CaseStudyInputSerializer(many=True, read_only=True)
-    # graphics = CaseStudyGraphicSerializer(many=True, read_only=True)
     # extent = serializers.JSONField(source="domain_area.extent",
     #                                read_only=True)
     output_layers = CaseStudyRunOutputLayerSerializer(many=True, read_only=True)
     outputs = CaseStudyRunOutputSerializer(many=True, read_only=True)
-    graphics = CaseStudyRunGraphicSerializer(many=True, read_only=True)
     owner = serializers.CharField(source='owner.username',
                                   read_only=True)
 
@@ -221,7 +204,6 @@ class CaseStudyRunSerializer(serializers.HyperlinkedModelSerializer): #ModelSeri
                   # 'inputs',
                   'output_layers',
                   'outputs',
-                  'graphics',
                   )
         read_only_fields = (# 'extent',
                             'owner',
@@ -231,5 +213,4 @@ class CaseStudyRunSerializer(serializers.HyperlinkedModelSerializer): #ModelSeri
                             # 'inputs',
                             'output_layers'
                             'outputs'
-                            'graphics'
                             )
