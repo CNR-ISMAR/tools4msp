@@ -25,6 +25,9 @@ import datetime
 import hashlib
 from django.contrib.gis.geos import MultiPolygon
 from django.db.models import F
+from django.core.files import File
+from io import StringIO
+import json
 
 
 logger = logging.getLogger('tools4msp.models')
@@ -151,6 +154,24 @@ class CaseStudy(models.Model):
             if geounion.geom_type != 'MultiPolygon':
                 geounion = MultiPolygon(geounion)
             self.domain_area = geounion
+
+    def set_context(self, context_label):
+        # TODO: this is a module-aware function. Move to the module library
+        # set sensitivity
+        cl = CodedLabel.objects.get(code='SENS')
+        csi = self.inputs.create(coded_label=cl)
+        s = Sensitivity.objects.get_matrix(context_label)
+        jsonstring = json.dumps(s)
+        # only the file extension matters
+        csi.file.save('file.json', File(StringIO(jsonstring)))
+
+        # weights
+        cl = CodedLabel.objects.get(code='WEIGHTS')
+        csi = self.inputs.create(coded_label=cl)
+        s = Weight.objects.get_matrix(context_label)
+        jsonstring = json.dumps(s)
+        # only the file extension matters
+        csi.file.save('file.json', File(StringIO(jsonstring)))
 
     def save(self, *args, **kwargs):
         # self.set_domain_area()
@@ -420,7 +441,10 @@ class FileBase(models.Model):
                                                                                   'pre',
                                                                                   'env',
                                                                                   'use',
-                                                                                  'out']},
+                                                                                  'out',
+                                                                                  'cea',
+                                                                                  'muc',
+                                                                                  'partrac']},
                                    on_delete=models.CASCADE)
     description = models.CharField(max_length=200, null=True, blank=True)
     file = models.FileField(blank=True,

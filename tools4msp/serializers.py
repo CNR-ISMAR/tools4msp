@@ -37,7 +37,7 @@ class DomainAreaSerializer(serializers.HyperlinkedModelSerializer):
 class CodedLabelSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = CodedLabel
-        fields = ('url', 'group', 'code', 'label')
+        fields = ('url', 'group', 'code', 'label', 'old_label')
         lookup_field = 'code'
         extra_kwargs = {
             'url': {'lookup_field': 'code'}

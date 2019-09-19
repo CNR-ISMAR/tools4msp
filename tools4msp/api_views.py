@@ -15,7 +15,7 @@ from .serializers import CaseStudySerializer, CaseStudyLayerSerializer, CaseStud
     CaseStudyListSerializer, DomainAreaSerializer, CodedLabelSerializer, \
     FileUploadSerializer, CaseStudyRunSerializer, ThumbnailUploadSerializer
 from .models import CaseStudy, CaseStudyLayer, CaseStudyInput, DomainArea, CodedLabel, \
-    CaseStudyRun
+    CaseStudyRun, Context
 
 
 class ActionSerializerMixin(object):
@@ -110,6 +110,24 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
             rjson['success'] = True
             rjson['run'] = csr_serializer.data['url']
 
+        return Response(rjson)
+
+    @action(detail=True,
+            url_path='setcontext/(?P<context_label>[^/.]+)')
+    def setcontext(self, request, context_label, *args, **kwargs):
+        """
+        Run the module
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        context = Context.objects.get(label=context_label)
+
+        cs = self.get_object()
+        cs.set_context(context_label)
+        rjson = {'success': True,
+                 'context' : context_label}
         return Response(rjson)
 
 
