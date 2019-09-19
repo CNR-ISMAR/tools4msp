@@ -155,6 +155,7 @@ class CaseStudyRunInlineBaseSerializer(serializers.ModelSerializer):
     class Meta:
         fields = (# 'url',
                   'file',
+                  'thumbnail',
                   'coded_label',
                   'description',
                   'label')
