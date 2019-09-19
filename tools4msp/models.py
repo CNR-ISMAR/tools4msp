@@ -426,7 +426,7 @@ def generate_filename(self, filename):
         file_type = 'outputs'
         # suffix = 'json'
 
-    url = "{}/{}/{}/{}.{}".format(parent_dir,
+    url = "{}/{}/{}/{}{}".format(parent_dir,
                                   parent_id,
                                   file_type,
                                   name,
