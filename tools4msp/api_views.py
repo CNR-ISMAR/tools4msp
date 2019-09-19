@@ -30,6 +30,7 @@ class ActionSerializerMixin(object):
 class DomainAreaViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = DomainArea.objects.all()
     serializer_class = DomainAreaSerializer
+    filterset_fields = ('label',)
 
 
 class CodedLabelViewSet(viewsets.ReadOnlyModelViewSet):
