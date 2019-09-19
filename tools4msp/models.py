@@ -144,8 +144,6 @@ class CaseStudy(models.Model):
 
     def set_domain_area(self):
         if self.domain_area_terms.count() > 0:
-            print("AAAAAAAAAAAAAAAA")
-            print(self.domain_area_terms.all())
             geounion = self.domain_area_terms.aggregate(models.Union('geo'))['geo__union']
             geounion = geounion.simplify(0.01)
             if geounion.geom_type != 'MultiPolygon':
@@ -694,7 +692,6 @@ class CaseStudyDataset(models.Model):
         logger.debug('update_dataset res={} grid_input={}'.format(res, grid is not None))
         cs = self.casestudy.get_CS()
         raster = self.get_dataset(res=res, grid=grid)
-        print(raster.gtransform)
         cs.add_layer(raster,
                      dataset_type,
                      self.get_lid(),
@@ -704,7 +701,6 @@ class CaseStudyDataset(models.Model):
     def save_thumbnail(self, res=None, grid=None):
         cs = self.casestudy.get_CS()
         out = cs.get_outpath('{}.png'.format(self.pk))
-        print(out)
         plt.figure()
         d = self.get_dataset(res=res, grid=grid)
         if grid is not None:
