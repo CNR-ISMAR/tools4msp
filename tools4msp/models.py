@@ -24,6 +24,8 @@ import itertools
 import datetime
 import hashlib
 from django.contrib.gis.geos import MultiPolygon
+from django.db.models import F
+
 
 logger = logging.getLogger('tools4msp.models')
 
@@ -571,6 +573,15 @@ class Env(CodedLabel):
         ordering = ['label']
 
 
+class WeightManager(models.Manager):
+    def get_matrix(self, context_label):
+        qs = self.filter(context__label=context_label)
+        return list(qs.values(u=F('use__code'),
+                              p=F('pres__code'),
+                              w=F('weight'),
+                              d=F('distance')))
+
+
 class Weight(models.Model):
     """Model for storing use-specific relative pressure weights.
     """
@@ -580,12 +591,22 @@ class Weight(models.Model):
     distance = models.FloatField(default=0)
     context = models.ForeignKey(Context, on_delete=models.CASCADE)
 
+    # custom manager
+    objects = WeightManager()
+
     def __str__(self):
         return "{}: {} - {}".format(self.context, self.use,
                                      self.pres)
     class Meta:
         verbose_name = "Pressure weight"
 
+
+class SensitivityManager(models.Manager):
+    def get_matrix(self, context_label):
+        qs = self.filter(context__label=context_label)
+        return list(qs.values(p=F('pres__code'),
+                              e=F('env__code'),
+                              s=F('sensitivity')))
 
 class Sensitivity(models.Model):
     """Model for storing sensitivities of the environmental components to
@@ -595,6 +616,9 @@ class Sensitivity(models.Model):
     env = models.ForeignKey(Env, on_delete=models.CASCADE)
     sensitivity = models.FloatField()
     context = models.ForeignKey(Context, on_delete=models.CASCADE)
+
+    # custom manager
+    objects = SensitivityManager()
 
     def __str__(self):
         return "{}: {} - {}".format(self.context, self.pres,
