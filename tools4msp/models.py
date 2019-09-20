@@ -147,6 +147,10 @@ class CaseStudy(models.Model):
 
     CS = None
 
+    def get_thumbnails(self):
+        return CaseStudyInput.objects.filter(casestudy=self,
+                                             coded_label__code="CS-THUMB")
+
     def set_domain_area(self):
         if self.domain_area_terms.count() > 0:
             geounion = self.domain_area_terms.aggregate(models.Union('geo'))['geo__union']

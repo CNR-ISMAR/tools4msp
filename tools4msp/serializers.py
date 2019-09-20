@@ -126,6 +126,7 @@ class CaseStudySerializer(serializers.HyperlinkedModelSerializer): #ModelSeriali
 
 
 class CaseStudyListSerializer(CaseStudySerializer):
+    thumbnails = CaseStudyInputSerializer(many=True, read_only=True, source="get_thumbnails")
     class Meta:
         model = CaseStudy
         fields = ('url',
@@ -138,7 +139,8 @@ class CaseStudyListSerializer(CaseStudySerializer):
                   'extent',
                   'owner',
                   'created',
-                  'updated')
+                  'updated',
+                  'thumbnails')
         read_only_fields = ('extent', 'owner''created',
                             'updated', 'layers', 'inputs')
 
