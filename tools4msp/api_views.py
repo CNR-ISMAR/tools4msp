@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import FileUploadParser, ParseError
 from rest_framework import status
+import coreapi, coreschema
 
 
 # Use customized NestedViewSetMixin (see issue https://github.com/chibisov/drf-extensions/issues/142)
@@ -37,6 +38,8 @@ class CodedLabelViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = CodedLabel.objects.all()
     serializer_class = CodedLabelSerializer
     lookup_field = 'code'
+
+from rest_framework.schemas import AutoSchema
 
 
 class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.ModelViewSet):
@@ -92,7 +95,17 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
         cs.set_domain_area()
         cs.save()
 
-    @action(detail=True)
+    run_schema = AutoSchema(
+        manual_fields=[
+            coreapi.Field(
+                "selected_layers",
+                schema=coreschema.String(description="Comma-separated list of layer codes"),
+                required=False,
+                location='query'
+            ),
+        ]
+    )
+    @action(detail=True, schema=run_schema)
     def run(self, request, *args, **kwargs):
         """
         Run the module
@@ -101,6 +114,7 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
         :param kwargs:
         :return:
         """
+        selected_layers = self.request.GET.get('selected_layers')
         rjson = {'success': False}
         cs = self.get_object()
         csr = cs.run()
@@ -109,6 +123,8 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
 
             rjson['success'] = True
             rjson['run'] = csr_serializer.data['url']
+            rjson['run_id'] = csr.pk
+            rjson['selected_layers'] = selected_layers
 
         return Response(rjson)
 
