@@ -5,6 +5,7 @@
 import itertools
 import numpy as np
 import pandas as pd
+from os import path
 
 
 def coexist_rules(use1conf,
@@ -22,9 +23,11 @@ def coexist_rules(use1conf,
     return max(spatial1, spatial2) + max(time1, time2)
 
 
-class ConflictScoreMixin(object):
-    def __init__(self, grid, basedir=None,
-                 name='unnamed', version='v1', rtype='full'):
+class MUCMixin(object):
+    def __init__(self,
+                 csdir=None,
+                 rundir=None,
+                 name='unnamed'):
 
         self.coexist_scores = pd.DataFrame()
 
@@ -91,10 +94,14 @@ class ConflictScoreMixin(object):
         self.coexist_scores.to_csv(self.get_outpath('coexist_scores.csv'))
 
     def load_inputs(self):
-        try:
-            self.coexist_scores = pd.read_csv(self.get_outpath('coexist_scores.csv'), index_col=0)
-        except IOError:
-            self.coexist_scores = pd.read_csv(self.get_outpath('coexist_scores.csv', rtype='full'), index_col=0)
+        fpath = path.join(self.inputsdir, 'muc-MUC-SCORES.json')
+        if path.isfile(fpath):
+            _df = pd.read_json(fpath)
+            _df.rename(columns={'u1': 'usecode1',
+                                'u2': 'usecode2',
+                                's': 'score'
+                                }, inplace=True)
+            self.coexist_scores = _df
 
     def dump_outputs(self):
         if 'coexist' in self.outputs:

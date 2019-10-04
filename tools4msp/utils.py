@@ -31,7 +31,7 @@ from django.db.transaction import get_connection
 import matplotlib.pyplot as plt
 
 
-from .casestudy import CaseStudy
+from .modules.casestudy import CaseStudy
 
 
 def get_casestudy(ci_id, cellsize, basedir,
@@ -273,7 +273,7 @@ def update_use(casestudy, ci_id, use, cache=True):
     else:
         raster_availability = availability_to_raster(use_layers, grid)
     # print raster_availability
-    casestudy.add_layer(raster, 'use', lid=lid,
+    casestudy.add_layer(raster, 'use', code=lid,
                         label=use.label,
                         availability=raster_availability)
 
@@ -294,7 +294,7 @@ def update_env(casestudy, ci_id, env, cache=True):
     else:
         raster_availability = availability_to_raster(env_layers, grid)
     # print raster_availability
-    casestudy.add_layer(raster, 'env', lid=lid,
+    casestudy.add_layer(raster, 'env', code=lid,
                         label=env.label,
                         availability=raster_availability)
 

@@ -19,7 +19,7 @@ from django.utils.html import format_html
 from jsonfield import JSONField
 from .processing import Expression
 from .utils import layer_to_raster, get_sensitivities_by_rule, get_conflict_by_uses
-from .casestudy import CaseStudy3 as CS
+from .modules.casestudy import CaseStudy as CS
 import itertools
 import datetime
 import hashlib
@@ -28,6 +28,8 @@ from django.db.models import F
 from django.core.files import File
 from io import StringIO
 import json
+from django.dispatch import receiver
+import os
 
 
 logger = logging.getLogger('tools4msp.models')
@@ -482,12 +484,20 @@ class CaseStudyInput(FileBase):
     updated = models.DateTimeField(auto_now=True)
 
 
+class CodedLabelManager(models.Manager):
+    def get_dict(self):
+        values = self.objects.all().values('code', 'group', 'label')
+        return {v['code']: v for v in values}
+
+
 class CodedLabel(models.Model):
     group = models.CharField(max_length=10, choices=CODEDLABEL_GROUP_CHOICES)
     code = models.SlugField(max_length=10, unique=True)
     label = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     old_label = models.CharField(max_length=100, blank=True, null=True)
+
+    objects = CodedLabelManager
 
     def __str__(self):
         return "{} -> {}".format(self.group, self.label)
@@ -928,6 +938,27 @@ class CaseStudyRunOutput(FileBase):
     updated = models.DateTimeField(auto_now=True)
     class Meta:
         ordering = ['coded_label']
+
+
+@receiver(models.signals.post_delete, sender=CaseStudyLayer)
+@receiver(models.signals.post_delete, sender=CaseStudyInput)
+@receiver(models.signals.post_delete, sender=CaseStudyRunLayer)
+@receiver(models.signals.post_delete, sender=CaseStudyRunInput)
+@receiver(models.signals.post_delete, sender=CaseStudyRunOutputLayer)
+@receiver(models.signals.post_delete, sender=CaseStudyRunOutput)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `MediaFile` object is deleted.
+    """
+    if instance.file:
+        if os.path.isfile(instance.file.path):
+            os.remove(instance.file.path)
+    if instance.thumbnail:
+        if os.path.isfile(instance.thumbnail.path):
+            os.remove(instance.thumbnail.path)
+
+
 
 class ESCapacity(models.Model):
     env = models.ForeignKey(Env, on_delete=models.CASCADE)
