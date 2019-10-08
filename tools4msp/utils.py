@@ -1,7 +1,7 @@
 # coding: utf-8
 
 
-
+import io
 import re
 import simplejson
 import itertools
@@ -11,6 +11,7 @@ import scipy
 import pandas as pd
 import rectifiedgrid as rg
 from rasterio.warp import reproject
+from django.core.files import File
 
 try:
     from geonode.base.models import DataAvailabilityArea
@@ -31,7 +32,23 @@ from django.db.transaction import get_connection
 import matplotlib.pyplot as plt
 
 
-from .modules.casestudy import CaseStudy
+from .modules.casestudy import CaseStudyBase
+
+
+def write_to_file_field(file_field,
+                        write_func,
+                        file_ext='',
+                        is_text_file=False,
+                        **write_kwargs):
+    if is_text_file is True:
+        buf = io.StringIO()
+    else:
+        buf = io.BytesIO()
+    write_func(buf, **write_kwargs)
+    buf.seek(0)
+    fname = 'file.{}'.format(file_ext)
+    file_field.save(fname, File(buf))
+    buf.close()
 
 
 def get_casestudy(ci_id, cellsize, basedir,
@@ -46,7 +63,7 @@ def get_casestudy(ci_id, cellsize, basedir,
         # set the mask
         grid[grid == 0] = np.ma.masked
 
-        casestudy = CaseStudy(grid, basedir=basedir, name=str(ci_id),
+        casestudy = CaseStudyBase(grid, basedir=basedir, name=str(ci_id),
                               version=version, rtype=rtype)
 
     cics, uses, envs = _get_adriplan_cics(ci_id)
