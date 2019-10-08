@@ -34,5 +34,6 @@ setup(
                       'django-rest-swagger',
                       'djangorestframework',
                       'djangorestframework-gis',
+                      'django-cleanup',
                       ],
 )
