@@ -11,7 +11,7 @@ from .models import Env, Use, Pressure, CaseStudy, \
     Context, CaseStudyGrid, CaseStudyLayer, CaseStudyInput, \
     MsfdUse, MsfdPres, MsfdEnv, DomainArea, CodedLabel, \
     CaseStudyRunOutputLayer, CaseStudyRunOutput, \
-    CaseStudyRunInput, CaseStudyRunLayer
+    CaseStudyRunInput, CaseStudyRunLayer, MUCPotentialConflict
 
 #############
 ## CaseStudy drive approach
@@ -43,6 +43,14 @@ class SensitivityAdmin(admin.ModelAdmin):
     list_filter = ['context', 'pres', 'env']
 
 admin.site.register(Sensitivity, SensitivityAdmin)
+
+
+class MUCPotentialConflictAdmin(admin.ModelAdmin):
+    model = MUCPotentialConflict
+    list_display = ['context', 'use1', 'use2', 'score']
+    list_filter = ['context', 'use1', 'use2']
+
+admin.site.register(MUCPotentialConflict, MUCPotentialConflictAdmin)
 
 
 class CodedLabelAdmin(admin.ModelAdmin):

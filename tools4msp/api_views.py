@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import FileUploadParser, ParseError
 from rest_framework import status
 import coreapi, coreschema
-
+import json
 
 # Use customized NestedViewSetMixin (see issue https://github.com/chibisov/drf-extensions/issues/142)
 # from rest_framework_extensions.mixins import NestedViewSetMixin
@@ -17,6 +17,8 @@ from .serializers import CaseStudySerializer, CaseStudyLayerSerializer, CaseStud
     FileUploadSerializer, CaseStudyRunSerializer, ThumbnailUploadSerializer
 from .models import CaseStudy, CaseStudyLayer, CaseStudyInput, DomainArea, CodedLabel, \
     CaseStudyRun, Context
+from rest_framework.schemas import AutoSchema
+
 
 
 class ActionSerializerMixin(object):
@@ -38,8 +40,6 @@ class CodedLabelViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = CodedLabel.objects.all()
     serializer_class = CodedLabelSerializer
     lookup_field = 'code'
-
-from rest_framework.schemas import AutoSchema
 
 
 class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.ModelViewSet):
@@ -115,9 +115,11 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
         :return:
         """
         selected_layers = self.request.GET.get('selected_layers')
+        selected_layers = selected_layers.split(',')
+
         rjson = {'success': False}
         cs = self.get_object()
-        csr = cs.run()
+        csr = cs.run(selected_layers=selected_layers)
         if csr is not None:
             csr_serializer = CaseStudyRunSerializer(csr, context={'request': request})
 
@@ -141,7 +143,7 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
         context = Context.objects.get(label=context_label)
 
         cs = self.get_object()
-        cs.set_context(context_label)
+        cs.set_or_update_context(context_label)
         rjson = {'success': True,
                  'context' : context_label}
         return Response(rjson)

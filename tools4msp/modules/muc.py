@@ -6,6 +6,7 @@ import itertools
 import numpy as np
 import pandas as pd
 from os import path
+from .casestudy import CaseStudyBase
 
 
 def coexist_rules(use1conf,
@@ -23,30 +24,21 @@ def coexist_rules(use1conf,
     return max(spatial1, spatial2) + max(time1, time2)
 
 
-class MUCMixin(object):
+class MUCCaseStudy(CaseStudyBase):
     def __init__(self,
                  csdir=None,
                  rundir=None,
                  name='unnamed'):
 
-        self.coexist_scores = pd.DataFrame()
+        self.potential_conflict_scores = pd.DataFrame()
+        super().__init__(csdir=csdir,
+                         rundir=rundir,
+                         name='unnamed')
 
-    def add_coexist_score(self,
-                          use1id, use1label,
-                          use2id, use2label,
-                          use1conf=None,
-                          use2conf=None,
-                          score=None):
-        if use1conf is not None and use2conf is not None:
-            score = coexist_rules(use1conf, use2conf)
-        print(use1id, use2id)
-        self.coexist_scores.loc[use1id, use2id] = score
-        self.coexist_scores.loc[use2id, use1id] = score
+    def get_potential_conflict_score(self, use1id, use2id):
+        return self.potential_conflict_scores.loc[use1id, use2id]
 
-    def get_coexist_score(self, use1id, use2id):
-        return self.coexist_scores.loc[use1id, use2id]
-
-    def coexist(self, uses=None, intensity=False, outputmask=None):
+    def run(self, uses=None, intensity=False, outputmask=None):
         couses_data = []
         coexist = np.zeros_like(self.grid)
         alluses_iter = self.get_uses().iterrows()
@@ -57,7 +49,7 @@ class MUCMixin(object):
             if uses is not None and use1id not in uses and use2id not in uses:
                 continue
 
-            score = self.get_coexist_score(use1id, use2id)
+            score = self.get_potential_conflict_score(use1id, use2id)
             if intensity:
                 l1 = use1.layer
                 l2 = use2.layer
@@ -75,8 +67,8 @@ class MUCMixin(object):
 
             coexist += _score
 
-            couses_data.append([use1.label,
-                                use2.label,
+            couses_data.append([use1.code,
+                                use2.code,
                                 _score.sum(),
                                 _score[_score > 0].count()
                             ])
@@ -89,19 +81,21 @@ class MUCMixin(object):
         self.outputs['coexist'] = coexist
         self.outputs['coexist_couses_df'] = couses_df
         return True
-
-    def dump_inputs(self):
-        self.coexist_scores.to_csv(self.get_outpath('coexist_scores.csv'))
+    #
+    # def dump_inputs(self):
+    #     self.coexist_scores.to_csv(self.get_outpath('coexist_scores.csv'))
 
     def load_inputs(self):
-        fpath = path.join(self.inputsdir, 'muc-MUC-SCORES.json')
+        fpath = path.join(self.inputsdir, 'muc-PCONFLICT.json')
         if path.isfile(fpath):
-            _df = pd.read_json(fpath)
-            _df.rename(columns={'u1': 'usecode1',
-                                'u2': 'usecode2',
-                                's': 'score'
-                                }, inplace=True)
-            self.coexist_scores = _df
+            df = pd.read_json(fpath)
+            _df = df.copy()
+            _df.columns = ['score', 'u2', 'u1']
+            df = pd.concat([df, _df], ignore_index=True, sort=False)
+            df = df.pivot('u1', 'u2', values='score')
+            ordered = sorted(df.columns)
+            df = df.reindex(ordered, axis=1)
+            self.potential_conflict_scores = df
 
     def dump_outputs(self):
         if 'coexist' in self.outputs:

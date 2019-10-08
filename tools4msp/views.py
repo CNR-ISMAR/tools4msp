@@ -309,7 +309,7 @@ def casestudy_run_save(request, tool, id):
             csr.save()
 
     if 'coexist' in tools:
-        c.coexist(outputmask=_grid == 0)
+        c.run(outputmask=_grid == 0)
         _coexista = c.outputs['coexist']
         if area is not None:
             coexista = aoi.copy()
