@@ -13,9 +13,6 @@ try:
 except ImportError:
     from rasterio.enums import Resampling
 
-from .cea import CEAMixin
-from .muc import MUCMixin
-
 logger = logging.getLogger('tools4msp.casestudy')
 
 
@@ -25,7 +22,7 @@ def read_casestudy(csmetadata):
     with open(csmetadata) as data_file:
         meta = json.load(data_file)
 
-        c = CaseStudy(None, meta['basedir'], meta['name'])
+        c = CaseStudyBase(None, meta['basedir'], meta['name'])
         c.load_grid()
         c.load_layers()
         c.load_inputs()
@@ -33,7 +30,7 @@ def read_casestudy(csmetadata):
     return None
 
 
-class CaseStudy(CEAMixin, MUCMixin):
+class CaseStudyBase(object):
     """Class to implement Tools4MSP CaseStudy.
     name: CaseStudy name
 
@@ -64,10 +61,6 @@ class CaseStudy(CEAMixin, MUCMixin):
         self.inputs = pd.DataFrame(columns=columns)
 
         self.outputs = {}
-
-        super(CaseStudy, self).__init__(csdir=csdir,
-                                        rundir=rundir,
-                                        name='unnamed')
 
     def get_outpath(self, code, outtype, extension=None):
         path = [self.csdir, outtype, code]
@@ -194,17 +187,14 @@ class CaseStudy(CEAMixin, MUCMixin):
 
         self.grid.write_raster(self.datadir + 'domain_area_dataset.tiff')
 
-        super(CaseStudy3, self).dump_inputs()
-
     def dump_outputs(self):
-        super(CaseStudy3, self).dump_outputs()
+        pass
 
     def load_grid(self):
         self.grid = self.layers.loc[self.layers.code == 'GRID']['layer'].values[0]
 
     def load_inputs(self):
         self.load_grid()
-        super(CaseStudy, self).load_inputs()
 
     def set_mask(self, mask, overwrite=True):
         """Apply a mask to grid, all layers and availability areas"""

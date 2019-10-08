@@ -6,6 +6,7 @@ import itertools
 import numpy as np
 import pandas as pd
 from os import path
+from .casestudy import CaseStudyBase
 
 
 class ResponseFunction(object):
@@ -31,7 +32,7 @@ class ResponseFunction(object):
         return np.power(self.c + self.q * np.exp(-self.b*(x-self.m)), 1./self.v)
 
 
-class CEAMixin(object):
+class CEACaseStudy(CaseStudyBase):
     def __init__(self,
                  csdir=None,
                  rundir=None,
@@ -56,9 +57,9 @@ class CEAMixin(object):
         self.mscf = {}
 
         self._labels = None
-        super(CEAMixin, self).__init__(csdir=csdir,
-                                       rundir=rundir,
-                                       name=name)
+        super().__init__(csdir=csdir,
+                         rundir=rundir,
+                         name='unnamed')
 
     def run_pressures(self, uses=None, pressures=None,
                       outputmask=None):
@@ -71,9 +72,9 @@ class CEAMixin(object):
         uses_set = set()
 
         for idx, w in self.weights.sort_values(['precode']).iterrows():
-            if uses is not None and w.useid not in uses:
+            if uses is not None and w.usecode not in uses:
                 continue
-            if pressures is not None and w.presid not in pressures:
+            if pressures is not None and w.precode not in pressures:
                 continue
             usecode = w.usecode
             precode = w.precode
@@ -117,7 +118,7 @@ class CEAMixin(object):
         # for key, op in out_pressures.iteritems():
         #     out_pressures[key] = op.norm()
 
-    def cea(self, uses=None, envs=None,
+    def run(self, uses=None, envs=None,
                            outputmask=None, fulloutput=True, pressures=None,
                            cienvs_info=True, ciuses_info=True, cipres_info=True,
                            ciscores_info=True):
@@ -249,7 +250,7 @@ class CEAMixin(object):
             if 'nrf' not in self.sensitivities.columns:
                 self.sensitivities['srf'] = None
 
-        super(CEAMixin, self).load_inputs()
+        super().load_inputs()
 
     def dump_outputs(self):
         if 'ci' in self.outputs:
@@ -268,4 +269,4 @@ class CEAMixin(object):
         # self.outputs['ciconfidence'] = confidence / ci
         # self.outputs['ciscores'] = scores
 
-        super(CEAMixin, self).dump_outputs()
+        super().dump_outputs()
