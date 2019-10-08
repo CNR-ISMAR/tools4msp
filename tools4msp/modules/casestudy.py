@@ -1,5 +1,3 @@
-
-
 import logging
 from os import listdir, path, makedirs
 from slugify import slugify
@@ -134,7 +132,6 @@ class CaseStudyBase(object):
             raise Exception("datadir is not configured: cannot save the data")
         for idx, layer in self.layers.iterrows():
             layerpath = self.datadir + idx
-            print(layer.label, layerpath)
             layer.layer.write_raster(layerpath)
             #
             av_layerpath = self.datadir + 'av_' + idx
@@ -151,7 +148,6 @@ class CaseStudyBase(object):
             raise Exception("layersdir is not configured: cannot load the data")
         for f in listdir(self.layersdir):
             fname, ext = path.splitext(f)
-            print(fname, ext)
             if ext == '.geotiff':
                 code_group, _code = fname.split('-', 1)
                 layerref[_code] = {'f': f,
