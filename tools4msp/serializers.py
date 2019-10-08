@@ -58,7 +58,9 @@ class ThumbnailUploadSerializer(serializers.Serializer):
 
 class CaseStudyLayerSerializer(serializers.HyperlinkedModelSerializer):
     url = CSChildHyperlinkedIdentityField(view_name='casestudylayer-detail')
-    label = serializers.SlugField(source="coded_label.code",
+    code = serializers.SlugField(source="coded_label.code",
+                                       read_only=True)
+    label = serializers.CharField(source="coded_label.label",
                                        read_only=True)
 
     class Meta:
@@ -67,6 +69,7 @@ class CaseStudyLayerSerializer(serializers.HyperlinkedModelSerializer):
                   'file',
                   'thumbnail',
                   'coded_label',
+                  'code',
                   'label')
         read_only_fields = ('file',
                             'label')
@@ -77,7 +80,9 @@ class CaseStudyLayerSerializer(serializers.HyperlinkedModelSerializer):
 
 class CaseStudyInputSerializer(serializers.HyperlinkedModelSerializer):
     url = CSChildHyperlinkedIdentityField(view_name='casestudyinput-detail')
-    label = serializers.SlugField(source="coded_label.code",
+    code = serializers.SlugField(source="coded_label.code",
+                                       read_only=True)
+    label = serializers.CharField(source="coded_label.label",
                                        read_only=True)
     class Meta:
         model = CaseStudyInput
@@ -85,6 +90,7 @@ class CaseStudyInputSerializer(serializers.HyperlinkedModelSerializer):
                   'file',
                   'thumbnail',
                   'coded_label',
+                  'code',
                   'label')
         read_only_fields = ('file',
                             'label')
@@ -145,8 +151,10 @@ class CaseStudyListSerializer(CaseStudySerializer):
                             'updated', 'layers', 'inputs')
 
 class CaseStudyRunInlineBaseSerializer(serializers.ModelSerializer):
-    label = serializers.SlugField(source="coded_label.code",
+    code = serializers.SlugField(source="coded_label.code",
                               read_only=True)
+    label = serializers.CharField(source="coded_label.label",
+                                  read_only=True)
     coded_label = serializers.HyperlinkedRelatedField(
         many=False,
         read_only=True,
@@ -160,6 +168,7 @@ class CaseStudyRunInlineBaseSerializer(serializers.ModelSerializer):
                   'thumbnail',
                   'coded_label',
                   'description',
+                  'code',
                   'label')
         read_only_fields = ('file',
                             'coded_label',
