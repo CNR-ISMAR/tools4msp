@@ -141,13 +141,15 @@ def _run(csr, selected_layers=None):
         csr_ol = csr.outputlayers.create(coded_label=cl)
         write_to_file_field(csr_ol.file, ci.write_raster, 'geotiff')
 
-        ax, mapimg = ci.plotmap(cmap='jet',
-                                logcolor=True,
-                                legend=True,
-                                maptype='minimal',
-                                grid=True, gridrange=1)
+        fig, ax = plt.subplots( nrows=1, ncols=1 )
+        # ci.plotmap(ax=ax, cmap='jet',
+        #                         logcolor=True,
+        #                         legend=True,
+        #                         maptype='minimal',
+        #                         grid=True, gridrange=1)
+        #
+        ci.plot(cmap='jet')
         write_to_file_field(csr_ol.thumbnail, plt.savefig, 'png')
-        plt.show()
         plt.clf()
         return module_cs
     else:
@@ -439,8 +441,9 @@ class CaseStudy(models.Model):
         if self.module == 'cea':
             csr = self.casestudyrun_set.create()
             _run(csr, selected_layers=selected_layers)
-            return csr
-        rlist = self.casestudyrun_set.all()
+            rlist = self.casestudyrun_set.filter(pk=csr.pk)
+        else:
+            rlist = self.casestudyrun_set.all()
         if rlist.count() > 0:
             return rlist[0]
         return None
