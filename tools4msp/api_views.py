@@ -115,7 +115,8 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
         :return:
         """
         selected_layers = self.request.GET.get('selected_layers')
-        selected_layers = selected_layers.split(',')
+        if selected_layers is not None:
+            selected_layers = selected_layers.split(',')
 
         rjson = {'success': False}
         cs = self.get_object()
