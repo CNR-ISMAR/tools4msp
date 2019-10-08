@@ -19,7 +19,7 @@ from django.utils.html import format_html
 from jsonfield import JSONField
 from .processing import Expression
 from .utils import layer_to_raster, get_sensitivities_by_rule, get_conflict_by_uses
-from .modules.casestudy import CaseStudy as CS
+from .modules.casestudy import CaseStudyBase as CS
 import itertools
 import datetime
 import hashlib
@@ -30,6 +30,11 @@ from io import StringIO
 import json
 from django.dispatch import receiver
 import os
+from .utils import write_to_file_field
+from matplotlib import pyplot as plt
+from django.conf import settings
+from .modules.cea import CEACaseStudy
+from os import path
 
 
 logger = logging.getLogger('tools4msp.models')
@@ -94,6 +99,58 @@ class Context(models.Model):
 
     def __str__(self):
         return self.label
+
+
+def _run(csr, selected_layers=None):
+    csdir = path.join(settings.MEDIA_ROOT,
+                      'casestudy',
+                      str(csr.casestudy.pk))
+    if selected_layers is not None:
+        coded_labels = CodedLabel.objects.get_dict()
+        uses = []
+        envs = []
+        pres = []
+        for code in selected_layers:
+            l = coded_labels.get(code, {})
+            g = l.get('group', None)
+            if g == 'use':
+                uses.append(code)
+            elif g == 'env':
+                envs.append(code)
+            elif g == 'pre':
+                pres.append(code)
+        if len(uses) == 0:
+            uses = None
+        if len(envs) == 0:
+            envs = None
+        if len(pres) == 0:
+            pres = None
+
+    if csr.casestudy.module == 'cea':
+        module_class = CEACaseStudy
+        module_cs = module_class(csdir=csdir)
+        module_cs.load_layers()
+        module_cs.load_grid()
+        module_cs.load_inputs()
+        module_cs.run(uses=uses, envs=envs, pressures=pres)
+        #
+        ci = module_cs.outputs['ci']
+        cl = CodedLabel.objects.get(code='CEASCORE')
+        csr_ol = csr.outputlayers.create(coded_label=cl)
+        write_to_file_field(csr_ol.file, ci.write_raster, 'geotiff')
+
+        ax, mapimg = ci.plotmap(cmap='jet',
+                                logcolor=True,
+                                legend=True,
+                                maptype='minimal',
+                                grid=True, gridrange=1)
+        write_to_file_field(csr_ol.thumbnail, plt.savefig, 'png')
+        plt.show()
+        plt.clf()
+        return module_cs
+    else:
+        return None
+    return module_cs
 
 
 class CaseStudy(models.Model):
@@ -161,11 +218,11 @@ class CaseStudy(models.Model):
                 geounion = MultiPolygon(geounion)
             self.domain_area = geounion
 
-    def set_context(self, context_label):
+    def set_or_update_context(self, context_label):
         # TODO: this is a module-aware function. Move to the module library
         # set sensitivity
         cl = CodedLabel.objects.get(code='SENS')
-        csi = self.inputs.create(coded_label=cl)
+        csi, created = self.inputs.get_or_create(coded_label=cl)
         s = Sensitivity.objects.get_matrix(context_label)
         jsonstring = json.dumps(s)
         # only the file extension matters
@@ -173,8 +230,16 @@ class CaseStudy(models.Model):
 
         # weights
         cl = CodedLabel.objects.get(code='WEIGHTS')
-        csi = self.inputs.create(coded_label=cl)
+        csi, created = self.inputs.get_or_create(coded_label=cl)
         s = Weight.objects.get_matrix(context_label)
+        jsonstring = json.dumps(s)
+        # only the file extension matters
+        csi.file.save('file.json', File(StringIO(jsonstring)))
+
+        # muc potential conflict matrix
+        cl = CodedLabel.objects.get(code='PCONFLICT')
+        csi, created = self.inputs.get_or_create(coded_label=cl)
+        s = MUCPotentialConflict.objects.get_matrix(context_label)
         jsonstring = json.dumps(s)
         # only the file extension matters
         csi.file.save('file.json', File(StringIO(jsonstring)))
@@ -368,7 +433,11 @@ class CaseStudy(models.Model):
             return ''
     thumbnail_tag.short_description = 'Thumbnail'
 
-    def run(self):
+    def run(self, selected_layers=None):
+        if self.module == 'cea':
+            csr = self.casestudyrun_set.create()
+            _run(csr, selected_layers=selected_layers)
+            return csr
         rlist = self.casestudyrun_set.all()
         if rlist.count() > 0:
             return rlist[0]
@@ -486,7 +555,7 @@ class CaseStudyInput(FileBase):
 
 class CodedLabelManager(models.Manager):
     def get_dict(self):
-        values = self.objects.all().values('code', 'group', 'label')
+        values = self.all().values('code', 'group', 'label')
         return {v['code']: v for v in values}
 
 
@@ -497,7 +566,7 @@ class CodedLabel(models.Model):
     description = models.TextField(blank=True)
     old_label = models.CharField(max_length=100, blank=True, null=True)
 
-    objects = CodedLabelManager
+    objects = CodedLabelManager()
 
     def __str__(self):
         return "{} -> {}".format(self.group, self.label)
@@ -664,6 +733,25 @@ class Sensitivity(models.Model):
 
     class Meta:
         verbose_name_plural = "Sensitivities"
+
+
+class MucPotentialCOnflictManager(models.Manager):
+    def get_matrix(self, context_label):
+        qs = self.filter(context__label=context_label)
+        return list(qs.values(u1=F('use1__code'),
+                              u2=F('use2__code')
+                              ))
+
+
+class MUCPotentialConflict(models.Model):
+    context = models.ForeignKey(Context, on_delete=models.CASCADE)
+    use1 = models.ForeignKey(Use, on_delete=models.CASCADE, related_name="mucscore_use1")
+    use2 = models.ForeignKey(Use, on_delete=models.CASCADE, related_name="mucscore_use2")
+
+    objects = MucPotentialCOnflictManager()
+
+    class Meta:
+        unique_together = [['use1', 'use2']]
 
 
 class Dataset(models.Model):
@@ -940,23 +1028,23 @@ class CaseStudyRunOutput(FileBase):
         ordering = ['coded_label']
 
 
-@receiver(models.signals.post_delete, sender=CaseStudyLayer)
-@receiver(models.signals.post_delete, sender=CaseStudyInput)
-@receiver(models.signals.post_delete, sender=CaseStudyRunLayer)
-@receiver(models.signals.post_delete, sender=CaseStudyRunInput)
-@receiver(models.signals.post_delete, sender=CaseStudyRunOutputLayer)
-@receiver(models.signals.post_delete, sender=CaseStudyRunOutput)
-def auto_delete_file_on_delete(sender, instance, **kwargs):
-    """
-    Deletes file from filesystem
-    when corresponding `MediaFile` object is deleted.
-    """
-    if instance.file:
-        if os.path.isfile(instance.file.path):
-            os.remove(instance.file.path)
-    if instance.thumbnail:
-        if os.path.isfile(instance.thumbnail.path):
-            os.remove(instance.thumbnail.path)
+# @receiver(models.signals.post_delete, sender=CaseStudyLayer)
+# @receiver(models.signals.post_delete, sender=CaseStudyInput)
+# @receiver(models.signals.post_delete, sender=CaseStudyRunLayer)
+# @receiver(models.signals.post_delete, sender=CaseStudyRunInput)
+# @receiver(models.signals.post_delete, sender=CaseStudyRunOutputLayer)
+# @receiver(models.signals.post_delete, sender=CaseStudyRunOutput)
+# def auto_delete_file_on_delete(sender, instance, **kwargs):
+#     """
+#     Deletes file from filesystem
+#     when corresponding `MediaFile` object is deleted.
+#     """
+#     if instance.file:
+#         if os.path.isfile(instance.file.path):
+#             os.remove(instance.file.path)
+#     if instance.thumbnail:
+#         if os.path.isfile(instance.thumbnail.path):
+#             os.remove(instance.thumbnail.path)
 
 
 
