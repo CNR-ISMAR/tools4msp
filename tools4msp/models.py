@@ -36,7 +36,6 @@ from django.conf import settings
 from .modules.cea import CEACaseStudy
 from os import path
 
-
 logger = logging.getLogger('tools4msp.models')
 
 CODEDLABEL_GROUP_CHOICES = (
@@ -105,6 +104,9 @@ def _run(csr, selected_layers=None):
     csdir = path.join(settings.MEDIA_ROOT,
                       'casestudy',
                       str(csr.casestudy.pk))
+    uses = None
+    envs = None
+    pres = None
     if selected_layers is not None:
         coded_labels = CodedLabel.objects.get_dict()
         uses = []
@@ -738,15 +740,22 @@ class Sensitivity(models.Model):
 class MucPotentialCOnflictManager(models.Manager):
     def get_matrix(self, context_label):
         qs = self.filter(context__label=context_label)
-        return list(qs.values(u1=F('use1__code'),
-                              u2=F('use2__code')
+        return list(qs.values('score',
+                              u1=F('use1__code'),
+                              u2=F('use2__code'),
                               ))
+
+    def plot_matrix(self, context_label):
+        import seaborn as sns
+        m = self.get_matrix(context_label)
+
 
 
 class MUCPotentialConflict(models.Model):
     context = models.ForeignKey(Context, on_delete=models.CASCADE)
     use1 = models.ForeignKey(Use, on_delete=models.CASCADE, related_name="mucscore_use1")
     use2 = models.ForeignKey(Use, on_delete=models.CASCADE, related_name="mucscore_use2")
+    score = models.FloatField()
 
     objects = MucPotentialCOnflictManager()
 
