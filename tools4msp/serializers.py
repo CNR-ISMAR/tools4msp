@@ -191,7 +191,7 @@ class CaseStudyRunSerializer(serializers.HyperlinkedModelSerializer): #ModelSeri
     # inputs = CaseStudyInputSerializer(many=True, read_only=True)
     # extent = serializers.JSONField(source="domain_area.extent",
     #                                read_only=True)
-    output_layers = CaseStudyRunOutputLayerSerializer(many=True, read_only=True)
+    outputlayers = CaseStudyRunOutputLayerSerializer(many=True, read_only=True)
     outputs = CaseStudyRunOutputSerializer(many=True, read_only=True)
     owner = serializers.CharField(source='owner.username',
                                   read_only=True)
@@ -214,7 +214,7 @@ class CaseStudyRunSerializer(serializers.HyperlinkedModelSerializer): #ModelSeri
                   'updated',
                   # 'layers',
                   # 'inputs',
-                  'output_layers',
+                  'outputlayers',
                   'outputs',
                   )
         read_only_fields = (# 'extent',
@@ -223,6 +223,6 @@ class CaseStudyRunSerializer(serializers.HyperlinkedModelSerializer): #ModelSeri
                             'updated',
                             # 'layers',
                             # 'inputs',
-                            'output_layers'
+                            'outputlayers'
                             'outputs'
                             )
