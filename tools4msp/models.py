@@ -142,14 +142,15 @@ def _run(csr, selected_layers=None):
         csr_o = csr.outputs.create(coded_label=cl)
         write_to_file_field(csr_ol.file, ci.write_raster, 'geotiff')
 
-        fig, ax = plt.subplots( nrows=1, ncols=1 )
-        # ci.plotmap(ax=ax, cmap='jet',
-        #                         logcolor=True,
-        #                         legend=True,
-        #                         maptype='minimal',
-        #                         grid=True, gridrange=1)
-        #
-        ci.plot(cmap='jet')
+        fig, ax = plt.subplots()
+        ci.plotmap(#ax=ax,
+                   cmap='jet',
+                   logcolor=True,
+                   legend=True,
+                   maptype='minimal',
+                   grid=True, gridrange=1)
+
+        # ci.plot(cmap='jet')
         write_to_file_field(csr_ol.thumbnail, plt.savefig, 'png')
         write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
         plt.clf()
