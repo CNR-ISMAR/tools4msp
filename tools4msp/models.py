@@ -135,7 +135,9 @@ def _run(csr, selected_layers=None):
         module_cs.load_grid()
         module_cs.load_inputs()
         module_cs.run(uses=uses, envs=envs, pressures=pres)
-        #
+        # Collect and save outputs
+
+        # CEASCORE map
         ci = module_cs.outputs['ci']
         cl = CodedLabel.objects.get(code='CEASCORE')
         csr_ol = csr.outputlayers.create(coded_label=cl)
@@ -149,9 +151,25 @@ def _run(csr, selected_layers=None):
                    maptype='minimal',
                    grid=True, gridrange=1)
 
+        # CEASCORE map as png for
         write_to_file_field(csr_ol.thumbnail, plt.savefig, 'png')
         write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
         plt.clf()
+
+        # CEASCORE histogram
+        cl = CodedLabel.objects.get(code='HISTCEASCORE')
+        csr_o = csr.outputs.create(coded_label=cl)
+        data = ci.flatten()
+        data = data[data.mask == False]
+        n, bins, patches = plt.hist(data, bins=15)
+        histdata = {'n': n.tolist(), 'bins': bins.tolist()}
+        write_to_file_field(csr_o.file, lambda buf: json.dump(histdata, buf), 'json', is_text_file=True)
+        plt.xlabel('CEA score')
+        plt.ylabel('Number of cells')
+        write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
+        plt.clf()
+
+
         return module_cs
     else:
         return None
@@ -567,7 +585,7 @@ class CodedLabelManager(models.Manager):
 
 class CodedLabel(models.Model):
     group = models.CharField(max_length=10, choices=CODEDLABEL_GROUP_CHOICES)
-    code = models.SlugField(max_length=10, unique=True)
+    code = models.SlugField(max_length=15, unique=True)
     label = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     old_label = models.CharField(max_length=100, blank=True, null=True)
