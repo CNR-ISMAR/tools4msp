@@ -93,7 +93,7 @@ if not geonode:
 class Context(models.Model):
     """Model for storing information on data context."""
     label = models.CharField(max_length=100)
-    description = models.CharField(max_length=200, null=True, blank=True)
+    description = models.CharField(max_length=400, null=True, blank=True)
     reference_date = models.DateField(default=datetime.date.today)
 
     def __str__(self):
@@ -169,6 +169,30 @@ def _run(csr, selected_layers=None):
         write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
         plt.clf()
 
+        # MSFD Biological
+        for ptheme in ('Biological', 'Physical', 'Substances, litter and energy'):
+            plist = list(Pressure.objects.filter(msfd__theme=ptheme).values_list('code', flat=True))
+            module_cs.run(pressures=plist)
+            #
+            ci = module_cs.outputs['ci']
+            cl = CodedLabel.objects.get(code='CEASCORE')
+
+            plist_str = ", ".join(CodedLabel.objects.filter(code__in=plist).values_list('label', flat=True))
+            description = 'MSFD {} pressures: {}'.format(ptheme, plist_str)
+            csr_ol = csr.outputlayers.create(coded_label=cl, description=description)
+            csr_o = csr.outputs.create(coded_label=cl, description=description)
+            write_to_file_field(csr_ol.file, ci.write_raster, 'geotiff')
+
+            ci.plotmap(#ax=ax,
+                       cmap='jet',
+                       logcolor=True,
+                       legend=True,
+                       maptype='minimal',
+                       grid=True, gridrange=1)
+            # CEASCORE map as png for
+            write_to_file_field(csr_ol.thumbnail, plt.savefig, 'png')
+            write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
+            plt.clf()
 
         return module_cs
     else:
@@ -178,7 +202,7 @@ def _run(csr, selected_layers=None):
 
 class CaseStudy(models.Model):
     label = models.CharField(max_length=100)
-    description = models.CharField(max_length=200, null=True, blank=True)
+    description = models.CharField(max_length=400, null=True, blank=True)
 
     cstype = models.CharField(_('CS Type'), max_length=10, choices=CASESTUDY_TYPE_CHOICES)
     module = models.CharField(_('Module type'), max_length=10, choices=MODULE_TYPE_CHOICES)
@@ -545,7 +569,7 @@ class FileBase(models.Model):
                                                                                   'muc',
                                                                                   'partrac']},
                                    on_delete=models.CASCADE)
-    description = models.CharField(max_length=200, null=True, blank=True)
+    description = models.CharField(max_length=400, null=True, blank=True)
     file = models.FileField(blank=True,
                             null=True,
                             upload_to=generate_filename)
@@ -1011,7 +1035,7 @@ class CaseStudyPressure(CaseStudyDataset):
 class CaseStudyRun(models.Model):
     casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE)
     label = models.CharField(max_length=100, blank=True, null=True)
-    description = models.CharField(max_length=200, null=True, blank=True)
+    description = models.CharField(max_length=400, null=True, blank=True)
     domain_area = models.MultiPolygonField(blank=True, null=True)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True,
                               related_name='owned_casestudyrun',
