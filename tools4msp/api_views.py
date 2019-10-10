@@ -86,12 +86,22 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
             location: form
     """
     permission_classes = [IsAuthenticated]
-    queryset = CaseStudy.objects.all()
     serializer_class = CaseStudySerializer
     filterset_fields = ('cstype', 'module')
 
     # used by Mixin to implement multiple serializer
     action_serializers = {'list': CaseStudyListSerializer}
+
+    def get_queryset(self):
+        """
+        This view should return a list of all the CaseStudies
+        for the currently authenticated user.
+        """
+        qs = CaseStudy.objects.all()
+        if not self.request.user.is_superuser:
+            return qs.filter(owner=self.request.user)
+        else:
+            return qs
 
     def perform_create(self, serializer):
         cs = serializer.save(owner=self.request.user)
@@ -125,6 +135,8 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
         rjson = {'success': False}
         cs = self.get_object()
         csr = cs.run(selected_layers=selected_layers)
+        csr.owner = request.user
+        csr.save()
         if csr is not None:
             csr_serializer = CaseStudyRunSerializer(csr, context={'request': request})
 
@@ -253,5 +265,15 @@ class CaseStudyRunViewSet(viewsets.ReadOnlyModelViewSet):
     API endpoint that allows CaseStudyRuns to be viewed.
     """
     permission_classes = [IsAuthenticated]
-    queryset = CaseStudyRun.objects.all()
     serializer_class = CaseStudyRunSerializer
+
+    def get_queryset(self):
+        """
+        This view should return a list of all the CaseStudies
+        for the currently authenticated user.
+        """
+        qs = CaseStudyRun.objects.all()
+        if not self.request.user.is_superuser:
+            return qs.filter(owner=self.request.user)
+        else:
+            return qs

@@ -36,6 +36,7 @@ cs_router.register(r'inputs',
 
 cs_router = router.register(r'casestudyruns',
                             api_views.CaseStudyRunViewSet,
+                            basename='casestudyrun'
                             )
 
 # (
