@@ -98,7 +98,10 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
         for the currently authenticated user.
         """
         qs = CaseStudy.objects.all()
-        if not self.request.user.is_superuser:
+        # this need for avoid incompatibility with schema generator of django_filter
+        if self.request is None:
+            return qs
+        elif not self.request.user.is_superuser:
             return qs.filter(owner=self.request.user)
         else:
             return qs
@@ -273,7 +276,10 @@ class CaseStudyRunViewSet(viewsets.ReadOnlyModelViewSet):
         for the currently authenticated user.
         """
         qs = CaseStudyRun.objects.all()
-        if not self.request.user.is_superuser:
+        # this need for avoid incompatibility with schema generator of django_filter
+        if self.request is None:
+            return qs
+        elif not self.request.user.is_superuser:
             return qs.filter(owner=self.request.user)
         else:
             return qs
