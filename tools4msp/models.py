@@ -34,6 +34,7 @@ from .utils import write_to_file_field
 from matplotlib import pyplot as plt
 from django.conf import settings
 from .modules.cea import CEACaseStudy
+from .modules.muc import MUCCaseStudy
 from os import path
 
 logger = logging.getLogger('tools4msp.models')
@@ -193,6 +194,34 @@ def _run(csr, selected_layers=None):
             write_to_file_field(csr_ol.thumbnail, plt.savefig, 'png')
             write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
             plt.clf()
+    elif csr.casestudy.module == 'muc':
+        module_class = MUCCaseStudy
+        module_cs = module_class(csdir=csdir)
+        module_cs.load_layers()
+        module_cs.load_grid()
+        module_cs.load_inputs()
+        module_cs.run(uses=uses)
+
+        # MUCSCORE map
+        out = module_cs.outputs['muc']
+        cl = CodedLabel.objects.get(code='MUCSCORE')
+        csr_ol = csr.outputlayers.create(coded_label=cl)
+        csr_o = csr.outputs.create(coded_label=cl)
+        write_to_file_field(csr_ol.file, out.write_raster, 'geotiff')
+
+        out.plotmap(#ax=ax,
+                   cmap='jet',
+                   logcolor=True,
+                   legend=True,
+                   maptype='minimal',
+                   grid=True, gridrange=1)
+
+        # CEASCORE map as png for
+        write_to_file_field(csr_ol.thumbnail, plt.savefig, 'png')
+        write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
+        plt.clf()
+
+        pass
 
         return module_cs
     else:
@@ -481,7 +510,7 @@ class CaseStudy(models.Model):
     thumbnail_tag.short_description = 'Thumbnail'
 
     def run(self, selected_layers=None):
-        if self.module == 'cea':
+        if self.module in ['cea', 'muc']:
             csr = self.casestudyrun_set.create()
             _run(csr, selected_layers=selected_layers)
             rlist = self.casestudyrun_set.filter(pk=csr.pk)

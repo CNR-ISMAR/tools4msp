@@ -9,19 +9,19 @@ from os import path
 from .casestudy import CaseStudyBase
 
 
-def coexist_rules(use1conf,
-                  use2conf):
-    vscale1, spatial1, time1, mobility1 = use1conf
-    vscale2, spatial2, time2, mobility2 = use2conf
-
-    # Rule 1
-    if vscale1 != 3 and vscale2 != 3 and vscale1 != vscale2:
-        return 0
-    # Rule 2
-    if mobility1 and mobility2:
-        return min(spatial1, spatial2) + min(time1, time2)
-    # Rule 3
-    return max(spatial1, spatial2) + max(time1, time2)
+# def coexist_rules(use1conf,
+#                   use2conf):
+#     vscale1, spatial1, time1, mobility1 = use1conf
+#     vscale2, spatial2, time2, mobility2 = use2conf
+#
+#     # Rule 1
+#     if vscale1 != 3 and vscale2 != 3 and vscale1 != vscale2:
+#         return 0
+#     # Rule 2
+#     if mobility1 and mobility2:
+#         return min(spatial1, spatial2) + min(time1, time2)
+#     # Rule 3
+#     return max(spatial1, spatial2) + max(time1, time2)
 
 
 class MUCCaseStudy(CaseStudyBase):
@@ -40,7 +40,7 @@ class MUCCaseStudy(CaseStudyBase):
 
     def run(self, uses=None, intensity=False, outputmask=None):
         couses_data = []
-        coexist = np.zeros_like(self.grid)
+        muc = np.zeros_like(self.grid)
         alluses_iter = self.get_uses().iterrows()
         for _use1, _use2 in itertools.combinations(alluses_iter, 2):
             use1id, use1 = _use1
@@ -65,7 +65,7 @@ class MUCCaseStudy(CaseStudyBase):
             if outputmask is not None:
                 _score.mask = outputmask
 
-            coexist += _score
+            muc += _score
 
             couses_data.append([use1.code,
                                 use2.code,
@@ -78,8 +78,8 @@ class MUCCaseStudy(CaseStudyBase):
         couses_df = pd.DataFrame(couses_data, columns=['use1', 'use2', 'score',
                                                        'ncells'])
         couses_df.score = couses_df.score.astype(float)
-        self.outputs['coexist'] = coexist
-        self.outputs['coexist_couses_df'] = couses_df
+        self.outputs['muc'] = muc
+        self.outputs['muc_couses_df'] = couses_df
         return True
     #
     # def dump_inputs(self):
@@ -98,7 +98,7 @@ class MUCCaseStudy(CaseStudyBase):
             self.potential_conflict_scores = df
 
     def dump_outputs(self):
-        if 'coexist' in self.outputs:
-            self.outputs['coexist'].write_raster(self.get_outpath('coexist.tiff'), dtype='float32')
-        if 'coexist_couses_df' in self.outputs:
-            self.outputs['coexist_couses_df'].to_csv(self.get_outpath('coexist_couses_df.csv'))
+        if 'muc' in self.outputs:
+            self.outputs['muc'].write_raster(self.get_outpath('muc.tiff'), dtype='float32')
+        if 'muc_couses_df' in self.outputs:
+            self.outputs['muc_couses_df'].to_csv(self.get_outpath('muc_couses_df.csv'))
