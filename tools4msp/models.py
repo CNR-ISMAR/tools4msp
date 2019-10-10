@@ -1222,6 +1222,24 @@ class DomainArea(models.Model):
     class Meta:
         ordering = ['label']
 
+
+class PartracScenario(models.Model):
+    label = models.CharField(max_length=100)
+    description = models.TextField(null=True, blank=True)
+
+
+class PartracTime(models.Model):
+    reference_time = models.DateTimeField(null=True, blank=True)
+
+
+class PartracData(models.Model):
+    scenario = models.ForeignKey(PartracScenario, on_delete=models.CASCADE)
+    reference_time = models.ForeignKey(PartracTime, on_delete=models.CASCADE)
+    particle_id = models.IntegerField()
+    geo = models.PointField(help_text="point geometry(Lat Log WGS84)")
+    depth = models.FloatField()
+
+
 # class CaseStudyRunLayers(models.Model):
 #     lid = models.CharField(max_length=5)
 #     label = models.CharField(max_length=5)
