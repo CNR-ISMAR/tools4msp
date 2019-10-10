@@ -1235,7 +1235,7 @@ class PartracTime(models.Model):
 class PartracData(models.Model):
     scenario = models.ForeignKey(PartracScenario, on_delete=models.CASCADE)
     reference_time = models.ForeignKey(PartracTime, on_delete=models.CASCADE)
-    particle_id = models.IntegerField()
+    particle_id = models.IntegerField(db_index=True)
     geo = models.PointField(help_text="point geometry(Lat Log WGS84)")
     depth = models.FloatField()
 
