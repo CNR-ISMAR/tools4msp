@@ -138,7 +138,7 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
         rjson = {'success': False}
         cs = self.get_object()
         csr = cs.run(selected_layers=selected_layers)
-        csr.owner = self.request.user
+        csr.owner = request.user
         csr.save()
         if csr is not None:
             csr_serializer = CaseStudyRunSerializer(csr, context={'request': request})
