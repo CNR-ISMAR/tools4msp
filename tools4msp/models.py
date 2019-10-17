@@ -303,7 +303,6 @@ def _run(csr, selected_layers=None):
         out = module_cs.outputs['muc']
         cl = CodedLabel.objects.get(code='MUCSCORE')
         csr_ol = csr.outputlayers.create(coded_label=cl)
-        csr_o = csr.outputs.create(coded_label=cl)
         write_to_file_field(csr_ol.file, out.write_raster, 'geotiff')
 
         out.plotmap(#ax=ax,
