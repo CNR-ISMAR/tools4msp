@@ -1297,7 +1297,8 @@ class PartracData(models.Model):
     particle_id = models.IntegerField(db_index=True)
     geo = models.PointField(help_text="point geometry(Lat Log WGS84)")
     depth = models.FloatField()
-
+    grid_columnx = models.IntegerField(null=True, blank=True, db_index=True)
+    grid_rowy = models.IntegerField(null=True, blank=True, db_index=True)
 
 # class CaseStudyRunLayers(models.Model):
 #     lid = models.CharField(max_length=5)
