@@ -30,13 +30,13 @@ from io import StringIO
 import json
 from django.dispatch import receiver
 import os
-from .utils import write_to_file_field, plot_heatmap
-from matplotlib import pyplot as plt
+from .utils import write_to_file_field
 from django.conf import settings
 from .modules.cea import CEACaseStudy
 from .modules.muc import MUCCaseStudy
 from os import path
 import pandas as pd
+from tools4msp.utils import plot_heatmap
 
 logger = logging.getLogger('tools4msp.models')
 
@@ -156,6 +156,7 @@ def _run(csr, selected_layers=None):
         # CEASCORE map as png for
         write_to_file_field(csr_ol.thumbnail, plt.savefig, 'png')
         plt.clf()
+        plt.close()
 
         # WEIGHTS
         cl = CodedLabel.objects.get(code='WEIGHTS')
@@ -176,6 +177,7 @@ def _run(csr, selected_layers=None):
         plt.tight_layout()
         write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
         plt.clf()
+        plt.close()
 
         # SENS
         cl = CodedLabel.objects.get(code='SENS')
@@ -196,6 +198,7 @@ def _run(csr, selected_layers=None):
         plt.tight_layout()
         write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
         plt.clf()
+        plt.close()
 
         # CEASCORE histogram
         cl = CodedLabel.objects.get(code='HISTCEASCORE')
@@ -209,6 +212,7 @@ def _run(csr, selected_layers=None):
         plt.ylabel('Number of cells')
         write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
         plt.clf()
+        plt.close()
 
         # PRESCORE barplot
         cl = CodedLabel.objects.get(code='BARPRESCORE')
@@ -222,6 +226,7 @@ def _run(csr, selected_layers=None):
         plt.tight_layout()
         write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
         plt.clf()
+        plt.close()
 
         #USEPRESCORE heatmap
         cl = CodedLabel.objects.get(code='HEATUSEPRESCORE')
@@ -245,6 +250,7 @@ def _run(csr, selected_layers=None):
         plt.tight_layout()
         write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
         plt.clf()
+        plt.close()
 
         #PRESENVSCEA heatmap
         cl = CodedLabel.objects.get(code='HEATPREENVCEA')
@@ -267,6 +273,8 @@ def _run(csr, selected_layers=None):
         ax.set_ylabel('Environmental receptors')
         plt.tight_layout()
         write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
+        plt.clf()
+        plt.close()
 
         # MSFD Biological
         for ptheme in ('Biological', 'Physical', 'Substances, litter and energy'):
@@ -290,6 +298,8 @@ def _run(csr, selected_layers=None):
             # CEASCORE map as png for
             write_to_file_field(csr_ol.thumbnail, plt.savefig, 'png')
             plt.clf()
+            plt.close()
+
     elif csr.casestudy.module == 'muc':
         module_class = MUCCaseStudy
         module_cs = module_class(csdir=csdir)
@@ -949,7 +959,6 @@ class MucPotentialCOnflictManager(models.Manager):
                               ))
 
     def plot_matrix(self, context_label):
-        import seaborn as sns
         m = self.get_matrix(context_label)
 
 

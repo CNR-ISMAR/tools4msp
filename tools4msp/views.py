@@ -3,6 +3,10 @@
 
 
 import logging
+import matplotlib
+matplotlib.use('agg')
+import matplotlib.pyplot as plt
+from matplotlib import colors
 import tempfile
 import urllib.parse
 from django.shortcuts import render
@@ -35,15 +39,12 @@ from .casestudy import CaseStudy
 from rasterio.errors import RasterioIOError
 from shapely import geometry
 import rectifiedgrid as rg
-import matplotlib.pyplot as plt
-from matplotlib import colors
 from mpl_toolkits import basemap
 import numpy as np
 from numpy import linspace
 from numpy import meshgrid
 import math
 import pandas as pd
-import seaborn as sns
 import copy
 from os import path
 from os import makedirs

@@ -12,6 +12,10 @@ import pandas as pd
 import rectifiedgrid as rg
 from rasterio.warp import reproject
 from django.core.files import File
+import matplotlib
+matplotlib.use('agg')
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 try:
     from geonode.base.models import DataAvailabilityArea
@@ -29,7 +33,6 @@ except ImportError:
 from shapely.geometry import shape
 from geopandas import GeoDataFrame
 from django.db.transaction import get_connection
-import matplotlib.pyplot as plt
 
 from .modules.casestudy import CaseStudyBase
 
@@ -51,8 +54,7 @@ def plot_heatmap(matrix,
                  square=False,
                  **heat_kwargs
                  ):
-    # importing seaborn on top generates "notebook" error. TODO: fix import issue and move on the top
-    import seaborn as sns
+
     df = pd.DataFrame(matrix)
     if sparse_tri:
         _df1 = df.copy()
@@ -102,9 +104,11 @@ def write_to_file_field(file_field,
     write_func(buf, **write_kwargs)
     buf.seek(0)
     fname = 'file.{}'.format(file_ext)
-    file_field.save(fname, File(buf))
+    f = File(buf)
+    file_field.save(fname, f)
     buf.close()
-
+    f.close()
+    file_field.close()
 
 def get_casestudy(ci_id, cellsize, basedir,
                   version='v1', rtype='full',
