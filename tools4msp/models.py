@@ -260,6 +260,7 @@ def _run(csr, selected_layers=None):
         module_cs.load_grid()
         module_cs.load_inputs()
         module_cs.run(uses=uses)
+        totalscore = module_cs.outputs['muc_totalscore']
 
         # MUCSCORE map
         out = module_cs.outputs['muc']
@@ -280,8 +281,24 @@ def _run(csr, selected_layers=None):
         write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
         plt.clf()
 
-        pass
-
+        # HEATUSEMUC
+        cl = CodedLabel.objects.get(code='HEATUSEMUC')
+        csr_o = csr.outputs.create(coded_label=cl)
+        out_muc_couses = module_cs.outputs['muc_couses']
+        write_to_file_field(csr_o.file, lambda buf: json.dump(out_muc_couses, buf), 'json', is_text_file=True)
+        ax = plot_heatmap(out_muc_couses, 'u1', 'u2', 'score',
+                          # scale_measure=totscore/100,
+                          figsize=[10, 10],
+                          scale_measure=totalscore/100,
+                          sparse_tri=True,
+                          fmt='.1f', fillval=0, cbar=False,
+                          square=True)
+        ax.set_title('MUC scores (%)')
+        ax.set_xlabel('Use')
+        ax.set_ylabel('Use')
+        plt.tight_layout()
+        write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
+        plt.clf()
         return module_cs
     else:
         return None

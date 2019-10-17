@@ -41,6 +41,7 @@ def plot_heatmap(matrix,
                  ax=None,
                  fillval=None,
                  scale_measure=None,
+                 sparse_tri=False,
                  figsize=None,
                  cbar=True,
                  cmap='rocket_r',
@@ -53,7 +54,16 @@ def plot_heatmap(matrix,
     # importing seaborn on top generates "notebook" error. TODO: fix import issue and move on the top
     import seaborn as sns
     df = pd.DataFrame(matrix)
-    _df = df.pivot(index=ycol, columns=xcol, values=vcol)
+    if sparse_tri:
+        _df1 = df.copy()
+        _df2 = _df1.copy()
+        _df2.rename(columns={xcol: ycol, ycol: xcol}, inplace=True)
+        _df = pd.concat([_df1, _df2], ignore_index=True, sort=False)
+        _df = _df.pivot(xcol, ycol, values='score')
+        ordered = sorted(_df.columns)
+        _df = _df.reindex(ordered, axis=1)
+    else:
+        _df = df.pivot(index=ycol, columns=xcol, values=vcol)
     if fillval is not None:
         _df.fillna(fillval, inplace=True)
     if scale_measure is not None:
@@ -61,12 +71,15 @@ def plot_heatmap(matrix,
     if ax is None:
         fig, ax = plt.subplots(figsize=figsize)
 
-    # mask = np.zeros_like(df, dtype=np.bool)
-    # mask[np.triu_indices(df.shape[0])] = True
+    mask = None
+    if sparse_tri:
+
+        mask = np.zeros_like(_df, dtype=np.bool)
+        mask[np.triu_indices(_df.shape[0])] = True
 
     ax = sns.heatmap(_df,
                      ax=ax,
-                     # mask=mask,
+                     mask=mask,
                      annot=annot,
                      fmt=fmt,
                      linewidths=linewidths,

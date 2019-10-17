@@ -67,19 +67,15 @@ class MUCCaseStudy(CaseStudyBase):
 
             muc += _score
 
-            couses_data.append([use1.code,
-                                use2.code,
-                                _score.sum(),
-                                _score[_score > 0].count()
-                            ])
-            # couses_data.append([use2.label,
-            #                     use1.label,
-            #                     _score.sum()])
-        couses_df = pd.DataFrame(couses_data, columns=['use1', 'use2', 'score',
-                                                       'ncells'])
-        couses_df.score = couses_df.score.astype(float)
+            couses_data.append({'u1': use1.code,
+                                'u2': use2.code,
+                                'score': float(_score.sum()),
+                                # convert to int for allowing json serialization
+                                'ncells': int(_score[_score > 0].count())
+            })
         self.outputs['muc'] = muc
-        self.outputs['muc_couses_df'] = couses_df
+        self.outputs['muc_couses'] = couses_data
+        self.outputs['muc_totalscore'] = muc.sum()
         return True
     #
     # def dump_inputs(self):
