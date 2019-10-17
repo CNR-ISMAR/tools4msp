@@ -79,7 +79,7 @@ class CEACaseStudy(CaseStudyBase):
             usecode = w.usecode
             precode = w.precode
 
-            usepresid = "{}{}".format(usecode, precode)
+            usepresid = "{}|{}".format(usecode, precode)
 
             _pressure_layer = None
 
@@ -122,6 +122,8 @@ class CEACaseStudy(CaseStudyBase):
                            outputmask=None, fulloutput=True, pressures=None,
                            cienvs_info=True, ciuses_info=True, cipres_info=True,
                            ciscores_info=True):
+        self.outputs['presenvs'] = {}
+        out_presenvs = self.outputs['presenvs']
         self.run_pressures(uses=uses,
                            pressures=pressures,
                            outputmask=outputmask)
@@ -134,11 +136,13 @@ class CEACaseStudy(CaseStudyBase):
             env_layer =  self.get_layer(idx).layer.copy()
             filter = self.sensitivities.envcode == idx
             for idx_sens, sens in self.sensitivities[filter].iterrows():
+                presenvsid = "{}|{}".format(sens.precode, idx)
                 _p = self.outputs['pressures'].get(sens.precode)
                 if _p is not None:
                     pressure_layer = _p.copy()
                     sensarray = pressure_layer * env_layer * sens.sensitivity
                     ci += sensarray
+                    out_presenvs[presenvsid] = sensarray
 
         self.outputs['ci'] = ci
         return True

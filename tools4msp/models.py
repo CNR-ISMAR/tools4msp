@@ -30,12 +30,13 @@ from io import StringIO
 import json
 from django.dispatch import receiver
 import os
-from .utils import write_to_file_field
+from .utils import write_to_file_field, plot_heatmap
 from matplotlib import pyplot as plt
 from django.conf import settings
 from .modules.cea import CEACaseStudy
 from .modules.muc import MUCCaseStudy
 from os import path
+import pandas as pd
 
 logger = logging.getLogger('tools4msp.models')
 
@@ -169,6 +170,64 @@ def _run(csr, selected_layers=None):
         plt.ylabel('Number of cells')
         write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
         plt.clf()
+
+        # PRESCORE barplot
+        cl = CodedLabel.objects.get(code='BARPRESCORE')
+        csr_o = csr.outputs.create(coded_label=cl)
+        out_pressures = module_cs.outputs['pressures']
+        _pscores = [{'p': k, 'pscore': float(l.sum())} for (k, l) in out_pressures.items()]
+        write_to_file_field(csr_o.file, lambda buf: json.dump(_pscores, buf), 'json', is_text_file=True)
+        pscores = pd.DataFrame(_pscores)
+        pscores.set_index('p', inplace=True)
+        pscores.plot.bar()
+        plt.tight_layout()
+        write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
+        plt.clf()
+
+        #USEPRESCORE heatmap
+        cl = CodedLabel.objects.get(code='HEATUSEPRESCORE')
+        csr_o = csr.outputs.create(coded_label=cl)
+        out_usepressures = module_cs.outputs['usepressures']
+        _upscores = []
+        totscore = 0
+        for (k, l) in out_usepressures.items():
+            (u, p) = k.split('|')
+            _upscores.append({
+                'u': u,
+                'p': p,
+                'upscore': float(l.sum())
+            })
+            totscore += l.sum()
+        write_to_file_field(csr_o.file, lambda buf: json.dump(_upscores, buf), 'json', is_text_file=True)
+        ax = plot_heatmap(_upscores, 'u', 'p', 'upscore', scale_measure=totscore / 100, fmt='.1f', fillval=0, cbar=False)
+        ax.set_title('Pressure scores (%)')
+        ax.set_xlabel('Uses')
+        ax.set_ylabel('Pressures')
+        plt.tight_layout()
+        write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
+        plt.clf()
+
+        #PRESENVSCEA heatmap
+        cl = CodedLabel.objects.get(code='HEATPREENVCEA')
+        csr_o = csr.outputs.create(coded_label=cl)
+        out_presenvs = module_cs.outputs['presenvs']
+        pescore = []
+        totscore = 0
+        for (k, l) in out_presenvs.items():
+            (p, e) = k.split('|')
+            pescore.append({
+                'p': p,
+                'e': e,
+                'pescore': float(l.sum())
+            })
+            totscore += l.sum()
+        write_to_file_field(csr_o.file, lambda buf: json.dump(pescore, buf), 'json', is_text_file=True)
+        ax = plot_heatmap(pescore, 'p', 'e', 'pescore', scale_measure=totscore / 100, fmt='.1f', fillval=0, cbar=False, figsize=[8, 10])
+        ax.set_title('CEA score (%)')
+        ax.set_xlabel('Pressures')
+        ax.set_ylabel('Environmental receptors')
+        plt.tight_layout()
+        write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
 
         # MSFD Biological
         for ptheme in ('Biological', 'Physical', 'Substances, litter and energy'):

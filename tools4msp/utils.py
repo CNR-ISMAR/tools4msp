@@ -31,9 +31,51 @@ from geopandas import GeoDataFrame
 from django.db.transaction import get_connection
 import matplotlib.pyplot as plt
 
-
 from .modules.casestudy import CaseStudyBase
 
+
+def plot_heatmap(matrix,
+                 xcol,
+                 ycol,
+                 vcol,
+                 ax=None,
+                 fillval=None,
+                 scale_measure=None,
+                 figsize=None,
+                 cbar=True,
+                 cmap='rocket_r',
+                 annot=True,
+                 fmt='.0g',
+                 linewidths=.5,
+                 square=False,
+                 **heat_kwargs
+                 ):
+    # importing seaborn on top generates "notebook" error. TODO: fix import issue and move on the top
+    import seaborn as sns
+    df = pd.DataFrame(matrix)
+    _df = df.pivot(index=ycol, columns=xcol, values=vcol)
+    if fillval is not None:
+        _df.fillna(fillval, inplace=True)
+    if scale_measure is not None:
+        _df = _df/scale_measure
+    if ax is None:
+        fig, ax = plt.subplots(figsize=figsize)
+
+    # mask = np.zeros_like(df, dtype=np.bool)
+    # mask[np.triu_indices(df.shape[0])] = True
+
+    ax = sns.heatmap(_df,
+                     ax=ax,
+                     # mask=mask,
+                     annot=annot,
+                     fmt=fmt,
+                     linewidths=linewidths,
+                     square=square,
+                     cbar=cbar,
+                     cmap=cmap,
+                     **heat_kwargs
+                     )
+    return ax
 
 def write_to_file_field(file_field,
                         write_func,
