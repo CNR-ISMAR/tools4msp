@@ -155,6 +155,45 @@ def _run(csr, selected_layers=None):
 
         # CEASCORE map as png for
         write_to_file_field(csr_ol.thumbnail, plt.savefig, 'png')
+        plt.clf()
+
+        # WEIGHTS
+        cl = CodedLabel.objects.get(code='WEIGHTS')
+        csr_o = csr.outputs.create(coded_label=cl)
+        matrix = Weight.objects.get_matrix('AIR')
+        write_to_file_field(csr_o.file, lambda buf: json.dump(matrix, buf), 'json', is_text_file=True)
+        ax = plot_heatmap(matrix, 'u', 'p', 'w',
+                          # scale_measure=1852,# nm conversion
+                          fillval=0,
+                          figsize=[8, 8],
+                          cmap='Blues',
+                          cbar=False
+                          )
+
+        ax.set_title('Weights matrix')
+        ax.set_xlabel('Human uses')
+        ax.set_ylabel('Pressures')
+        plt.tight_layout()
+        write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
+        plt.clf()
+
+        # SENS
+        cl = CodedLabel.objects.get(code='SENS')
+        csr_o = csr.outputs.create(coded_label=cl)
+        matrix = Sensitivity.objects.get_matrix('AIR')
+        write_to_file_field(csr_o.file, lambda buf: json.dump(matrix, buf), 'json', is_text_file=True)
+        ax = plot_heatmap(matrix, 'p', 'e', 's',
+                          # scale_measure=1852,# nm conversion
+                          fillval=0,
+                          figsize=[10, 12],
+                          cmap='cubehelix_r',
+                          cbar=False
+                          )
+
+        ax.set_title('Sensitivities matrix')
+        ax.set_xlabel('Pressures')
+        ax.set_ylabel('Environmental receptors')
+        plt.tight_layout()
         write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
         plt.clf()
 
@@ -240,7 +279,6 @@ def _run(csr, selected_layers=None):
             plist_str = ", ".join(CodedLabel.objects.filter(code__in=plist).values_list('label', flat=True))
             description = 'MSFD {} pressures: {}'.format(ptheme, plist_str)
             csr_ol = csr.outputlayers.create(coded_label=cl, description=description)
-            csr_o = csr.outputs.create(coded_label=cl, description=description)
             write_to_file_field(csr_ol.file, ci.write_raster, 'geotiff')
 
             ci.plotmap(#ax=ax,
@@ -251,7 +289,6 @@ def _run(csr, selected_layers=None):
                        grid=True, gridrange=1)
             # CEASCORE map as png for
             write_to_file_field(csr_ol.thumbnail, plt.savefig, 'png')
-            write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
             plt.clf()
     elif csr.casestudy.module == 'muc':
         module_class = MUCCaseStudy
@@ -278,6 +315,22 @@ def _run(csr, selected_layers=None):
 
         # CEASCORE map as png for
         write_to_file_field(csr_ol.thumbnail, plt.savefig, 'png')
+        plt.clf()
+
+        # PCONFLICT
+        cl = CodedLabel.objects.get(code='PCONFLICT')
+        csr_o = csr.outputs.create(coded_label=cl)
+        pconflict = MUCPotentialConflict.objects.get_matrix('AIR')
+        write_to_file_field(csr_o.file, lambda buf: json.dump(pconflict, buf), 'json', is_text_file=True)
+        ax = plot_heatmap(pconflict, 'u1', 'u2', 'score',
+                          figsize=[10, 10],
+                          sparse_tri=True,
+                          fmt='.0f', fillval=0, cbar=False,
+                          square=True)
+        ax.set_title('Potential conflict')
+        ax.set_xlabel('Use')
+        ax.set_ylabel('Use')
+        plt.tight_layout()
         write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
         plt.clf()
 
