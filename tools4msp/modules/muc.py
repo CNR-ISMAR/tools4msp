@@ -60,8 +60,8 @@ class MUCCaseStudy(CaseStudyBase):
                 l1[~(l1.mask) & (l1 > 0)] = 1
                 l2[~(l2.mask) & (l2 > 0)] = 1
             _score = l1 * l2 * score
-            l1.mask = self.grid.mask
-            l2.mask = self.grid.mask
+            l1.mask = self.grid == 0
+            l2.mask = self.grid == 0
             if outputmask is not None:
                 _score.mask = outputmask
 
