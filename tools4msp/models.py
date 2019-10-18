@@ -653,6 +653,8 @@ class CaseStudy(models.Model):
             _run(csr, selected_layers=selected_layers)
             rlist = self.casestudyrun_set.filter(pk=csr.pk)
         else:
+            import time
+            time.sleep(5)
             rlist = self.casestudyrun_set.all()
         if rlist.count() > 0:
             return rlist[0]
