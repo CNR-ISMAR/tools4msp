@@ -279,7 +279,7 @@ def _run(csr, selected_layers=None):
         # MSFD Biological
         for ptheme in ('Biological', 'Physical', 'Substances, litter and energy'):
             plist = list(Pressure.objects.filter(msfd__theme=ptheme).values_list('code', flat=True))
-            module_cs.run(pressures=plist)
+            module_cs.run(uses=uses, envs=envs, pressures=plist)
             #
             ci = module_cs.outputs['ci']
             cl = CodedLabel.objects.get(code='CEASCORE')
