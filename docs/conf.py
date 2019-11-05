@@ -17,7 +17,7 @@ import os
 
 # -- Project information -----------------------------------------------------
 
-project = 'Tools4MSP'
+project = 'Tools4MSP modules'
 copyright = '2019, CNR-ISMAR'
 author = 'CNR-ISMAR'
 
