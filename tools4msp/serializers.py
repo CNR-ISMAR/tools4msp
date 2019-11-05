@@ -29,6 +29,14 @@ class CSChildHyperlinkedIdentityField(serializers.HyperlinkedIdentityField):
 
 
 class DomainAreaSerializer(serializers.HyperlinkedModelSerializer):
+    extent = serializers.JSONField(source="geo.extent",
+                                   read_only=True)
+    class Meta:
+        model = DomainArea
+        fields = ('url', 'label', 'extent', 'geo')
+
+
+class DomainAreaListSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = DomainArea
         fields = ('url', 'label',)

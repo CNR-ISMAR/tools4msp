@@ -17,7 +17,7 @@ import json
 from .drf_extensions_patch import NestedViewSetMixin
 
 from .serializers import CaseStudySerializer, CaseStudyLayerSerializer, CaseStudyInputSerializer, \
-    CaseStudyListSerializer, DomainAreaSerializer, CodedLabelSerializer, \
+    CaseStudyListSerializer, DomainAreaSerializer, DomainAreaListSerializer, CodedLabelSerializer, \
     FileUploadSerializer, CaseStudyRunSerializer, ThumbnailUploadSerializer
 from .models import CaseStudy, CaseStudyLayer, CaseStudyInput, DomainArea, CodedLabel, \
     CaseStudyRun, Context
@@ -34,9 +34,10 @@ class ActionSerializerMixin(object):
             return super().get_serializer_class()
 
 
-class DomainAreaViewSet(viewsets.ReadOnlyModelViewSet):
+class DomainAreaViewSet(ActionSerializerMixin, viewsets.ReadOnlyModelViewSet):
     queryset = DomainArea.objects.all()
     serializer_class = DomainAreaSerializer
+    action_serializers = {'list': DomainAreaListSerializer}
     filterset_fields = ('label',)
 
 
