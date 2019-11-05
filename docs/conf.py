@@ -18,8 +18,8 @@ import os
 # -- Project information -----------------------------------------------------
 
 project = 'Tools4MSP'
-copyright = '2019, Stefano Menegon'
-author = 'Stefano Menegon'
+copyright = '2019, CNR-ISMAR'
+author = 'CNR-ISMAR'
 
 # The full version, including alpha/beta/rc tags
 release = '1.0'
