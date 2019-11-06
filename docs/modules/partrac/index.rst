@@ -3,29 +3,31 @@ Particle Tracking
 
 Aim of the module
 -------------------
-An advection-diffusion modelling tool for Lagrangian particles is proposed as 
-a planning tool tuned to end-users and stakeholders. The particle tracking 
-module (PARTRAC) allows to assess the dispersion of particles released in
-the Adriatic Sea. Its outputs and derived variables can be customised and 
-analysed based on the end-user requests and can be used to evaluate events 
-as: impacts of aquaculture (larvae dispersion), tracking of floating debris 
-and microplastic, point discharge and river plumes dispersion.
+An advection-diffusion modelling tool for Lagrangian particles is 
+proposed as a planning tool tuned to end-users and stakeholders. 
+The particle tracking module (PARTRAC) allows to assess the dispersion 
+of particles released in the Adriatic Sea (:numref:`partrac-adriatic`). 
+Its outputs and 
+derived variables can be customised and analysed based on the end-user 
+requests and can be used to evaluate events as: impacts of aquaculture 
+(larvae dispersion), tracking of floating debris and microplastic, 
+point discharge and river plumes dispersion.
 
 .. figure:: images/adri_bathy_blue.png
    :scale: 60 %
-   :alt: Domain of the PARTAC module.
+   :alt: Domain of the PARTRAC module.
    :align: center
+   :name: partrac-adriatic
 
-   Domain of the PARTAC module.
+   Domain of the PARTRAC module.
 
-The module produce results in terms of the trajectories of the released
-particles and the particle concentration on a regular grid.
+The particle-tracking module simulates the trajectory of particles as a 
+function of the hydrodynamic conditions simulated by the state of the art 
+3D SHYFEM oceanographic model.
 
 The hydrodynamic SHYFEM model
 -----------------------------
-The particle-tracking module simulates the trajectory of particles as a 
-function of the hydrodynamic conditions simulated by the state of the art 
-3D SHYFEM oceanographic model. SHYFEM solves the primitive equations, 
+SHYFEM solves the primitive equations, 
 vertically integrated over each layer considering tidal, atmospheric and 
 density-driven forces. SHYFEM is open source and freely available on the 
 web pages `http://www.ismar.cnr.it/shyfem <http://www.ismar.cnr.it/shyfem>`_ 
@@ -58,7 +60,7 @@ and of the discretization method is given in Umgiesser et al. (2004) and
 Ferrarin et al. (2017).
 
 The lagrangian particle model
------------------------------
++++++++++++++++++++++++++++++
 In SHYFEM a 3D lagrangian particle-tracking model coupled with the 
 hydrodynamic code. The vertical components of the turbulent diffusion 
 velocity is computed using the Milstein scheme (Gräwe and Wolff 2010). 
@@ -77,7 +79,7 @@ in the Sardinian coastal waters and by Ferrarin et al. (2019) in
 the Adriatic Sea.
 
 SHYFEM model set-up in the Adriatic Sea
----------------------------------------
++++++++++++++++++++++++++++++++++++++++
 The numerical computation is performed on a spatial domain that represents 
 the whole Adriatic Sea by means of the unstructured grid. The numerical 
 domain comprises all Po River branches starting downstream the Po di Goro 
@@ -89,7 +91,15 @@ exploited, in order to suit the complicated geometry of the basin, the
 rapidly varying topographic features. The numerical grid of the Adriatic 
 Sea consists in approximately 110,000 triangular elements with a 
 resolution that varies from 7 km in the open-sea to few hundred meters 
-along the coast. 
+along the coast (:numref:`partrac-mesh-zoom`). 
+
+.. figure:: images/test_split_bathy-mesh1.png
+   :scale: 70 %
+   :alt: Zoom of the SHYFEM mesh.
+   :align: center
+   :name: partrac-mesh-zoom
+
+   Zoom of the unstructured grid near Split.
 
 Because of the wide area, the bathymetry of the Adriatic was obtained by 
 merging several datasets, having different spatial resolution and 
@@ -160,14 +170,24 @@ Therefore, the nudging allows the model state to be reconciled
 with the assimilated MFS data in the open sea and to fully compute
 the hydrodynamics along the coast.
 
-The PARTRAC set-up
-------------------
+PARTRAC module input
+--------------------
 PARTRAC is based on a case-study driven approach. A case-study is defined
 as pre-configured set of specific characteristic of the Adriatic Sea
 circulation and characteristics of the particles to be simulated.
 The user can easily select the deployment locations of the lagrangian
 particles by defining polygons through the web-based particle tracking 
-interface.
+interface (see as an example :numref:`partrac-er-example` representing 
+a polygon defined along the Emilia-Romagna coast).
+
+.. figure:: images/test_er.png
+   :scale: 40 %
+   :alt: Area selection example.
+   :align: center
+   :name: partrac-er-example
+
+   Example of polygon for particles deploiment (left) and initial particle
+   distribution (right).
 
 In the PARTRAC module, three sea condition scenarios are considered:
 
@@ -175,35 +195,44 @@ In the PARTRAC module, three sea condition scenarios are considered:
 2. *winter* conditions obtained as average over the winter months (December, January and February);
 3. *summer* conditions obtained as average over the summer months (June, July, August).
 
-The particles released by the lagrangian model can be customized in terms
-of sinking velocity and decay rate. In this way, the user can simulate
-the dispersion of several substances. In the following table, the
-customizable characteristics of the particles are described, together
+The module could simulate particles released on the surface or through the
+whole water column.
+
+The module allows to simulated the trajectories of the particles over
+a maximum period of 10 days.
+
+The particles released by the lagrangian model can be customized by the user
+in terms of *sinking velocity* and *decay rate*. In this way, the user can 
+simulate the dispersion of several substances. In :numref:`table_1`
+the customizable characteristics of the particles are described, together
 with example of the substances that can be considered.
 
-+-------------+-------------------------------+---------------------+------------------+
-| ID          |  Description                  | Sinking vel. [mm/s] | Decay rate [d-1] |
-+=============+===============================+=====================+==================+
-| 1.1 1.2 1.3 | General floating particle,    |         NONE        |      NONE        |
-|             | e.g. larvae, floating litter  |                     |                  |
-+-------------+-------------------------------+---------------------+------------------+
-| 2.1 2.2 2.3 | E.g. sediment [15 micron]     |          0.1        |      NONE        |
-+-------------+-------------------------------+---------------------+------------------+
-| 3.1 3.2 3.3 | E.g. sediment [45 micron],    |          1.0        |      NONE        |
-|             | microplastic [0.5 mm]         |                     |                  |
-+-------------+-------------------------------+---------------------+------------------+
-| 4.1 4.2 4.3 | E.g. Sediment [150 micron],   |         10.0        |      NONE        |
-|             | microplastic [2.5 mm]         |                     |                  |
-+-------------+-------------------------------+---------------------+------------------+
-| 5.1 5.2 5.3 | E.g. Coliform bacteria        |         NONE        |       0.1        |
-|             | [sea temperature 5 C]         |                     |                  |
-+-------------+-------------------------------+---------------------+------------------+
-| 6.1 6.2 6.3 | E.g. Coliform bacteria        |         NONE        |       0.5        |
-|             | [sea temperature 20 C, 20 m]  |                     |                  |
-+-------------+-------------------------------+---------------------+------------------+
-| 7.1 7.2 7.3 | E.g. Coliform bacteria        |         NONE        |       1.0        |
-|             | [sea temperature 20 C, 1 m]   |                     |                  |
-+-------------+-------------------------------+---------------------+------------------+
+.. table:: Customizable characteristics of the particles.
+  :name: table_1
+
+  +-------------+-------------------------------+---------------------+------------------+
+  | ID          |  Description                  | Sinking vel. [mm/s] | Decay rate [d-1] |
+  +=============+===============================+=====================+==================+
+  | 1.1 1.2 1.3 | General floating particle,    |         NONE        |      NONE        |
+  |             | e.g. larvae, floating litter  |                     |                  |
+  +-------------+-------------------------------+---------------------+------------------+
+  | 2.1 2.2 2.3 | E.g. sediment [15 micron]     |          0.1        |      NONE        |
+  +-------------+-------------------------------+---------------------+------------------+
+  | 3.1 3.2 3.3 | E.g. sediment [45 micron],    |          1.0        |      NONE        |
+  |             | microplastic [0.5 mm]         |                     |                  |
+  +-------------+-------------------------------+---------------------+------------------+
+  | 4.1 4.2 4.3 | E.g. Sediment [150 micron],   |         10.0        |      NONE        |
+  |             | microplastic [2.5 mm]         |                     |                  |
+  +-------------+-------------------------------+---------------------+------------------+
+  | 5.1 5.2 5.3 | E.g. Coliform bacteria        |         NONE        |       0.1        |
+  |             | [sea temperature 5 C]         |                     |                  |
+  +-------------+-------------------------------+---------------------+------------------+
+  | 6.1 6.2 6.3 | E.g. Coliform bacteria        |         NONE        |       0.5        |
+  |             | [sea temperature 20 C, 20 m]  |                     |                  |
+  +-------------+-------------------------------+---------------------+------------------+
+  | 7.1 7.2 7.3 | E.g. Coliform bacteria        |         NONE        |       1.0        |
+  |             | [sea temperature 20 C, 1 m]   |                     |                  |
+  +-------------+-------------------------------+---------------------+------------------+
 
 ID X.1, X.2 and X.3 corresponds to mean, winter and summer sea conditions scenario,
 respectively. The settling velocity values [in mm/s] have been selected according 
@@ -211,7 +240,38 @@ to Soulsby (1997) for the sediments and Chubarenko et al. (2016) for the
 microplastics. The decay rate of coliform bacteria in seawaters were selected
 according to Eregno et al. (2018).
 
+PARTRAC module outputs
+----------------------
+The PARTRAC module produces outputs in terms of the positions of the released
+particles at daily time intervals. In this way, the user can follow the
+trajectories of the particles over the 10 days simulated period.
+:numref:`partrac-er_traj` reports, as an example, the trajectories of the
+particles after 2 and 4 days from the release along the Emilia Romagna
+coast.
 
+.. figure:: images/test_er_traj.png
+   :scale: 40 %
+   :alt: ER trajectories.
+   :align: center
+   :name: partrac-er_traj
+
+   Trajectories of surface particles after 2 and 4 days from the initial release.
+
+Moreover, the module compute the particles concentration at daily frequency,
+computed on a regular grid of 500 m\ :sup:`2` (see as an example 
+:numref:`partrac-er_den`).
+
+.. figure:: images/test_er_den.png
+   :scale: 40 %
+   :alt: ER density.
+   :align: center
+   :name: partrac-er_den
+
+   Density of surface particles after 2 and 4 days from the initial release.
+
+PARTRAC module authors
+-----------------------
+CNR-ISMAR staff: Christian Ferrarin, Michol Ghezzo, Stefano Menegon, Amedeo Fadini.
 
 References
 ------------------
@@ -224,7 +284,7 @@ tidal model taking advantage of nearly 20 years of altimetry. In: Ouwehand L, ed
 Proceedings of 20 Years of Progress in Radar Altimetry Symposium. ESA SP-710.
 
 Chubarenko, I., Bagaev, A., Zobkov, M., Esiukova, E., 2016. On some physical 
-and dynam-ical properties of microplastic particles in marine environment. 
+and dynamical properties of microplastic particles in marine environment. 
 Mar. Pollut. Bull. 108,105-112.
 
 Cucco A, Sinerchia M, Ribotti A, Olita A, Fazioli L, Perilli A, Sorgente B, 
