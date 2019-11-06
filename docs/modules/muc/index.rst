@@ -4,16 +4,19 @@ Maritime Use Conflict
 Aim of the module
 -------------------
 
-The MUSC module allows to assess and map maritime use conflicts and
-synergies.  Conflicts (MUC) are defined as the constraints creating
+The MUS module allows to assess and map maritime use conflicts.
+Conflicts (MUC) are defined as the constraints creating
 disadvantages to maritime activities located in a given sea area. The
 method applied is in line with COEXIST Project methodology (Gramolini
 et al., 2010), already applied within the Adriatic-Ionian Sea
 (Barbanti et al., 2015; Depellegrin et al., 2017).
 
-.. image:: images/muc_conceptual_schema.png
+.. figure:: images/muc_conceptual_schema.png
    :alt: MUC conceptual schema
    :align: center
+   :name: muc-conceptual-schema
+
+   Conceptual schema of the Maritime Use Conflict module
 
 Potential synergies of maritime uses (MUS) were defined and mapped in
 terms Multi-Use (MU) potentials. MU is defined as “the joint use of
@@ -40,8 +43,23 @@ and macro-regional strategies and national strategies (Blue MED SRIA;
 EUSAIR, etc…)
 
 
+Module inputs
+-------------
+
+Input layers
+++++++++++++
+
+.. figure:: images/muc_input_layers.png
+   :alt: MUC imput layer
+   :align: center
+   :name: muc-input-layers
+
+   Web map representing the geospatial distribution of human activities.
+
+
+
 COEXISTS rules and human traits
--------------------------------
++++++++++++++++++++++++++++++++
 
 COEXIST rules were applied, according to Barbanti et al. 2015. In Table 1 the rules for potential conflict analysis are provided and the five human traits (vertical, spatial, temporal, mobility and location).
 Rules for spatial conflicts: rule system to define conflict score for each pair of human uses.
@@ -50,10 +68,42 @@ Rules for spatial conflicts: rule system to define conflict score for each pair 
 - Rule 2: If both activities are “mobile” then conflict score is equal to the minimum of temporal domain plus the minimum of spatial domain
 - Rule 3: if Rule1 and Rule2 cannot be applied then the conflict score is equal to the maximum value of temporal domain plus the maximum value of spatial domain.
 
-+---+-------------------------+------------+--------------+
-|   |  Human traits           |  Value     |  Value       |
-+===+=========================+===========================+
-| 1 |  Vertical scale         |  - Pelagic |  - Value = 1 |
-+---+                         +------------+--------------+
-| 1 |                         |  - Pelagic |  - Value = 1 |
-+---+-------------------------+------------+--------------+
++---+-------------------------+-------------------------+--------------+
+|   |  Human traits           |  Value                  |  Value       |
++===+=========================+=========================+==============+
+| 1 | Vertical scale          | - Pelagic               | - Value = 1  |
+|   |                         | - Benthic               | - Value = 2  |
+|   |                         | - whole water column    | - Value = 3  |
++---+-------------------------+-------------------------+--------------+
+| 2 | Spatial  scale          | - Small                 | - Value = 1  |
+|   |                         | - Medium                | - Value = 2  |
+|   |                         | - Large                 | - Value = 3  |
++---+-------------------------+-------------------------+--------------+
+| 3 | Temporal scale          | - Small                 | - Value = 1  |
+|   |                         | - Medium                | - Value = 2  |
+|   |                         | - Large                 | - Value = 3  |
++---+-------------------------+-------------------------+--------------+
+| 4 | Mobility                | - Mobile                | - Value = 1  |
+|   |                         | - Fixed                 | - Value = 2  |
++---+-------------------------+-------------------------+--------------+
+| 5 | Location                | - Land                  | - Value = 1  |
+|   |                         | - Sea                   | - Value = 2  |
++---+-------------------------+-------------------------+--------------+
+
+Potential score matrix
+++++++++++++++++++++++
+
+.. figure:: images/muc_potential_score_matrix.png
+   :alt: MUC potential score matrix
+   :align: center
+   :name: muc-potential-score-matrix
+
+   Potential conflict score matrix
+
+
+This is a reference to :numref:`muc-potential-score-matrix`
+
+
+Module outputs
+++++++++++++++
+

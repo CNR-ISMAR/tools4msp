@@ -4,20 +4,21 @@
    contain the root `toctree` directive.
 
 Welcome to Tools4MSP modules' documentation!
-=====================================
+============================================
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
+   intro
    modules/muc/index
    modules/cea/index
    modules/partrac/index
-
 
 Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
+
+.. * :ref:`modindex`
