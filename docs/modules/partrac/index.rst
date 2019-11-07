@@ -81,16 +81,14 @@ the Adriatic Sea.
 SHYFEM model set-up in the Adriatic Sea
 +++++++++++++++++++++++++++++++++++++++
 The numerical computation is performed on a spatial domain that represents 
-the whole Adriatic Sea by means of the unstructured grid. The numerical 
-domain comprises all Po River branches starting downstream the Po di Goro 
-diversion (40 km upstream) with 9 river mouths. To adequately resolve the 
-river-sea continuum, the unstructured grid also includes the lower part 
-of the other major rivers flowing into the Adriatic Sea. The use of 
-elements of variable sizes, typical of finite element methods, is fully 
-exploited, in order to suit the complicated geometry of the basin, the 
-rapidly varying topographic features. The numerical grid of the Adriatic 
-Sea consists in approximately 110,000 triangular elements with a 
-resolution that varies from 7 km in the open-sea to few hundred meters 
+the whole Adriatic Sea by means of the unstructured grid. To adequately 
+resolve the river-sea continuum, the unstructured grid also includes the 
+lower part of the other major rivers flowing into the Adriatic Sea. The 
+use of elements of variable sizes, typical of finite element methods, is 
+fully exploited, in order to suit the complicated geometry of the basin, 
+the rapidly varying topographic features. The numerical grid of the 
+Adriatic Sea consists in approximately 110,000 triangular elements with 
+a resolution that varies from 5 km in the open-sea to few hundred meters 
 along the coast (:numref:`partrac-mesh-zoom`). 
 
 .. figure:: images/test_split_bathy-mesh1.png
@@ -170,8 +168,8 @@ Therefore, the nudging allows the model state to be reconciled
 with the assimilated MFS data in the open sea and to fully compute
 the hydrodynamics along the coast.
 
-PARTRAC module input
---------------------
+PARTRAC module inputs
+---------------------
 PARTRAC is based on a case-study driven approach. A case-study is defined
 as pre-configured set of specific characteristic of the Adriatic Sea
 circulation and characteristics of the particles to be simulated.
@@ -186,7 +184,7 @@ a polygon defined along the Emilia-Romagna coast).
    :align: center
    :name: partrac-er-example
 
-   Example of polygon for particles deploiment (left) and initial particle
+   Example of a polygon for particles deploiment (left) and initial particle
    distribution (right).
 
 In the PARTRAC module, three sea condition scenarios are considered:
