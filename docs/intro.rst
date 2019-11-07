@@ -36,4 +36,4 @@ resolutions.The webtools (GeoNode integration) analysis workflow follows a four 
    Case Study workflow
 
 
-Tools4MSP is currenlty implemented into the Tools4MPS Geoplatform (http://api.tools4msp.eu)
+Tools4MSP is currenlty implemented into the Tools4MPS API (http://api.tools4msp.eu).

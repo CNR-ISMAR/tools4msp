@@ -8,12 +8,26 @@ Welcome to Tools4MSP modules' documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: About:
 
    intro
+
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Modules:
+
    modules/muc/index
    modules/cea/index
    modules/partrac/index
+
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Advanced:
+
+   api/coded_labels
+
 
 Indices and tables
 ==================
