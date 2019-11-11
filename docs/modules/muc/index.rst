@@ -46,6 +46,8 @@ EUSAIR, etc…)
 Module inputs
 -------------
 
+
+
 Input layers
 ++++++++++++
 
@@ -110,11 +112,86 @@ According to original COEXIST methodology, the rules for automatically calculate
    :align: center
    :name: muc-potential-score-matrix
 
-   Example of potential conflict score matrix
+   Example of potential conflict score matrix.
 
 
 Module outputs
 --------------
+
+The MUC module produces the following main outputs:
+
+- geospatial distribution of conflict score (MUCSCORE) (see :numref:`muc-output-map`).
+  A 2-D GeoTIFF raster file representing the overall
+  conflict score in each raster grid cell. Coordinate reference system (CRS) and resolution are defined by the
+  Case Study configuration.
+
+- MUC score for each U-U combination (HEATUSEMUC) (see :numref:`muc-output-matrix`). A table/matrix representing
+  the contribution (in percentage) of the single pairwise combinations to the total MUC score
+  (for the whole area of analysis).
+
+.. figure:: images/muc_output_map.png
+   :alt: Geospatial distribution of MUC scores
+   :align: center
+   :name: muc-output-map
+
+   Example of geospatial distribution of MUC scores for the Adriatic sea.
+
+
+.. figure:: images/muc_output_matrix.png
+   :alt: MUC
+   :align: center
+   :name: muc-output-matrix
+
+   Example of
+
+MUC supporting MSP
+------------------
+
+According to Pinarbasi et al. (2017), the MSP process can be subdivided into seven steps
+(see :numref:`muc-msp-steps`). MUC module has been designed to directly support three steps:
+Gather data and define current condition, Identify issues, constraints, and future condition and
+Evaluate alternative management actions.
+
+.. |logo_check| image:: ../../images/fontawesome/check-circle.png
+   :scale: 75%
+
+
+.. |logo_times| image:: ../../images/fontawesome/times-circle.png
+
+
+.. table:: Potential conflict traits for classifing human uses.
+   :widths: auto
+   :name: muc-msp-steps
+
+   +--------+--------------------------------------------------------+--------------+
+   | Stages |  Definition                                            | MUC module   |
+   +========+========================================================+==============+
+   | 1      | Define goals and objectives                            |              |
+   +--------+--------------------------------------------------------+--------------+
+   | 2      | **Gather data and define current conditions**          | |logo_check| |
+   +--------+--------------------------------------------------------+--------------+
+   | 3      | **Identify issues, constraints, and future condition** | |logo_check| |
+   +--------+--------------------------------------------------------+--------------+
+   | 4      | Develop alternative management actions                 |              |
+   +--------+--------------------------------------------------------+--------------+
+   | 5      | **Evaluate alternative management actions**            | |logo_check| |
+   +--------+--------------------------------------------------------+--------------+
+   | 6      | Monitor and evaluate management actions                |              |
+   +--------+--------------------------------------------------------+--------------+
+   | 7      | Refine goals, objectives and management actions        |              |
+   +--------+--------------------------------------------------------+--------------+
+
+
+Main examples of use of MUC module in supporting the MSP process are:
+
+* identify and spatialize current/potential human uses and assesses their interaction in terms of conflicts
+  (business as usual scenario);
+* support MSP process testing hypotheses of reallocation of maritime uses;
+* iterate the analysis over different time periods through integration of new conflict scores and geospatial
+  datasets on sea uses;
+* perform scenario analysis to test planning options
+
+
 
 
 References
@@ -131,3 +208,7 @@ Webtools.” Ocean & Coastal Management 163 (September): 417–36. https://doi.o
 Menegon, Stefano, Alessandro Sarretta, Daniel Depellegrin, Giulio Farella, Chiara Venier, and Andrea Barbanti. 2018.
 “Tools4MSP: An Open Source Software Package to Support Maritime Spatial Planning.” PeerJ Computer Science 4 (October):
 e165. https://doi.org/10.7717/peerj-cs.165.
+
+Pınarbaşı, Kemal, Ibon Galparsoro, Ángel Borja, Vanessa Stelzenmüller, Charles N. Ehler, and Antje Gimpel. 2017.
+“Decision Support Tools in Marine Spatial Planning: Present Applications, Gaps and Future Perspectives.” Marine
+Policy 83 (September): 83–91. https://doi.org/10.1016/j.marpol.2017.05.031.
