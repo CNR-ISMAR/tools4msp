@@ -22,9 +22,33 @@ The method is based on a consolidated methodology developed within the Tools4MSP
 CEA will highlight sea areas of highest cumulative on a single and multisector level Cumulative Effects based on the
 Tools4MSP Modelling Framework.
 
+The main characteristic of the method is the geospatial modelling of the impact chain based on a
+source-pressure-pathway-receptor linkage. The impact chain process is based on two steps
+(see :numref:`cea-workflow`):
+
+1. from human uses to pressures:
+
+2. from pressure to impact
+
 
 Module inputs
 -------------
+
+The inputs of the Tools4MSP CEA tool are:
+
+1. the area of analysis (domain area);
+2. the grid cell resolution;
+3. layers representing intensity or presence/absence of human uses
+   (e.g., intensity of fishery and maritime transport, presence of aquacultures and oil & gas platforms)
+   (see :numref:`cea-input-layers`);
+4. layers representing intensity or presence/absence of environmental components
+   (e.g., seabed habitats, probability of presence of nursery habitats, probability
+   of presence of marine mammals) (see :numref:`cea-input-layers-env`);
+5. use-specific relative pressure weights (:numref:`cea-weights-matrix`)
+   and distances of pressure propagation (:numref:`cea-distances-matrix`);
+6. environmental component sensitivities related to specific pressures or more general ecological
+   models that describe the response of the environmental components to a specific pressure
+   (:numref:`cea-sensitivities-matrix`).
 
 
 Input layers
@@ -34,6 +58,7 @@ Input layers
    :alt: CEA imput layer uses
    :align: center
    :name: cea-input-layers
+   :width: 75%
 
    Web map representing the geospatial distribution of human activities.
 
@@ -41,6 +66,7 @@ Input layers
    :alt: CEA imput layer envs
    :align: center
    :name: cea-input-layers-env
+   :width: 75%
 
    Web map representing the geospatial distribution of environmental receptors.
 
@@ -51,34 +77,37 @@ Weights and distances matrix
    :alt: Weights matrix for pressures combination
    :align: center
    :name: cea-weights-matrix
+   :width: 75%
 
-   (WEIGHTS)
+   Example of weights matrix.
+
 
 .. figure:: images/cea_distances_matrix.png
    :alt: Distances matrix for pressures spread
    :align: center
    :name: cea-distances-matrix
+   :width: 75%
 
+   Example of distances matrix.
 
 
 Sensitivity
 ++++++++++++++++++
 
-Sensitivities
 
-Expert-based survey, interviews, literature review
-
-Impact extent: [0, 3]
-Impact level: [0, 3]
-Recovery time: [0, 4]
-Confidence: [0, 1]
+.. Impact extent: [0, 3]
+   Impact level: [0, 3]
+   Recovery time: [0, 4]
+   Confidence: [0, 1]
 
 .. figure:: images/cea_sensitivities_matrix.png
    :alt: Sensitivities matrix
    :align: center
    :name: cea-sensitivities-matrix
+   :width: 75%
 
-   (SENS)
+   Example of distances matrix.
+
 
 CEA outputs
 -----------

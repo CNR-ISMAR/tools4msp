@@ -46,8 +46,6 @@ EUSAIR, etc…)
 Module inputs
 -------------
 
-
-
 Input layers
 ++++++++++++
 
