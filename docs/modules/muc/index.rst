@@ -4,7 +4,7 @@ Maritime Use Conflict
 Aim of the module
 -------------------
 
-The MUS module allows to assess and map maritime use conflicts.
+The MUC module allows to assess and map maritime use conflicts.
 Conflicts (MUC) are defined as the constraints creating
 disadvantages to maritime activities located in a given sea area. The
 method applied is in line with COEXIST Project methodology (Gramolini
@@ -150,11 +150,8 @@ According to Pinarbasi et al. (2017), the MSP process can be subdivided into sev
 Gather data and define current condition, Identify issues, constraints, and future condition and
 Evaluate alternative management actions.
 
-.. |logo_check| image:: ../../images/fontawesome/check-circle.png
+.. |logo_check| image:: ../../images/check_circle.png
    :scale: 75%
-
-
-.. |logo_times| image:: ../../images/fontawesome/times-circle.png
 
 
 .. table:: Major steps of the MSP conceptual mtehod
