@@ -159,7 +159,7 @@ Evaluate alternative management actions.
 .. |logo_times| image:: ../../images/fontawesome/times-circle.png
 
 
-.. table:: Potential conflict traits for classifing human uses.
+.. table:: Major steps of the MSP conceptual mtehod
    :widths: auto
    :name: muc-msp-steps
 

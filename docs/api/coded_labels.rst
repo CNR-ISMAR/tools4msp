@@ -608,12 +608,6 @@ HISTCEASCORE
   URI: https://api.tools4msp.eu/api/codedlabels/HISTCEASCORE/
 
 
-MAPCEA
-  Spatial distribution of CEA score
-
-  URI: https://api.tools4msp.eu/api/codedlabels/MAPCEA/
-
-
 SENS
   Sensitivities matrix for CEA analysis
 

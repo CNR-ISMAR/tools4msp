@@ -4,7 +4,170 @@ Cumulative Effects Assessment
 Aim
 ----
 
-asdf
+The CEA module allows users to assess and map Cumulative Effects based on the Tools4MSP Modelling Framework. An
+MSP-oriented tool for the analysis and mapping of the effects of single or multiple human activities on marine
+environmental components. :numref:`cea-workflow` illustrates the CEA impact chain defined by three components:
+Human use (U), the anthropogenic pressures (P) exerted by the use U and the environmental components (E) that are
+impacted the pressure.
+
+.. figure:: images/cea_workflow.png
+   :alt: CEA module workflow.
+   :width: 60%
+   :align: center
+   :name: cea-workflow
+
+   CEA module workflow.
+
+The method is based on a consolidated methodology developed within the Tools4MSP modelling framework. Results of the
+CEA will highlight sea areas of highest cumulative on a single and multisector level Cumulative Effects based on the
+Tools4MSP Modelling Framework.
+
+
+Module inputs
+-------------
+
+
+Input layers
+++++++++++++
+
+.. figure:: images/cea_input_layers.png
+   :alt: CEA imput layer uses
+   :align: center
+   :name: cea-input-layers
+
+   Web map representing the geospatial distribution of human activities.
+
+.. figure:: images/cea_input_layers_env.png
+   :alt: CEA imput layer envs
+   :align: center
+   :name: cea-input-layers-env
+
+   Web map representing the geospatial distribution of environmental receptors.
+
+Weights and distances matrix
+++++++++++++++++++++++++++++
+
+.. figure:: images/cea_weights_matrix.png
+   :alt: Weights matrix for pressures combination
+   :align: center
+   :name: cea-weights-matrix
+
+   (WEIGHTS)
+
+.. figure:: images/cea_distances_matrix.png
+   :alt: Distances matrix for pressures spread
+   :align: center
+   :name: cea-distances-matrix
+
+
+
+Sensitivity
+++++++++++++++++++
+
+Sensitivities
+
+Expert-based survey, interviews, literature review
+
+Impact extent: [0, 3]
+Impact level: [0, 3]
+Recovery time: [0, 4]
+Confidence: [0, 1]
+
+.. figure:: images/cea_sensitivities_matrix.png
+   :alt: Sensitivities matrix
+   :align: center
+   :name: cea-sensitivities-matrix
+
+   (SENS)
+
+CEA outputs
+-----------
+
+The CEA module produces the following main outputs:
+
+- geospatial distribution of CEA score (CEASCORE) (see :numref:`cea-output-map`).
+  A 2-D GeoTIFF raster file representing the overall Cumulative Effects score in
+  each raster grid cell. Coordinate reference system (CRS) and resolution are defined
+  by the Case Study configuration.
+
+- Barplot of CEA score for Human Use (BARCEAUSE). A table/barplot representing
+  the contribution (in percentage) of human uses (U) to the overall CEA score for the whole area of analysis.
+
+- Barplot of CEA score for Environmental Receptor (BARCEAENV). A table/barplot representing
+  the contribution (in percentage) of environmental receptors (E) to the overall CEA score
+  for the whole area of analysis.
+
+- Barplot of CEA score for exerted pressure (BARPRESCORE). A table/barplot representing
+  the contribution (in percentage) of exerted pressure (P) to the overall CEA score
+  for the whole area of analysis.
+
+- CEA score for each P-E combination (HEATPREENVCEA). A table/matrix representing
+  the contribution (in percentage) of the single pairwise combination of pressure (P) and environmental
+  receptor (E) to the total CEA score (for the whole area of analysis).
+
+- Heatmap of Pressure scores due to human uses (HEATUSEPRESCORE). A table/matrix representing
+  the contribution (in percentage) of the single pairwise combination of human use (U) and pressure (P)
+  to the total CEA score (for the whole area of analysis).
+
+- Distribution of CEA score (HISTCEASCORE). A table/histogram representing the number of grid cells for each
+  class of CEA score.
+
+
+.. figure:: images/cea_output_map.png
+   :alt: Geospatial distribution of CEA scores
+   :align: center
+   :name: cea-output-map
+
+
+
+CEA supporting MSP
+------------------
+
+Cumulative Effects Assessment is the privileged tool to incorporate ecosystem based approach into the MSP process.
+
+According to Pinarbasi et al. (2017), the MSP process can be subdivided into seven steps
+(see :numref:`cea-msp-steps`). MUC module has been designed to directly support three steps:
+Gather data and define current condition, Identify issues, constraints, and future condition and
+Evaluate alternative management actions.
+
+.. |logo_check| image:: ../../images/fontawesome/check-circle.png
+   :scale: 75%
+
+
+.. |logo_times| image:: ../../images/fontawesome/times-circle.png
+
+
+.. table:: Major steps of the MSP conceptual mtehod
+   :widths: auto
+   :name: cea-msp-steps
+
+   +--------+--------------------------------------------------------+--------------+
+   | Stages |  Definition                                            | MUC module   |
+   +========+========================================================+==============+
+   | 1      | Define goals and objectives                            |              |
+   +--------+--------------------------------------------------------+--------------+
+   | 2      | **Gather data and define current conditions**          | |logo_check| |
+   +--------+--------------------------------------------------------+--------------+
+   | 3      | **Identify issues, constraints, and future condition** | |logo_check| |
+   +--------+--------------------------------------------------------+--------------+
+   | 4      | Develop alternative management actions                 |              |
+   +--------+--------------------------------------------------------+--------------+
+   | 5      | **Evaluate alternative management actions**            | |logo_check| |
+   +--------+--------------------------------------------------------+--------------+
+   | 6      | Monitor and evaluate management actions                |              |
+   +--------+--------------------------------------------------------+--------------+
+   | 7      | Refine goals, objectives and management actions        |              |
+   +--------+--------------------------------------------------------+--------------+
+
+
+Additional examples of use of CEA module in supporting the MSP process are:
+
+* investigate the area of influence of the pressure: distinguish among local, short and long range cumulative effects.
+* identify and localize transboundary dimension of cumulative effects
+* performing scenario analysis to test planning options
+
+
+
 
 References
 ----------
