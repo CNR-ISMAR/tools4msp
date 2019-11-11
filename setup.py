@@ -7,7 +7,7 @@ def read(*rnames):
 
 setup(
     name="tools4msp",
-    version="1.0.0-beta.1",
+    version="2.0.0-beta.1",
     author="Stefano Menegon",
     author_email="stefano.menegon@ismar.cnr.it",
     description="Tools 4 MSP",
