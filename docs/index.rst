@@ -20,7 +20,7 @@ Welcome to Tools4MSP modules' documentation!
    modules/muc/index
    modules/cea/index
    modules/partrac/index
-
+   modules/governance/index
 
 .. toctree::
    :maxdepth: 2
