@@ -68,6 +68,14 @@ different categories were:
 • Link (web link to the planning instrument and/or data)
 
 
+.. image:: images/governance_table_1.png
+   :align: center
+
+.. figure:: images/governance_table_2.png
+   :alt: Governance categories
+   :align: center
+   :name: governance-categories
+
 
 MSP considerations
 ------------------
@@ -80,3 +88,8 @@ maritime spatial planning procedures, in a meaningful way. This analysis and inf
 the understanding of the origin and meaning of the main identified conflicts between uses and between uses and the
 environment, and, eventually, to orient management and planning measures after the definition of the
 responsible/competent authority in charge, and of the actions/measures that are already in place.
+
+
+References
+----------
+
