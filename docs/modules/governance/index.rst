@@ -78,6 +78,8 @@ different categories were:
    :align: center
    :name: governance-categories
 
+   Snapshots of the Excel Table provided and compiled for the collection of all the relevant governance information.
+
 
 MSP considerations
 ------------------
