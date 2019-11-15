@@ -4,9 +4,11 @@ Governance analysis framework
 Introduction
 ------------
 
-According to the UNDP, governance is defined as “the rules of the political system to solve conflicts between actors
+According to the United Nations Development Programme (UNDP), governance is defined as “the rules of the political
+system to solve conflicts between actors
 and adopt decisions (legality)” and also as the “proper functioning of institutions and their acceptance by the
-public (legitimacy)”. Regarding territorial governance, the CEMAT defines it as “a global concept which characterizes
+public (legitimacy)”. Regarding territorial governance, the Council of Europe of Ministers Responsible for Spatial Planning
+(CEMAT) defines it as “a global concept which characterizes
 the way spatially-relevant policies, considered together, are applied” or as “the result of multi-level and
 cross-sectorial relationships in the field of public policies”, also referring to “horizontal and vertical
 cooperation in the shaping and implementation of these policies”. According to Van Tatenhove (2011), marine
@@ -93,3 +95,8 @@ responsible/competent authority in charge, and of the actions/measures that are 
 References
 ----------
 
+Council of Europe of Ministers Responsible for Spatial Planning (CEMAT)
+
+United Nations Development Programme (UNDP)
+
+Van Tatenhove, J. (2011). Integrated marine governance: questions of legitimacy. Mast, 10(1), 87-113.
