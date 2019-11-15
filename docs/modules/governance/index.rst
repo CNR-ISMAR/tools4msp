@@ -84,11 +84,11 @@ different categories were:
 MSP considerations
 ------------------
 
-This governance analysis framework provides a structured approach for analysing governance aspects in the region, by
+The governance analysis framework provides a structured approach for analysing governance aspects in the region, by
 ‘deconstructing’ the governance framework into different incentive categories and sectors.
 
-This work can be also useful for involving or at least identifying all competent authorities and stakeholders in
-maritime spatial planning procedures, in a meaningful way. This analysis and information will be useful to support
+Governance considerations are useful for involving or at least identifying all competent authorities and stakeholders in
+maritime spatial planning procedures, in a meaningful way. The governance analysis and information are useful to support
 the understanding of the origin and meaning of the main identified conflicts between uses and between uses and the
 environment, and, eventually, to orient management and planning measures after the definition of the
 responsible/competent authority in charge, and of the actions/measures that are already in place.
@@ -98,6 +98,9 @@ References
 ----------
 
 Council of Europe of Ministers Responsible for Spatial Planning (CEMAT)
+
+INTERREG Adriatic-Ionian Programme – ADRION PORTODIMARE geoPortal of Tools &Data for sustainable Management of coAstal
+and maRine  Environment. https://portodimare.adrioninterreg.eu/
 
 United Nations Development Programme (UNDP)
 
