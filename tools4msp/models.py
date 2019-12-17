@@ -161,9 +161,9 @@ def _run(csr, selected_layers=None):
         # WEIGHTS
         cl = CodedLabel.objects.get(code='WEIGHTS')
         csr_o = csr.outputs.create(coded_label=cl)
-        matrix = Weight.objects.get_matrix('AIR')
+        matrix = module_cs.weights.to_dict('record')
         write_to_file_field(csr_o.file, lambda buf: json.dump(matrix, buf), 'json', is_text_file=True)
-        ax = plot_heatmap(matrix, 'u', 'p', 'w',
+        ax = plot_heatmap(matrix, 'usecode', 'precode', 'weight',
                           # scale_measure=1852,# nm conversion
                           fillval=0,
                           figsize=[8, 8],
@@ -182,9 +182,9 @@ def _run(csr, selected_layers=None):
         # SENS
         cl = CodedLabel.objects.get(code='SENS')
         csr_o = csr.outputs.create(coded_label=cl)
-        matrix = Sensitivity.objects.get_matrix('AIR')
+        matrix = module_cs.sensitivities.to_dict('record')
         write_to_file_field(csr_o.file, lambda buf: json.dump(matrix, buf), 'json', is_text_file=True)
-        ax = plot_heatmap(matrix, 'p', 'e', 's',
+        ax = plot_heatmap(matrix, 'precode', 'envcode', 'sensitivity',
                           # scale_measure=1852,# nm conversion
                           fillval=0,
                           figsize=[10, 12],
