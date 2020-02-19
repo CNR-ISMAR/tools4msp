@@ -16,6 +16,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
 from django.utils.functional import lazy
 from django.utils.html import format_html
+from django.core.files.base import ContentFile
+
 from jsonfield import JSONField
 from .processing import Expression
 from .utils import layer_to_raster, get_sensitivities_by_rule, get_conflict_by_uses
@@ -659,6 +661,39 @@ class CaseStudy(models.Model):
         if rlist.count() > 0:
             return rlist[0]
         return None
+
+    def clone(self):
+        # load as a new object to avoid conflict with "self"
+        cs = CaseStudy.objects.get(pk=self.pk)
+
+        clone_related = [CaseStudyLayer, CaseStudyInput]
+        # collect related objects
+        related = []
+        for f in cs._meta.get_fields():
+            if f.one_to_many and f.field.model in clone_related:
+                related_name = f.get_accessor_name()
+                related.extend(getattr(cs, related_name).all())
+
+        # clone Case Study
+        cs.pk = None
+        cs.save()
+
+        # clone related objects
+        for o in related:
+            o.pk = None
+            o.casestudy = cs
+            if bool(o.file):
+                new_file = ContentFile(o.file.read())
+                new_file.name = o.file.name
+                o.file = new_file
+
+            if bool(o.thumbnail):
+                new_file = ContentFile(o.thumbnail.read())
+                new_file.name = o.thumbnail.name
+                o.thumbnail = new_file
+            o.save()
+        return cs
+
 
 # def generate_filename(self, filename):
 def generate_input_filename(self, filename):
