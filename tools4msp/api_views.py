@@ -169,6 +169,33 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
                  'context' : context_label}
         return Response(rjson)
 
+    @action(detail=True)
+    def clone(self, request, *args, **kwargs):
+        """
+        Clone the Case Study
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+
+        rjson = {'success': False}
+        _cs = self.get_object()
+
+        cs = _cs.clone()
+
+        cs.owner = request.user
+        cs.cstype = 'customize'
+        cs.save()
+
+        cs_serializer = CaseStudySerializer(cs, context={'request': request})
+
+        rjson['success'] = True
+        rjson['url'] = cs_serializer.data['url']
+        rjson['id'] = cs.pk
+
+        return Response(rjson)
+
 
 class CaseStudyLayerViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     """
