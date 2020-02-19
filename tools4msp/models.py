@@ -1375,10 +1375,17 @@ class PartracData(models.Model):
     scenario = models.ForeignKey(PartracScenario, on_delete=models.CASCADE)
     reference_time = models.ForeignKey(PartracTime, on_delete=models.CASCADE)
     particle_id = models.IntegerField(db_index=True)
-    geo = models.PointField(help_text="point geometry(Lat Log WGS84)")
+    geo = models.PointField(help_text="point geometry", srid=3035)
     depth = models.FloatField()
     grid_columnx = models.IntegerField(null=True, blank=True, db_index=True)
     grid_rowy = models.IntegerField(null=True, blank=True, db_index=True)
+
+
+class PartracGrid(models.Model):
+    rid = models.AutoField(primary_key=True)
+    rast = models.RasterField(srid=3035)
+    filename = models.TextField()
+
 
 # class CaseStudyRunLayers(models.Model):
 #     lid = models.CharField(max_length=5)

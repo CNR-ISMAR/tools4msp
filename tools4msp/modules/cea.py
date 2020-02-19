@@ -102,6 +102,7 @@ class CEACaseStudy(CaseStudyBase):
                 pressures_set.add(precode)
                 uses_set.add(usecode)
                 usepressure = _pressure_layer.copy() * w.weight
+                usepressure.mask = self.grid==0
                 if out_pressures.get(precode) is None:
                     out_pressures[precode] = usepressure
                 else:

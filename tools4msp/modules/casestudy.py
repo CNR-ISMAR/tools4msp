@@ -155,7 +155,7 @@ class CaseStudyBase(object):
                                    }
 
         if code is not None:
-            self.add_layer(self.read_raster(layerref[code]['f']),
+            self.add_layer(self.read_raster(layerref[code]['f']).fill_underlying_data(0),
                            code,
                            layerref[code]['code_group'],
                            availability=None)
@@ -167,7 +167,7 @@ class CaseStudyBase(object):
                 pass
             else:
                 raster = None
-            self.add_layer(self.read_raster(layerref[_code]['f']),
+            self.add_layer(self.read_raster(layerref[_code]['f']).fill_underlying_data(0),
                            _code,
                            layerref[_code]['code_group'],
                            availability=None)
