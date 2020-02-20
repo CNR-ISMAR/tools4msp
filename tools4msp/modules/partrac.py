@@ -12,9 +12,10 @@ import PIL, PIL.Image
 import io
 import numpy as np
 from django.http import HttpResponseRedirect, HttpResponse
-from tools4msp.models import PartracGrid
+from django.db.models import Max
 from django.db import connection
 import pandas as pd
+import geopandas as gpd
 from affine import Affine
 from shapely.geometry import MultiPoint
 import cartopy
@@ -23,50 +24,116 @@ from functools import partial
 import pyproj
 import matplotlib.animation as animation
 from .casestudy import CaseStudyBase
-
-
+from os import path
 
 
 QUERY = """
 with 
-  starting_particles as (select particle_id from tools4msp_partracdata 
-        where scenario_id = %(SCENARIO)s and reference_time_id=0 and st_contains(st_setsrid(ST_GeomFromText(%(GEO)s), 3035), geo)) 
-  select count(*), grid_columnx, grid_rowy  from tools4msp_partracdata where scenario_id=%(SCENARIO)s and particle_id in (select * from starting_particles) 
-  and reference_time_id between %(START_TIME)s and %(END_TIME)s
-group by grid_columnx, grid_rowy;
+  starting_particles as (
+    select particle_id
+    from tools4msp_partracdata 
+    where scenario_id = %(SCENARIO)s 
+          and reference_time_id=0
+          and st_contains(st_setsrid(ST_GeomFromText(%(GEO)s), 3035), geo)
+  ) 
+  select count(*), 
+         grid_columnx, grid_rowy
+  from tools4msp_partracdata 
+  where scenario_id=%(SCENARIO)s
+        and particle_id in (select * from starting_particles) 
+        and reference_time_id > %(START_TIME)s 
+        and reference_time_id <= %(END_TIME)s
+  group by grid_columnx, grid_rowy;
 """
 
-INPUT_GEO = MultiPoint([
-    (12.923794, 44.015206),
-    (13.812849, 44.838672),
-    (12.419255, 45.426838),
-    (12.337239, 45.335001),
-    (12.553829, 44.940228),
-    (13.734475, 45.641482),
-])
 
-CRS = cartopy.crs.Mercator()
+def parse_sources(sources):
+    gdf = gpd.GeoDataFrame.from_features(sources, crs={'init': 'epsg:4326'})
+    gdf.to_crs(epsg=3035, inplace=True)
+    return gdf
 
-to3857 = partial(
-    pyproj.transform,
-    pyproj.Proj(init='epsg:4326'),
-    pyproj.Proj(CRS.proj4_init)
-)
 
-to3035 = partial(
-    pyproj.transform,
-    pyproj.Proj(init='epsg:4326'),
-    pyproj.Proj(init='epsg:3035')
-)
+class ParTracCaseStudy(CaseStudyBase):
+    def __init__(self,
+                 csdir=None,
+                 rundir=None,
+                 name='unnamed'):
 
-INPUT_GEO_3857 = transform(to3857, INPUT_GEO)
-INPUT_GEO_3035 = transform(to3035, INPUT_GEO)
+        super().__init__(csdir=csdir,
+                         rundir=rundir,
+                         name='unnamed')
 
-BUFFER = 5000
-SCENARIO = 1
+    def load_grid(self):
+        from tools4msp.models import PartracGrid
 
-# questo arriva a 216 anche se il limite vero e' 213
-TIMES = list(range(0, 217, 24)) 
+        r = PartracGrid.objects.all()[0]
+        grid = r.rast.bands[0].data()
+        grid[:] = 0
+        gtransform = Affine.from_gdal(*r.rast.geotransform)
+        proj = r.rast.srs.srid
+        self.grid = rg.RectifiedGrid(grid, proj, gtransform)
+
+    def load_inputs(self):
+        spath = path.join(self.inputsdir, 'partrac-PARTRACSOURCES.geojson')
+        if path.isfile(spath):
+            _df = gpd.read_file(spath)
+            self.sources = _df
+
+        super().load_inputs()
+
+    def run(self, scenario, sources=None):
+        from tools4msp.models import PartracGrid, PartracData
+        if sources is not None:
+            gdf = parse_sources(sources)
+        else:
+            gdf = self.sources
+            gdf.to_crs(epsg=3035, inplace=True)
+
+        buffer = 5000
+
+        # set time intervals
+        max_time = PartracData.objects.filter(scenario=scenario).aggregate(Max('reference_time_id'))['reference_time_id__max']
+        times = list(range(0, max_time + 1, 3))
+        time_intervals = zip(times, times[1:])
+
+        self.outputs['time_rasters'] = []
+        # get rasters
+        cumraster = None
+        for s, e in time_intervals:
+            print(s, e)
+            params = {'GEO': gdf.buffer(5000).unary_union.to_wkt(),
+                      'SCENARIO': scenario,
+                      'START_TIME': s,
+                      'END_TIME': e
+                      }
+            df = pd.read_sql_query(QUERY,
+                                   connection,
+                                   params=params)
+            df.dropna(inplace=True)
+            df['count'] = df['count'].astype(int)
+            df['grid_columnx'] = df['grid_columnx'].astype(int)
+            df['grid_rowy'] = df['grid_rowy'].astype(int)
+            #
+            # ind = df[['grid_columnx', 'grid_rowy']].values
+            raster = self.grid.copy()
+            ind = (raster.shape[1] * df.grid_rowy + df.grid_columnx).values
+            val = df['count'].values
+
+            np.put(raster, ind, val)
+
+            # gtransform = Affine.from_gdal(*r.rast.geotransform)
+            # proj = r.rast.srs.srid
+            # raster = rg.RectifiedGrid(raster, proj, gtransform)
+            if cumraster is None:
+                cumraster = raster
+            else:
+                cumraster += raster
+                # cumraster = raster
+            self.outputs['time_rasters'].append([e, cumraster.copy()])
+        return True
+
+
+
 
 
 def partractest(request):

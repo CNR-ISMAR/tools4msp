@@ -46,7 +46,7 @@ class CaseStudyBase(object):
                  name='unnamed'):
         self.name = name
         #
-        # self.grid = grid
+        self.grid = None
         self.csdir = csdir
         self.rundir = rundir
 

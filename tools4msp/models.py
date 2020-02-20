@@ -36,9 +36,11 @@ from .utils import write_to_file_field
 from django.conf import settings
 from .modules.cea import CEACaseStudy
 from .modules.muc import MUCCaseStudy
+from .modules.partrac import ParTracCaseStudy
 from os import path
 import pandas as pd
 from tools4msp.utils import plot_heatmap
+import cartopy
 
 logger = logging.getLogger('tools4msp.models')
 
@@ -364,6 +366,42 @@ def _run(csr, selected_layers=None):
         write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
         plt.clf()
         return module_cs
+
+    elif csr.casestudy.module == 'partrac':
+        module_class = ParTracCaseStudy
+        module_cs = module_class(csdir=csdir)
+        # module_cs.load_layers()
+        module_cs.load_grid()
+        module_cs.load_inputs()
+        module_cs.run(scenario=1)
+        time_rasters = module_cs.outputs['time_rasters']
+        CRS = cartopy.crs.Mercator()
+
+        fig, axs = plt.subplots(3, 3, figsize=(15, 20),
+                                subplot_kw={'projection': CRS})
+        axs = axs.ravel()
+
+        cropped = time_rasters[-1][1].copy()  # crop last cumraster
+        cropped = cropped.crop(value=0)
+        for i, (timeid, raster) in enumerate(time_rasters):
+            ax = axs[i]
+            raster = raster.to_srs_like(cropped)
+            raster.mask = raster == 0
+            raster.plotmap(ax=ax, etopo=True, zoomlevel=6)
+            ax.set_title('Time: {}'.format(timeid))
+            # ax.add_geometries([INPUT_GEO_3857.buffer(BUFFER)], crs=CRS,
+            #                   facecolor="None",
+            #                   edgecolor='black',
+            #                   linewidth=4,
+            #                   # alpha=0.4,
+            #                   zorder=4)
+        cl = CodedLabel.objects.get(code='HEATUSEMUC')
+        csr_o = csr.outputs.create(coded_label=cl)
+        plt.tight_layout()
+        write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
+        plt.clf()
+
+        return module_cs
     else:
         return None
     return module_cs
@@ -650,7 +688,7 @@ class CaseStudy(models.Model):
     thumbnail_tag.short_description = 'Thumbnail'
 
     def run(self, selected_layers=None):
-        if self.module in ['cea', 'muc']:
+        if self.module in ['cea', 'muc', 'partrac']:
             csr = self.casestudyrun_set.create()
             _run(csr, selected_layers=selected_layers)
             rlist = self.casestudyrun_set.filter(pk=csr.pk)
