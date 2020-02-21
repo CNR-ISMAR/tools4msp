@@ -1,3 +1,4 @@
+import tempfile
 import logging
 from os import path
 import matplotlib
@@ -41,6 +42,8 @@ from os import path
 import pandas as pd
 from tools4msp.utils import plot_heatmap
 import cartopy
+import matplotlib.animation as animation
+
 
 logger = logging.getLogger('tools4msp.models')
 
@@ -377,31 +380,74 @@ def _run(csr, selected_layers=None):
         time_rasters = module_cs.outputs['time_rasters']
         CRS = cartopy.crs.Mercator()
 
-        fig, axs = plt.subplots(3, 3, figsize=(15, 20),
-                                subplot_kw={'projection': CRS})
-        axs = axs.ravel()
+        fig, ax = plt.subplots(subplot_kw={'projection': CRS})
+        fig.set_tight_layout(True)
 
         cropped = time_rasters[-1][1].copy()  # crop last cumraster
         cropped = cropped.crop(value=0)
-        for i, (timeid, raster) in enumerate(time_rasters):
-            ax = axs[i]
-            raster = raster.to_srs_like(cropped)
-            raster.mask = raster == 0
-            raster.plotmap(ax=ax, etopo=True, zoomlevel=6)
-            ax.set_title('Time: {}'.format(timeid))
-            # ax.add_geometries([INPUT_GEO_3857.buffer(BUFFER)], crs=CRS,
-            #                   facecolor="None",
-            #                   edgecolor='black',
-            #                   linewidth=4,
-            #                   # alpha=0.4,
-            #                   zorder=4)
+
+        def update_frame(iternum):
+            if iternum == -1:
+                plt.title("Hours: 0")
+                cropped[:] = 0
+                cropped.mask = cropped == 0
+                cropped.plotmap(ax=ax, etopo=True, zoomlevel=6)
+            else:
+                time_step = time_rasters[iternum][0]
+                raster = time_rasters[iternum][1]
+                raster = raster.to_srs_like(cropped)
+                # raster[:] = 0
+                raster.mask = raster <= 1
+                plt.title("Hours: {}".format(time_step))
+                raster.plotmap(ax=ax, etopo=True, zoomlevel=6)
+
+        ani = animation.FuncAnimation(fig, update_frame,
+                                      frames=range(-1, 2), interval=1000, blit=False,
+                                      repeat_delay=4000)
+
+        def write_to_buffer(buf):
+            tfn = tempfile.mktemp('.gif')
+            try:
+                ani.save(tfn, dpi=80, writer='imagemagick')
+                with open(tfn, "rb") as f:
+                    buf.write(f.read())
+            finally:
+                os.remove(tfn)
+
         cl = CodedLabel.objects.get(code='HEATUSEMUC')
         csr_o = csr.outputs.create(coded_label=cl)
-        plt.tight_layout()
-        write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
+
+        write_to_file_field(csr_o.thumbnail, write_to_buffer, 'gif')
         plt.clf()
 
         return module_cs
+        #
+        #
+        # fig, axs = plt.subplots(3, 3, figsize=(15, 20),
+        #                         subplot_kw={'projection': CRS})
+        # axs = axs.ravel()
+        #
+        # cropped = time_rasters[-1][1].copy()  # crop last cumraster
+        # cropped = cropped.crop(value=0)
+        # for i, (timeid, raster) in enumerate(time_rasters):
+        #     ax = axs[i]
+        #     raster = raster.to_srs_like(cropped)
+        #     raster.mask = raster == 0
+        #     raster.plotmap(ax=ax, etopo=True, zoomlevel=6)
+        #     ax.set_title('Time: {}'.format(timeid))
+        #     # ax.add_geometries([INPUT_GEO_3857.buffer(BUFFER)], crs=CRS,
+        #     #                   facecolor="None",
+        #     #                   edgecolor='black',
+        #     #                   linewidth=4,
+        #     #                   # alpha=0.4,
+        #     #                   zorder=4)
+        # cl = CodedLabel.objects.get(code='HEATUSEMUC')
+        # csr_o = csr.outputs.create(coded_label=cl)
+        # plt.tight_layout()
+        # write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
+        # plt.clf()
+        #
+        # return module_cs
     else:
         return None
     return module_cs
