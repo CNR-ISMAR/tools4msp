@@ -402,7 +402,8 @@ def _run(csr, selected_layers=None):
                 raster.plotmap(ax=ax, etopo=True, zoomlevel=6)
 
         ani = animation.FuncAnimation(fig, update_frame,
-                                      frames=range(-1, 2), interval=1000, blit=False,
+                                      frames=range(-1, len(time_rasters)),
+                                      interval=1000, blit=False,
                                       repeat_delay=4000)
 
         def write_to_buffer(buf):
