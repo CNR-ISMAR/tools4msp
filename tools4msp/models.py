@@ -387,12 +387,6 @@ def _run(csr, selected_layers=None):
         cropped = cropped.crop(value=0)
 
         def update_frame(iternum):
-            if iternum == -1:
-                plt.title("Hours: 0")
-                cropped[:] = 0
-                cropped.mask = cropped == 0
-                cropped.plotmap(ax=ax, etopo=True, zoomlevel=6)
-            else:
                 time_step = time_rasters[iternum][0]
                 raster = time_rasters[iternum][1]
                 raster = raster.to_srs_like(cropped)
@@ -402,7 +396,7 @@ def _run(csr, selected_layers=None):
                 raster.plotmap(ax=ax, etopo=True, zoomlevel=6)
 
         ani = animation.FuncAnimation(fig, update_frame,
-                                      frames=range(-1, len(time_rasters)),
+                                      frames=range(0, len(time_rasters)),
                                       interval=1000, blit=False,
                                       repeat_delay=4000)
 

@@ -93,7 +93,8 @@ class ParTracCaseStudy(CaseStudyBase):
 
         # set time intervals
         max_time = PartracData.objects.filter(scenario=scenario).aggregate(Max('reference_time_id'))['reference_time_id__max']
-        times = list(range(0, max_time + 1, 3))
+        step = 3
+        times = list(range(-step, max_time + 1, step))
         time_intervals = zip(times, times[1:])
 
         self.outputs['time_rasters'] = []
@@ -125,15 +126,11 @@ class ParTracCaseStudy(CaseStudyBase):
             # proj = r.rast.srs.srid
             # raster = rg.RectifiedGrid(raster, proj, gtransform)
             if cumraster is None:
-                cumraster = raster
+                cumraster = raster.copy()
             else:
                 cumraster += raster
-                # cumraster = raster
-            self.outputs['time_rasters'].append([e, cumraster.copy()])
+            self.outputs['time_rasters'].append([e, cumraster.copy(), raster.copy()])
         return True
-
-
-
 
 
 def partractest(request):
