@@ -380,20 +380,20 @@ def _run(csr, selected_layers=None):
         time_rasters = module_cs.outputs['time_rasters']
         CRS = cartopy.crs.Mercator()
 
-        fig, ax = plt.subplots(subplot_kw={'projection': CRS})
+        fig, ax = plt.subplots(figsize=[12, 12], subplot_kw={'projection': CRS})
         fig.set_tight_layout(True)
 
         cropped = time_rasters[-1][1].copy()  # crop last cumraster
         cropped = cropped.crop(value=0)
 
         def update_frame(iternum):
-                time_step = time_rasters[iternum][0]
-                raster = time_rasters[iternum][1]
-                raster = raster.to_srs_like(cropped)
-                # raster[:] = 0
-                raster.mask = raster <= 1
-                plt.title("Hours: {}".format(time_step))
-                raster.plotmap(ax=ax, etopo=True, zoomlevel=6)
+            time_step = time_rasters[iternum][0]
+            raster = time_rasters[iternum][1]
+            raster = raster.to_srs_like(cropped)
+            # raster[:] = 0
+            raster.mask = raster <= 1
+            plt.title("Hours: {}".format(time_step))
+            raster.plotmap(ax=ax, etopo=True, zoomlevel=7, grid=True)
 
         ani = animation.FuncAnimation(fig, update_frame,
                                       frames=range(0, len(time_rasters)),
@@ -403,7 +403,7 @@ def _run(csr, selected_layers=None):
         def write_to_buffer(buf):
             tfn = tempfile.mktemp('.gif')
             try:
-                ani.save(tfn, dpi=80, writer='imagemagick')
+                ani.save(tfn, dpi=120, writer='imagemagick')
                 with open(tfn, "rb") as f:
                     buf.write(f.read())
             finally:
