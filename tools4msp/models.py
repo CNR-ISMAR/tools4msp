@@ -43,6 +43,7 @@ import pandas as pd
 from tools4msp.utils import plot_heatmap
 import cartopy
 import matplotlib.animation as animation
+import numpy as np
 
 
 logger = logging.getLogger('tools4msp.models')
@@ -378,6 +379,10 @@ def _run(csr, selected_layers=None):
         module_cs.load_inputs()
         module_cs.run(scenario=1)
         time_rasters = module_cs.outputs['time_rasters']
+        # collect statistics
+        vmaxcum = np.asscalar(max([r[1].max() for r in time_rasters]))
+        vmax = np.asscalar(max([r[2].max() for r in time_rasters]))
+
         CRS = cartopy.crs.Mercator()
 
         cropped = time_rasters[-1][1].copy()  # crop last cumraster
@@ -386,13 +391,21 @@ def _run(csr, selected_layers=None):
         def update_frame(iternum, *fargs):
             rindex = fargs[0]
             ax = fargs[1]
+            vmax = fargs[2]
             time_step = time_rasters[iternum][0]
             raster = time_rasters[iternum][rindex]
             raster = raster.to_srs_like(cropped)
             # raster[:] = 0
-            raster.mask = raster <= 1
+            raster.mask = raster <= 0.0001
             plt.title("Hours: {}".format(time_step))
-            raster.plotmap(ax=ax, etopo=True, zoomlevel=7, grid=True)
+            # remove legends
+            legend = True
+            im = ax.images
+            if len(im) > 0:
+                legend = False
+
+            raster.plotmap(ax=ax, etopo=True, zoomlevel=7, grid=True,
+                           vmax=vmax, legend=legend)
 
         def write_to_buffer(buf, aniobj=None):
             tfn = tempfile.mktemp('.gif')
@@ -409,7 +422,7 @@ def _run(csr, selected_layers=None):
         ani = animation.FuncAnimation(fig, update_frame,
                                       frames=range(0, len(time_rasters)),
                                       interval=1000, blit=False,
-                                      repeat_delay=4000, fargs=[1, ax])
+                                      repeat_delay=4000, fargs=[1, ax, vmaxcum])
 
         cl = CodedLabel.objects.get(code='PARTRACSCORE')
         csr_o = csr.outputs.create(coded_label=cl, description="Diffusion from ontinuous source")
@@ -423,7 +436,7 @@ def _run(csr, selected_layers=None):
         ani = animation.FuncAnimation(fig, update_frame,
                                       frames=range(0, len(time_rasters)),
                                       interval=1000, blit=False,
-                                      repeat_delay=4000, fargs=[2, ax]) # use second raster (non-cumulative)
+                                      repeat_delay=4000, fargs=[2, ax, vmax]) # use second raster (non-cumulative)
 
         csr_o = csr.outputs.create(coded_label=cl, description="Dispersion from impulsive source")
 

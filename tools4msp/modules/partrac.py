@@ -47,7 +47,7 @@ with
 """
 
 SOURCESTABLE = "select * from ( values {geovalues}) as geotable (sourcename, sourceinput, sourcegeo)"
-SOURCEVALUES = "( '{sourcename}', {sourceinput}, st_setsrid(ST_GeomFromText('{sourcegeo}'), 3035))"
+SOURCEVALUES = "( '{sourcename}', {sourceinput}::float, st_setsrid(ST_GeomFromText('{sourcegeo}'), 3035))"
 
 QUERY = """
 with 
@@ -91,6 +91,7 @@ class ParTracCaseStudy(CaseStudyBase):
                  rundir=None,
                  name='unnamed'):
 
+        self.sources = None
         super().__init__(csdir=csdir,
                          rundir=rundir,
                          name='unnamed')
@@ -109,6 +110,9 @@ class ParTracCaseStudy(CaseStudyBase):
         spath = path.join(self.inputsdir, 'partrac-PARTRACSOURCES.geojson')
         if path.isfile(spath):
             _df = gpd.read_file(spath)
+            if 'quantity' not in _df.columns:
+                _df['quantity'] = 1
+            _df.quantity.fillna(1, inplace=True)
             self.sources = _df
 
         super().load_inputs()
@@ -127,7 +131,7 @@ class ParTracCaseStudy(CaseStudyBase):
         sourcevalues = []
         for i, r in gdf.iterrows():
             sourcevalues.append(SOURCEVALUES.format(sourcename=r.source,
-                                                    sourceinput=1.,
+                                                    sourceinput=r.quantity,
                                                     sourcegeo=r.geometry.wkt))
 
         geotable = SOURCESTABLE.format(geovalues=",\n".join(sourcevalues))
