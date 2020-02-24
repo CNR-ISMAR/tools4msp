@@ -380,39 +380,54 @@ def _run(csr, selected_layers=None):
         time_rasters = module_cs.outputs['time_rasters']
         CRS = cartopy.crs.Mercator()
 
-        fig, ax = plt.subplots(figsize=[12, 12], subplot_kw={'projection': CRS})
-        fig.set_tight_layout(True)
-
         cropped = time_rasters[-1][1].copy()  # crop last cumraster
         cropped = cropped.crop(value=0)
 
-        def update_frame(iternum):
+        def update_frame(iternum, *fargs):
+            rindex = fargs[0]
+            ax = fargs[1]
             time_step = time_rasters[iternum][0]
-            raster = time_rasters[iternum][1]
+            raster = time_rasters[iternum][rindex]
             raster = raster.to_srs_like(cropped)
             # raster[:] = 0
             raster.mask = raster <= 1
             plt.title("Hours: {}".format(time_step))
             raster.plotmap(ax=ax, etopo=True, zoomlevel=7, grid=True)
 
+        def write_to_buffer(buf, aniobj=None):
+            tfn = tempfile.mktemp('.gif')
+            # try:
+            aniobj.save(tfn, dpi=120, writer='imagemagick')
+            with open(tfn, "rb") as f:
+                buf.write(f.read())
+            # finally:
+            #    os.remove(tfn)
+
+        fig, ax = plt.subplots(figsize=[12, 12], subplot_kw={'projection': CRS})
+        fig.set_tight_layout(True)
+
         ani = animation.FuncAnimation(fig, update_frame,
                                       frames=range(0, len(time_rasters)),
                                       interval=1000, blit=False,
-                                      repeat_delay=4000)
+                                      repeat_delay=4000, fargs=[1, ax])
 
-        def write_to_buffer(buf):
-            tfn = tempfile.mktemp('.gif')
-            try:
-                ani.save(tfn, dpi=120, writer='imagemagick')
-                with open(tfn, "rb") as f:
-                    buf.write(f.read())
-            finally:
-                os.remove(tfn)
+        cl = CodedLabel.objects.get(code='PARTRACSCORE')
+        csr_o = csr.outputs.create(coded_label=cl, description="Diffusion from ontinuous source")
 
-        cl = CodedLabel.objects.get(code='HEATUSEMUC')
-        csr_o = csr.outputs.create(coded_label=cl)
+        write_to_file_field(csr_o.thumbnail, write_to_buffer, 'gif', aniobj=ani)
+        plt.clf()
 
-        write_to_file_field(csr_o.thumbnail, write_to_buffer, 'gif')
+        fig, ax = plt.subplots(figsize=[12, 12], subplot_kw={'projection': CRS})
+        fig.set_tight_layout(True)
+
+        ani = animation.FuncAnimation(fig, update_frame,
+                                      frames=range(0, len(time_rasters)),
+                                      interval=1000, blit=False,
+                                      repeat_delay=4000, fargs=[2, ax]) # use second raster (non-cumulative)
+
+        csr_o = csr.outputs.create(coded_label=cl, description="Dispersion from impulsive source")
+
+        write_to_file_field(csr_o.thumbnail, write_to_buffer, 'gif', aniobj=ani)
         plt.clf()
 
         return module_cs
