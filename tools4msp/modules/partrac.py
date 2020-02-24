@@ -46,6 +46,38 @@ with
   group by grid_columnx, grid_rowy;
 """
 
+SOURCESTABLE = "select * from ( values {geovalues}) as geotable (sourcename, sourceinput, sourcegeo)"
+SOURCEVALUES = "( '{sourcename}', {sourceinput}, st_setsrid(ST_GeomFromText('{sourcegeo}'), 3035))"
+
+QUERY = """
+with 
+  starting_particles as (
+    select particle_id, sourcename, sourceinput, sourcegeo
+    from tools4msp_partracdata
+    left join ({geotable}) as geotable
+    on (st_contains(sourcegeo, geo))
+    where scenario_id = %(SCENARIO)s 
+          and reference_time_id=0
+          and geotable.sourcename is not null
+  ),
+  particle_weights as (  
+    select sourceinput / count(*)::float as sourceweight, sourcename
+    from starting_particles
+    group by sourcename, sourceinput
+  )
+  select sum(sourceweight),
+         grid_columnx, grid_rowy
+  from tools4msp_partracdata
+  left join starting_particles
+    on (tools4msp_partracdata.particle_id=starting_particles.particle_id)
+  left join particle_weights
+    on (starting_particles.sourcename = particle_weights.sourcename)
+  where scenario_id = %(SCENARIO)s
+        and starting_particles.particle_id is not null
+        and reference_time_id > %(START_TIME)s 
+        and reference_time_id <= %(END_TIME)s
+  group by grid_columnx, grid_rowy;
+"""
 
 def parse_sources(sources):
     gdf = gpd.GeoDataFrame.from_features(sources, crs={'init': 'epsg:4326'})
@@ -90,6 +122,17 @@ class ParTracCaseStudy(CaseStudyBase):
             gdf.to_crs(epsg=3035, inplace=True)
 
         buffer = 1000
+        gdf.geometry = gdf.buffer(buffer)
+
+        sourcevalues = []
+        for i, r in gdf.iterrows():
+            sourcevalues.append(SOURCEVALUES.format(sourcename=r.source,
+                                                    sourceinput=1.,
+                                                    sourcegeo=r.geometry.wkt))
+
+        geotable = SOURCESTABLE.format(geovalues=",\n".join(sourcevalues))
+
+        query_with_geotable = QUERY.format(geotable=geotable)
 
         # set time intervals
         max_time = PartracData.objects.filter(scenario=scenario).aggregate(Max('reference_time_id'))['reference_time_id__max']
@@ -101,23 +144,24 @@ class ParTracCaseStudy(CaseStudyBase):
         # get rasters
         cumraster = None
         for s, e in time_intervals:
-            params = {'GEO': gdf.buffer(buffer).unary_union.to_wkt(),
+            params = {
+                      # 'GEO': gdf.buffer(buffer).unary_union.to_wkt(),
                       'SCENARIO': scenario,
                       'START_TIME': s,
                       'END_TIME': e
                       }
-            df = pd.read_sql_query(QUERY,
+            df = pd.read_sql_query(query_with_geotable,
                                    connection,
                                    params=params)
             df.dropna(inplace=True)
-            df['count'] = df['count'].astype(int)
+            df['sum'] = df['sum'].astype(float)
             df['grid_columnx'] = df['grid_columnx'].astype(int)
             df['grid_rowy'] = df['grid_rowy'].astype(int)
             #
             # ind = df[['grid_columnx', 'grid_rowy']].values
             raster = self.grid.copy()
             ind = (raster.shape[1] * df.grid_rowy + df.grid_columnx).values
-            val = df['count'].values
+            val = df['sum'].values
 
             np.put(raster, ind, val)
 
