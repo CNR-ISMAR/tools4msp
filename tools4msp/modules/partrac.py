@@ -89,11 +89,11 @@ class ParTracCaseStudy(CaseStudyBase):
             gdf = self.sources
             gdf.to_crs(epsg=3035, inplace=True)
 
-        buffer = 5000
+        buffer = 1000
 
         # set time intervals
         max_time = PartracData.objects.filter(scenario=scenario).aggregate(Max('reference_time_id'))['reference_time_id__max']
-        step = 3
+        step = 24
         times = list(range(-step, max_time + 1, step))
         time_intervals = zip(times, times[1:])
 
@@ -102,7 +102,7 @@ class ParTracCaseStudy(CaseStudyBase):
         cumraster = None
         for s, e in time_intervals:
             print(s, e)
-            params = {'GEO': gdf.buffer(5000).unary_union.to_wkt(),
+            params = {'GEO': gdf.buffer(buffer).unary_union.to_wkt(),
                       'SCENARIO': scenario,
                       'START_TIME': s,
                       'END_TIME': e
