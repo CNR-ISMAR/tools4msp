@@ -403,9 +403,9 @@ def _run(csr, selected_layers=None):
             im = ax.images
             if len(im) > 0:
                 legend = False
-
+            # print(iternum, rindex, raster.max(), vmax)
             raster.plotmap(ax=ax, etopo=True, zoomlevel=7, grid=True,
-                           vmax=vmax, legend=legend)
+                           vmax=vmax, legend=legend, cmap="jet")
 
         def write_to_buffer(buf, aniobj=None):
             tfn = tempfile.mktemp('.gif')
