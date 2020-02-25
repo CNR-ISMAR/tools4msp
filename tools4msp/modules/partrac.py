@@ -61,11 +61,11 @@ with
           and geotable.sourcename is not null
   ),
   particle_weights as (  
-    select sourceinput / count(*)::float as sourceweight, sourcename
+    select sourceinput::float / count(*)::float as sourceweight, sourcename
     from starting_particles
     group by sourcename, sourceinput
   )
-  select sum(sourceweight),
+  select sum(sourceweight)/count(distinct(reference_time_id))::float as sum,
          grid_columnx, grid_rowy
   from tools4msp_partracdata
   left join starting_particles
@@ -135,8 +135,10 @@ class ParTracCaseStudy(CaseStudyBase):
                                                     sourcegeo=r.geometry.wkt))
 
         geotable = SOURCESTABLE.format(geovalues=",\n".join(sourcevalues))
+        # print(geotable)
 
         query_with_geotable = QUERY.format(geotable=geotable)
+        # print(query_with_geotable)
 
         # set time intervals
         max_time = PartracData.objects.filter(scenario=scenario).aggregate(Max('reference_time_id'))['reference_time_id__max']
