@@ -489,6 +489,7 @@ class CaseStudy(models.Model):
     domain_area_terms = models.ManyToManyField("DomainArea",
                                                blank=True
                                                )
+    gridinfo = JSONField(null=True, blank=True)
 
     # tools4msp = models.BooleanField(_("Tools4MSP Case Study"), default=False,
     #                                 help_text=_('Is this a Tools4MSP Case Study?'))
@@ -527,7 +528,9 @@ class CaseStudy(models.Model):
     output_layer_model_config = None
     _output_layer_model = None
 
+    # deprecated
     CS = None
+    _module_cs = None
 
     def get_thumbnails(self):
         return CaseStudyInput.objects.filter(casestudy=self,
@@ -584,6 +587,7 @@ class CaseStudy(models.Model):
             ('run_casestudy', 'Run case study'),
         )
 
+    # TODO: add deprecated warning
     def get_CS(self):
         if self.CS is not None:
             return self.CS
@@ -596,6 +600,28 @@ class CaseStudy(models.Model):
                      rtype=rtype)
 
         return self.CS
+
+    @property
+    def module_cs(self):
+        module_class = None
+        if self._module_cs is not None:
+            return self._module_cs
+        if self.module == 'cea':
+            module_class = CEACaseStudy
+        elif self.module == 'muc':
+            module_class = MUCCaseStudy
+        elif self.module == 'partrac':
+            module_class = ParTracCaseStudy
+
+        if module_class is not None:
+            self._module_cs = module_class(csdir=self.csdir)
+        return self._module_cs
+
+    @property
+    def csdir(self):
+        return path.join(settings.MEDIA_ROOT,
+                         'casestudy',
+                          str(self.pk))
 
     def sync_CS(self):
         cs = self.get_CS()
@@ -737,8 +763,31 @@ class CaseStudy(models.Model):
         cs.add_coexist_score('u91', None, 'u84', None, score=0)
 
     def get_grid(self):
-        # TODO: move expression
-        return self.domain_area_dataset.get_dataset(res=self.resolution)
+        module_cs = self.module_cs
+        if module_cs is not None:
+            return self.module_cs.get_grid()
+        return None
+
+    def read_gridinfo(self):
+        grid = self.get_grid()
+        if grid is None:
+            return None
+        gridinfo = {'bounds': grid.bounds,
+                    'resolution': grid.resolution,
+                    'projection': grid.proj.definition_string(),
+                    'epsg': 3035} # Makeit dynamic
+        return gridinfo
+
+    def get_gridinfo(self):
+        if self.gridinfo is not None:
+            return self.gridinfo
+        try:
+            self.gridinfo = self.read_gridinfo()
+            if self.gridinfo is not None:
+                self.save()
+        except FileNotFoundError:
+            pass
+        return self.gridinfo
 
     def get_thumbnail_url(self):
         l = self.domain_area_dataset.get_layers_qs()[0]

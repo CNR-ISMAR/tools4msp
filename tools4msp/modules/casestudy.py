@@ -146,6 +146,8 @@ class CaseStudyBase(object):
         layerref = {}
         if self.layersdir is None:
             raise Exception("layersdir is not configured: cannot load the data")
+        if not path.isdir(self.layersdir):
+            raise FileNotFoundError("Directory layersdir doesn't exist:", self.layersdir)
         for f in listdir(self.layersdir):
             fname, ext = path.splitext(f)
             if ext == '.geotiff':
@@ -188,6 +190,13 @@ class CaseStudyBase(object):
 
     def load_grid(self):
         self.grid = self.layers.loc[self.layers.code == 'GRID']['layer'].values[0]
+
+    def get_grid(self):
+        if self.grid is not None:
+            return self.grid
+        self.load_layers('GRID')
+        self.load_grid()
+        return self.grid
 
     def load_inputs(self):
         self.load_grid()

@@ -113,6 +113,7 @@ class CaseStudySerializer(serializers.HyperlinkedModelSerializer): #ModelSeriali
     inputs = CaseStudyInputSerializer(many=True, read_only=True)
     extent = serializers.JSONField(source="domain_area.extent",
                                    read_only=True)
+    grid = serializers.JSONField(source="gridinfo", read_only=True)
     owner = serializers.CharField(source='owner.username',
                                   read_only=True)
 
@@ -126,6 +127,7 @@ class CaseStudySerializer(serializers.HyperlinkedModelSerializer): #ModelSeriali
                   'cstype',
                   'resolution',
                   'extent',
+                  'grid',
                   'domain_area',
                   'domain_area_terms',
                   'owner',
@@ -133,7 +135,7 @@ class CaseStudySerializer(serializers.HyperlinkedModelSerializer): #ModelSeriali
                   'updated',
                   'layers',
                   'inputs',)
-        read_only_fields = ('extent', 'owner', 'created',
+        read_only_fields = ('extent', 'grid', 'owner', 'created',
                             'updated', 'layers', 'inputs')
 
         # write_only_fields = ('domain_area',)
