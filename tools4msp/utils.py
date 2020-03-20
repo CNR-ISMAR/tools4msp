@@ -36,6 +36,13 @@ from django.db.transaction import get_connection
 
 from .modules.casestudy import CaseStudyBase
 
+def get_layerinfo(fpath):
+    l = rg.read_raster(fpath)
+    layerinfo = {'bounds': l.bounds,
+                 'resolution': l.resolution,
+                 'projection': l.proj.definition_string(),
+                 'epsg': 3035}  # Makeit dynamic
+    return layerinfo
 
 def plot_heatmap(matrix,
                  xcol,

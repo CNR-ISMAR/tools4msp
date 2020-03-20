@@ -21,7 +21,7 @@ from django.core.files.base import ContentFile
 
 from jsonfield import JSONField
 from .processing import Expression
-from .utils import layer_to_raster, get_sensitivities_by_rule, get_conflict_by_uses
+from .utils import layer_to_raster, get_sensitivities_by_rule, get_conflict_by_uses, get_layerinfo
 from .modules.casestudy import CaseStudyBase as CS
 import itertools
 import datetime
@@ -940,14 +940,7 @@ class CaseStudyLayer(FileBase):
     def save(self, *args, **kwargs):
         if self.coded_label is not None:
             try:
-                print(self.file.path)
-                l = rg.read_raster(self.file.path)
-                layerinfo = {'bounds': l.bounds,
-                            'resolution': l.resolution,
-                            'projection': l.proj.definition_string(),
-                            'epsg': 3035}  # Makeit dynamic
-
-                self.layerinfo = layerinfo
+                self.layerinfo = get_layerinfo(self.file.path)
             except ValueError:
                 pass
         super().save(*args, **kwargs)
