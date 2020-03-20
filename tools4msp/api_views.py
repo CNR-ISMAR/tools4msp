@@ -10,6 +10,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import FileUploadParser, ParseError
 from rest_framework import status
 import coreapi, coreschema
+from rasterio.io import MemoryFile
+from rasterio.errors import RasterioIOError
 import json
 
 # Use customized NestedViewSetMixin (see issue https://github.com/chibisov/drf-extensions/issues/142)
@@ -220,6 +222,12 @@ class CaseStudyLayerViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             raise ParseError("Empty content")
 
         f = request.data['file']
+        with MemoryFile(f) as memfile:
+            try:
+                with memfile.open() as dataset:
+                    pass
+            except RasterioIOError:
+                raise ParseError("Unsupported raster file")
 
         obj = self.get_object()
         obj.file.save(f.name, f, save=True)

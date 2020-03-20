@@ -44,7 +44,8 @@ from tools4msp.utils import plot_heatmap
 import cartopy
 import matplotlib.animation as animation
 import numpy as np
-
+import rectifiedgrid as rg
+from django.core.exceptions import ObjectDoesNotExist
 
 logger = logging.getLogger('tools4msp.models')
 
@@ -489,7 +490,6 @@ class CaseStudy(models.Model):
     domain_area_terms = models.ManyToManyField("DomainArea",
                                                blank=True
                                                )
-    gridinfo = JSONField(null=True, blank=True)
 
     # tools4msp = models.BooleanField(_("Tools4MSP Case Study"), default=False,
     #                                 help_text=_('Is this a Tools4MSP Case Study?'))
@@ -768,26 +768,12 @@ class CaseStudy(models.Model):
             return self.module_cs.get_grid()
         return None
 
-    def read_gridinfo(self):
-        grid = self.get_grid()
-        if grid is None:
-            return None
-        gridinfo = {'bounds': grid.bounds,
-                    'resolution': grid.resolution,
-                    'projection': grid.proj.definition_string(),
-                    'epsg': 3035} # Makeit dynamic
-        return gridinfo
-
-    def get_gridinfo(self):
-        if self.gridinfo is not None:
-            return self.gridinfo
+    def gridinfo(self):
         try:
-            self.gridinfo = self.read_gridinfo()
-            if self.gridinfo is not None:
-                self.save()
-        except FileNotFoundError:
-            pass
-        return self.gridinfo
+            gridinfo = self.layers.get(coded_label__code='GRID').layerinfo
+            return gridinfo
+        except ObjectDoesNotExist:
+            return None
 
     def get_thumbnail_url(self):
         l = self.domain_area_dataset.get_layers_qs()[0]
@@ -949,6 +935,23 @@ class CaseStudyLayer(FileBase):
     casestudy = models.ForeignKey(CaseStudy,
                                   on_delete=models.CASCADE,
                                   related_name="layers")
+    layerinfo = JSONField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if self.coded_label is not None:
+            try:
+                print(self.file.path)
+                l = rg.read_raster(self.file.path)
+                layerinfo = {'bounds': l.bounds,
+                            'resolution': l.resolution,
+                            'projection': l.proj.definition_string(),
+                            'epsg': 3035}  # Makeit dynamic
+
+                self.layerinfo = layerinfo
+            except ValueError:
+                pass
+        super().save(*args, **kwargs)
+
     class Meta:
         ordering = ['coded_label__group']
 
