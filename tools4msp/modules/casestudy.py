@@ -157,6 +157,8 @@ class CaseStudyBase(object):
                                    }
 
         if code is not None:
+            if code not in layerref.keys():
+                return False
             self.add_layer(self.read_raster(layerref[code]['f']).fill_underlying_data(0),
                            code,
                            layerref[code]['code_group'],
