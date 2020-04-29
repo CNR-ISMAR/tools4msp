@@ -314,13 +314,13 @@ A4
   URI: https://api.tools4msp.eu/api/codedlabels/A4/
 
 
-A4-14
+A5-14
   A5.14 - Circalittoral coarse sediment
 
   URI: https://api.tools4msp.eu/api/codedlabels/A4-14/
 
 
-A4-14MIX
+A5-14MIX
   A5.14 - Circalittoral coarse sediment (mixed)
 
   URI: https://api.tools4msp.eu/api/codedlabels/A4-14MIX/
