@@ -12,6 +12,8 @@ Assessment (CEA), Maritime Use Conflict (MUC) Analysis, Marine Ecosystem Service
 Particle Tracking simulation (ParTrac). The package can be used as stand-alone library or as an Web API services
 implementing the Case Study driven approach.
 
+.. _workflow:
+
 Case Study driven approach
 ++++++++++++++++++++++++++
 A case study is a coherent and harmonized set of geospatial layers (and other documentation) available at different

@@ -42,6 +42,7 @@ source-pressure-pathway-receptor linkage. The impact chain process is based on t
 2. from pressure to impact: to assess the spatial distribution of impact exerted by one or multiple
    pressures on one or multiple environmental receptors.
 
+.. _cea-module-inputs:
 
 Module inputs
 -------------
