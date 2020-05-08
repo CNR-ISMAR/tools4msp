@@ -40,7 +40,7 @@ def get_layerinfo(fpath):
     l = rg.read_raster(fpath)
     layerinfo = {'bounds': l.bounds,
                  'resolution': l.resolution,
-                 'projection': l.proj.definition_string(),
+                 'projection': l.crs.to_proj4(),
                  'epsg': 3035}  # Makeit dynamic
     return layerinfo
 
