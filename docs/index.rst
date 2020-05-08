@@ -24,6 +24,17 @@ Welcome to Tools4MSP modules' documentation!
 
 .. toctree::
    :maxdepth: 2
+   :caption: Tutorials:
+
+   tutorials/index
+   tutorials/gair_muc/index
+   tutorials/gair_cea/index
+   tutorials/qgis_partrac/index
+   tutorials/gair_geodatabuilder
+
+
+.. toctree::
+   :maxdepth: 2
    :caption: Advanced:
 
    api/coded_labels
