@@ -6,6 +6,7 @@ import itertools
 import numpy as np
 import pandas as pd
 from os import path
+from os import path, listdir
 from .casestudy import CaseStudyBase
 
 
@@ -85,16 +86,21 @@ class MUCCaseStudy(CaseStudyBase):
     #     self.coexist_scores.to_csv(self.get_outpath('coexist_scores.csv'))
 
     def load_inputs(self):
-        fpath = path.join(self.inputsdir, 'muc-PCONFLICT.json')
-        if path.isfile(fpath):
-            df = pd.read_json(fpath)
-            _df = df.copy()
-            _df.columns = ['score', 'u2', 'u1']
-            df = pd.concat([df, _df], ignore_index=True, sort=False)
-            df = df.pivot('u1', 'u2', values='score')
-            ordered = sorted(df.columns)
-            df = df.reindex(ordered, axis=1)
-            self.potential_conflict_scores = df
+        for f in listdir(self.inputsdir):
+            filepath = path.join(self.inputsdir, f)
+            fname, ext = path.splitext(f)
+            if ext == '.json':
+                # remove random file suffix
+                fname = fname.split('_')[0]
+                if fname == 'muc-PCONFLICT':
+                    df = pd.read_json(filepath)
+                    _df = df.copy()
+                    _df.columns = ['score', 'u2', 'u1']
+                    df = pd.concat([df, _df], ignore_index=True, sort=False)
+                    df = df.pivot('u1', 'u2', values='score')
+                    ordered = sorted(df.columns)
+                    df = df.reindex(ordered, axis=1)
+                    self.potential_conflict_scores = df
 
     def dump_outputs(self):
         if 'muc' in self.outputs:
