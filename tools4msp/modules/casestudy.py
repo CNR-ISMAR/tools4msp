@@ -151,6 +151,8 @@ class CaseStudyBase(object):
         for f in listdir(self.layersdir):
             fname, ext = path.splitext(f)
             if ext == '.geotiff':
+                # remove random file suffix
+                fname = fname.split('_')[0]
                 code_group, _code = fname.split('-', 1)
                 layerref[_code] = {'f': f,
                                    'code_group': code_group

@@ -54,6 +54,7 @@ CODEDLABEL_GROUP_CHOICES = (
     ('use', 'Activity & Uses'),
     ('env', 'Environmental receptor'),
     ('pre', 'Pressure'),
+    ('usepre', 'Use-Pressure'),
     ('out', 'Outputs'),
     ('cea', 'CEA'),
     ('muc', 'MUC'),
@@ -244,7 +245,7 @@ def _run(csr, selected_layers=None):
         _upscores = []
         totscore = 0
         for (k, l) in out_usepressures.items():
-            (u, p) = k.split('|')
+            (u, p) = k.split('--')
             _upscores.append({
                 'u': u,
                 'p': p,
@@ -268,7 +269,7 @@ def _run(csr, selected_layers=None):
         pescore = []
         totscore = 0
         for (k, l) in out_presenvs.items():
-            (p, e) = k.split('|')
+            (p, e) = k.split('--')
             pescore.append({
                 'p': p,
                 'e': e,
@@ -908,6 +909,7 @@ class FileBase(models.Model):
     "Model for layer description and storage"
     coded_label = models.ForeignKey("CodedLabel", limit_choices_to={'group__in': ['casestudy',
                                                                                   'pre',
+                                                                                  'usepre',
                                                                                   'env',
                                                                                   'use',
                                                                                   'out',
@@ -1101,6 +1103,11 @@ class Weight(models.Model):
     weight = models.FloatField()
     distance = models.FloatField(default=0)
     context = models.ForeignKey(Context, on_delete=models.CASCADE)
+    #
+    confidence = models.FloatField(null=True, blank=True)
+    #
+    references = models.TextField(null=True, blank=True)
+    notes = models.TextField(null=True, blank=True)
 
     # custom manager
     objects = WeightManager()
@@ -1127,6 +1134,10 @@ class Sensitivity(models.Model):
     env = models.ForeignKey(Env, on_delete=models.CASCADE)
     sensitivity = models.FloatField()
     context = models.ForeignKey(Context, on_delete=models.CASCADE)
+    confidence = models.FloatField(null=True, blank=True)
+    #
+    references = models.TextField(null=True, blank=True)
+    notes = models.TextField(null=True, blank=True)    
 
     # custom manager
     objects = SensitivityManager()
