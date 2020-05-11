@@ -5,7 +5,7 @@
 import itertools
 import numpy as np
 import pandas as pd
-from os import path
+from os import path, listdir
 from .casestudy import CaseStudyBase
 
 
@@ -79,7 +79,7 @@ class CEACaseStudy(CaseStudyBase):
             usecode = w.usecode
             precode = w.precode
 
-            usepresid = "{}|{}".format(usecode, precode)
+            usepresid = "{}--{}".format(usecode, precode)
 
             _pressure_layer = None
 
@@ -88,15 +88,17 @@ class CEACaseStudy(CaseStudyBase):
                 _pressure_layer = self.layers.loc[usepresid, 'layer'].copy()
                 # print usecode, precode, usepresid
                 _use_layer = None
-                _pressure_layer.norm()
+                # _pressure_layer.norm()
             else:
                 _use_layer = self.get_layer(usecode)
                 if _use_layer is not None:
                     # convolution
                     _pressure_layer = _use_layer.layer.copy()
+                    maxval = _pressure_layer.max()
 
                     _pressure_layer.gaussian_conv(w.distance / 2., truncate=3.)
-                    _pressure_layer.norm()
+                    
+                    _pressure_layer = _pressure_layer / _pressure_layer.max() * maxval
 
             if _pressure_layer is not None:
                 pressures_set.add(precode)
@@ -104,20 +106,19 @@ class CEACaseStudy(CaseStudyBase):
                 usepressure = _pressure_layer.copy() * w.weight
                 usepressure.mask = self.grid==0
                 if out_pressures.get(precode) is None:
-                    out_pressures[precode] = usepressure
+                    out_pressures[precode] = usepressure.copy()
                 else:
-                    out_pressures[precode] += usepressure
-
-                out_usepressures[usepresid] = usepressure
+                    out_pressures[precode] += usepressure.copy()
+                out_usepressures[usepresid] = usepressure.copy()
 
         # extract single use contribute
 
 
 
         # filtered_dict = {k:v for (k,v) in d.items() if filter_string in k}
-
-        # for key, op in out_pressures.iteritems():
-        #     out_pressures[key] = op.norm()
+        # Modificare per evitare la normalizzazione nel caso di layer espliciti di pressione
+        for key, op in out_pressures.items():
+            out_pressures[key] = op.norm()
 
     def run(self, uses=None, envs=None,
                            outputmask=None, fulloutput=True, pressures=None,
@@ -137,13 +138,13 @@ class CEACaseStudy(CaseStudyBase):
             env_layer =  self.get_layer(idx).layer.copy()
             filter = self.sensitivities.envcode == idx
             for idx_sens, sens in self.sensitivities[filter].iterrows():
-                presenvsid = "{}|{}".format(sens.precode, idx)
+                presenvsid = "{}--{}".format(sens.precode, idx)
                 _p = self.outputs['pressures'].get(sens.precode)
                 if _p is not None:
                     pressure_layer = _p.copy()
                     sensarray = pressure_layer * env_layer * sens.sensitivity
                     ci += sensarray
-                    out_presenvs[presenvsid] = sensarray
+                    out_presenvs[presenvsid] = sensarray.copy()
 
         self.outputs['ci'] = ci
         return True
@@ -231,29 +232,32 @@ class CEACaseStudy(CaseStudyBase):
     #     super(CEAMixin, self).dump_inputs()
 
     def load_inputs(self):
-        wpath = path.join(self.inputsdir, 'cea-WEIGHTS.json')
-        if path.isfile(wpath):
-            _df = pd.read_json(wpath)
-            _df.rename(columns={'u': 'usecode',
-                                'p': 'precode',
-                                'd': 'distance',
-                                'w': 'weight'
-                                }, inplace=True)
-            self.weights = _df
+        for f in listdir(self.inputsdir):
+            filepath = path.join(self.inputsdir, f)
+            fname, ext = path.splitext(f)
+            if ext == '.json':
+                # remove random file suffix
+                fname = fname.split('_')[0]
+                if fname == 'cea-WEIGHTS':
+                    _df = pd.read_json(filepath)
+                    _df.rename(columns={'u': 'usecode',
+                                        'p': 'precode',
+                                        'd': 'distance',
+                                        'w': 'weight'
+                    }, inplace=True)
+                    self.weights = _df
+                elif fname == 'cea-SENS':
+                    _df = pd.read_json(filepath)
+                    _df.rename(columns={'e': 'envcode',
+                                        'p': 'precode',
+                                        's': 'sensitivity'
+                    }, inplace=True)
+                    self.sensitivities = _df
 
-        spath = path.join(self.inputsdir, 'cea-SENS.json')
-        if path.isfile(spath):
-            _df = pd.read_json(spath)
-            _df.rename(columns={'e': 'envcode',
-                                'p': 'precode',
-                                's': 'sensitivity'
-                                }, inplace=True)
-            self.sensitivities = _df
-
-            if 'nrf' not in self.sensitivities.columns:
-                self.sensitivities['nrf'] = None
-            if 'nrf' not in self.sensitivities.columns:
-                self.sensitivities['srf'] = None
+                    if 'nrf' not in self.sensitivities.columns:
+                        self.sensitivities['nrf'] = None
+                    if 'nrf' not in self.sensitivities.columns:
+                        self.sensitivities['srf'] = None
 
         super().load_inputs()
 
