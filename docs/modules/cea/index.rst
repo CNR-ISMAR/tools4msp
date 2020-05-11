@@ -178,7 +178,7 @@ Evaluate alternative management actions.
    :scale: 75%
 
 
-.. table:: Major steps of the MSP conceptual mtehod
+.. table:: Major steps of the MSP conceptual method
    :widths: auto
    :name: cea-msp-steps
 

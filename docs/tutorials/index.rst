@@ -1,4 +1,4 @@
-+How to use Modules through GAIR interface
+How to use Modules through GAIR interface
 ==========================================
 
 The tools4msp modules are integrated within the `GAIR`_ geoportal

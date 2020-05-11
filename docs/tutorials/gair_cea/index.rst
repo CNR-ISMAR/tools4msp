@@ -48,27 +48,56 @@ presented the following elements:
 3) the list of input layers as described in :ref:`cea-module-inputs`;
 
 4) the ``SET MATRIX INPUTS`` button to change values of *weights*
-and *sensitivity* matrix as described in :ref;
+and *sensitivity* matrix as described in ::ref:`cea-module-inputs`;
 
-the ``run case study`` button (5)
-to run the CEA module within this case study and the ``clone case study`` button (6) to create a
-customized case study starting from this configuration.
+5) the ``run case study`` button to run the CEA module within this case study;
+
+6) the ``clone case study`` button (6) to create a
+customized case study starting from this configuration;
 
 You can either set configuration data in the default case study (input layers and input matrix)
 or clone the current case study to create a customized one
 
 Configure default run
-+++++++++++++++++++++
+---------------------
 (in progress)
 
-#) select input layers layers from list
+#. Select input layers layers from list.
+    You'll see the list of input layers displayed as a grid with layer name,
+    thumbnail and selection control.
+    The input layers thumbnails are is loaded directly from the
+    `API server <https://api.tools4msp.eu>`_
+    and in case the thumbnails are not showed as usual could be
+    due to a connection trouble with the external server.
+
+    Please check the layers list and identify what
+    kind of input each layers refers to.
+
+    .. table:: Example of CEA input layers
+       :widths: auto
+       :name: gair-cea-layers
+
+       +---------------------------------------------+---------------------------+
+       | Layer                                       | Input type                |
+       +=============================================+===========================+
+       | Domain area boundary                        | Embedded in case study def|
+       +---------------------------------------------+---------------------------+
+       | Grid of analysis                            | Resolution (required)     |
+       +---------------------------------------------+---------------------------+
+       | Mammals                                     | environmental component   |
+       +---------------------------------------------+---------------------------+
+       | Fishing ports                               | human use                 |
+       +---------------------------------------------+---------------------------+
 
 
+    You can quickly select
 
-#) review or change input  for weights/sensitivities matrix
+
+#. Review or change input  for weights/sensitivities matrix.
+    Click on  open the matrix input widget by
 
 Clone case study to a customized one
-++++++++++++++++++++++++++++++++++++
+------------------------------------
 (in progress)
 * create new layer expression and add it to case study
 
