@@ -41,6 +41,8 @@ class MUCCaseStudy(CaseStudyBase):
 
     def run(self, uses=None, intensity=False, outputmask=None):
         # TODO using outputmask
+        print(self.grid)
+        print("############")
         couses_data = []
         muc = np.zeros_like(self.grid)
         alluses_iter = self.get_uses().iterrows()
@@ -75,9 +77,10 @@ class MUCCaseStudy(CaseStudyBase):
                                 # convert to int for allowing json serialization
                                 'ncells': int(_score[_score > 0].count())
             })
-        self.outputs['muc'] = muc
-        muc.mask = self.grid==0
         muc.fill_underlying_data(0)
+        muc.mask = (self.grid.mask) | (self.grid==0)
+        print(muc.mask)
+        self.outputs['muc'] = muc
         self.outputs['muc_couses'] = couses_data
         self.outputs['muc_totalscore'] = muc.sum()
         return True

@@ -25,6 +25,7 @@ import pyproj
 import matplotlib.animation as animation
 from .casestudy import CaseStudyBase
 from os import path
+from os import path, listdir
 
 
 QUERY = """
@@ -107,13 +108,15 @@ class ParTracCaseStudy(CaseStudyBase):
         self.grid = rg.RectifiedGrid(grid, proj, gtransform)
 
     def load_inputs(self):
-        spath = path.join(self.inputsdir, 'partrac-PARTRACSOURCES.geojson')
-        if path.isfile(spath):
-            _df = gpd.read_file(spath)
-            if 'quantity' not in _df.columns:
-                _df['quantity'] = 1
-            _df.quantity.fillna(1, inplace=True)
-            self.sources = _df
+        for f in listdir(self.inputsdir):
+            filepath = path.join(self.inputsdir, f)
+            fname, ext = path.splitext(f)
+            if ext == '.geojson':
+                # remove random file suffix
+                fname = fname.split('_')[0]
+                if fname == 'partrac-PARTRACSOURCES':
+                    _df = gpd.read_file(filepath)
+                    self.sources = _df
 
         super().load_inputs()
 
@@ -125,12 +128,16 @@ class ParTracCaseStudy(CaseStudyBase):
             gdf = self.sources
             gdf.to_crs(epsg=3035, inplace=True)
 
+        gdf = gdf.explode()
         buffer = 1000
         gdf.geometry = gdf.buffer(buffer)
+        if 'quantity' not in gdf.columns:
+            gdf['quantity'] = gdf.geometry.area / 1000000 # resolution of grid cells
+        gdf.quantity.fillna(1, inplace=True)
 
         sourcevalues = []
         for i, r in gdf.iterrows():
-            sourcevalues.append(SOURCEVALUES.format(sourcename=r.source,
+            sourcevalues.append(SOURCEVALUES.format(sourcename=i,
                                                     sourceinput=r.quantity,
                                                     sourcegeo=r.geometry.wkt))
 

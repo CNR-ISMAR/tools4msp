@@ -68,7 +68,7 @@ class CaseStudyLayerSerializer(serializers.HyperlinkedModelSerializer):
     url = CSChildHyperlinkedIdentityField(view_name='casestudylayer-detail')
     code = serializers.SlugField(source="coded_label.code",
                                        read_only=True)
-    label = serializers.CharField(source="coded_label.label",
+    label = serializers.CharField(source="coded_label.__str__",
                                        read_only=True)
 
     class Meta:

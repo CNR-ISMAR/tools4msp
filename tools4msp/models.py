@@ -42,10 +42,12 @@ from os import path
 import pandas as pd
 from tools4msp.utils import plot_heatmap
 import cartopy
+import cartopy.io.img_tiles as cimgt
 import matplotlib.animation as animation
 import numpy as np
 import rectifiedgrid as rg
 from django.core.exceptions import ObjectDoesNotExist
+import math
 
 logger = logging.getLogger('tools4msp.models')
 
@@ -96,6 +98,19 @@ def get_coded_label_choices():
     ('unknown', 'Unknown'),
 ]
     return lt
+
+def get_zoomlevel(extent):
+    GLOBE_WIDTH = 256
+    west = extent[0]
+    east = extent[2]
+    angle = east - west
+    zoom = round(math.log(300 * 360 / angle / GLOBE_WIDTH) / math.log(2))
+    print(zoom)
+    return zoom
+
+def get_map_figure_size(extent, height=8.):
+    width = height / (extent[3] - extent[1]) * (extent[2] - extent[0])
+    return [width + 1, height]
 
 if not geonode:
     # fake model
@@ -155,18 +170,22 @@ def _run(csr, selected_layers=None):
         csr_ol = csr.outputlayers.create(coded_label=cl)
         csr_o = csr.outputs.create(coded_label=cl)
         write_to_file_field(csr_ol.file, ci.write_raster, 'geotiff')
-
-        ci.plotmap(#ax=ax,
+        plt.figure(figsize=get_map_figure_size(ci.bounds))
+        ax, mapimg = ci.plotmap(#ax=ax,
                    cmap='jet',
                    logcolor=True,
                    legend=True,
-                   maptype='minimal',
-                   grid=True, gridrange=1)
+                   # maptype='minimal',
+                   grid=True,
+                   gridrange=1)
+        ax.add_image(cimgt.Stamen('toner-lite'), get_zoomlevel(ci.geobounds))
 
         # CEASCORE map as png for
-        write_to_file_field(csr_ol.thumbnail, plt.savefig, 'png')
+        write_to_file_field(csr_ol.thumbnail, plt.savefig, 'png', dpi=300)
         plt.clf()
         plt.close()
+
+        ceamaxval = ci.max()
 
         # WEIGHTS
         cl = CodedLabel.objects.get(code='WEIGHTS')
@@ -286,31 +305,38 @@ def _run(csr, selected_layers=None):
         plt.clf()
         plt.close()
 
-        # MSFD Biological
-        for ptheme in ('Biological', 'Physical', 'Substances, litter and energy'):
+        
+        MSFDGROUPS = {'Biological': 'MAPCEA-MSFDBIO',
+                      'Physical': 'MAPCEA-MSFDPHY',
+                      'Substances, litter and energy': 'MAPCEA-MSFDSUB'}
+        for ptheme, msfdcode in MSFDGROUPS.items():
             plist = list(Pressure.objects.filter(msfd__theme=ptheme).values_list('code', flat=True))
             module_cs.run(uses=uses, envs=envs, pressures=plist)
             #
             ci = module_cs.outputs['ci']
-            cl = CodedLabel.objects.get(code='CEASCORE')
+            cl = CodedLabel.objects.get(code=msfdcode)
 
             plist_str = ", ".join(CodedLabel.objects.filter(code__in=plist).values_list('label', flat=True))
             description = 'MSFD {} pressures: {}'.format(ptheme, plist_str)
             csr_ol = csr.outputlayers.create(coded_label=cl, description=description)
             write_to_file_field(csr_ol.file, ci.write_raster, 'geotiff')
 
-            ci.plotmap(#ax=ax,
+            plt.figure(figsize=get_map_figure_size(ci.bounds))
+            ax, mapimg = ci.plotmap(#ax=ax,
                        cmap='jet',
                        logcolor=True,
                        legend=True,
-                       maptype='minimal',
-                       grid=True, gridrange=1)
+                       # maptype='minimal',
+                       grid=True, gridrange=1,
+                       vmax=ceamaxval)
             # CEASCORE map as png for
+            ax.add_image(cimgt.Stamen('toner-lite'), get_zoomlevel(ci.geobounds))
             write_to_file_field(csr_ol.thumbnail, plt.savefig, 'png')
             plt.clf()
             plt.close()
 
     elif csr.casestudy.module == 'muc':
+        csr.casestudy.set_or_update_context('AIR')
         module_class = MUCCaseStudy
         module_cs = module_class(csdir=csdir)
         module_cs.load_layers()
@@ -324,14 +350,14 @@ def _run(csr, selected_layers=None):
         cl = CodedLabel.objects.get(code='MUCSCORE')
         csr_ol = csr.outputlayers.create(coded_label=cl)
         write_to_file_field(csr_ol.file, out.write_raster, 'geotiff')
-
-        out.plotmap(#ax=ax,
+        plt.figure(figsize=get_map_figure_size(out.bounds))
+        ax, mapimg = out.plotmap(#ax=ax,
                    cmap='jet',
                    logcolor=True,
                    legend=True,
-                   maptype='minimal',
+                   # maptype='minimal',
                    grid=True, gridrange=1)
-
+        ax.add_image(cimgt.Stamen('toner-lite'), get_zoomlevel(out.geobounds))
         # CEASCORE map as png for
         write_to_file_field(csr_ol.thumbnail, plt.savefig, 'png')
         plt.clf()
@@ -405,9 +431,17 @@ def _run(csr, selected_layers=None):
             im = ax.images
             if len(im) > 0:
                 legend = False
+            else:
+                ax.add_image(cimgt.Stamen('toner-lite'), get_zoomlevel(raster.geobounds))
             # print(iternum, rindex, raster.max(), vmax)
-            raster.plotmap(ax=ax, etopo=True, zoomlevel=7, grid=True,
-                           vmax=vmax, legend=legend, cmap="jet")
+            raster.plotmap(ax=ax,
+                           # etopo=True,
+                           # zoomlevel=7,
+                           grid=True,
+                           vmax=vmax,
+                           legend=legend,
+                           cmap="jet",
+                           logcolor=True)
 
         def write_to_buffer(buf, aniobj=None):
             tfn = tempfile.mktemp('.gif')
@@ -432,6 +466,8 @@ def _run(csr, selected_layers=None):
         write_to_file_field(csr_o.thumbnail, write_to_buffer, 'gif', aniobj=ani)
         plt.clf()
 
+        write_to_file_field(csr_o.file, time_rasters[-1][1].copy().write_raster, 'geotiff')
+
         fig, ax = plt.subplots(figsize=[12, 12], subplot_kw={'projection': CRS})
         fig.set_tight_layout(True)
 
@@ -444,6 +480,7 @@ def _run(csr, selected_layers=None):
 
         write_to_file_field(csr_o.thumbnail, write_to_buffer, 'gif', aniobj=ani)
         plt.clf()
+        write_to_file_field(csr_o.file, time_rasters[-1][2].copy().write_raster, 'geotiff')
 
         return module_cs
         #
@@ -975,7 +1012,7 @@ class CodedLabel(models.Model):
     objects = CodedLabelManager()
 
     def __str__(self):
-        return "{} -> {}".format(self.group, self.label)
+        return "{} | {}".format(self.group, self.label)
 
     class Meta:
         ordering = ['group', 'label']

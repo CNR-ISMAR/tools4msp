@@ -47,12 +47,12 @@ The create expression interface contains the following items
 #) Description of the layer expression: a small text that describe this layer expression useful for other users
 
 #) Expression builder: here is shown the expression components (layers, operators, numbers)
-    click on one item to reorder, change value or delete them.
+   click on one item to reorder, change value or delete them.
 
 #) Filters to narrow the layers list
 
 #) Layers list: just click on the layer name to add it to the current
-    expression.
+   expression.
 
 #) Operators: click on one of the operators to add it to the expression.
 
