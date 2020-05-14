@@ -1,3 +1,5 @@
+..  _tutorial-cea:
+
 CEA Module on GAIR
 ==================
 
@@ -36,7 +38,7 @@ presents all layers and layer expressions already configured for the case study
    :align: center
    :name: ca-cs-detail
 
-   CEA case study detail page.png
+   CEA case study detail page
 
 In the case study detail page (:numref:`ca-cs-detail`) are
 presented the following elements:
@@ -58,9 +60,20 @@ customized case study starting from this configuration;
 You can either set configuration data in the default case study (input layers and input matrix)
 or clone the current case study to create a customized one
 
+To check the content of a layer you can click on the layer thumbnail to open a new window
+with a larger preview image and a ``Download layer`` control.
+
+.. figure:: images/CEA_case_study_layer.png
+   :alt: CEA case study detail page
+   :align: center
+   :name: cea-cs-layerpreview
+
+   CEA case study layer preview
+
+.. _default-cea-case-studies:
+
 Configure default run
 ---------------------
-(in progress)
 
 #. Select input layers layers from list.
     You'll see the list of input layers displayed as a grid with layer name,
@@ -90,17 +103,70 @@ Configure default run
        +---------------------------------------------+---------------------------+
 
 
-    You can quickly select
 
 
-#. Review or change input  for weights/sensitivities matrix.
-    Click on  open the matrix input widget by
+    You can quickly select all layers using ``select all layers`` checkbox, this will compute CEA
+    considering all enviromental components and all human uses available-
+    If you need to investigate the cumulative effects on a subset of components or human uses you can manually
+    select (or deselect) the layers to consider.
+
+
+#.  Review or change input values for weights/sensitivities matrix.
+    Click on ``SET MATRIX INPUTS`` to open the matrix input widget for weights and sensitivities
+
+    .. figure:: images/CEA_matrix_weights.png
+      :alt: CEA weights matrix input widget
+      :align: center
+      :name: cea-cs-weightmatrix
+
+      CEA weights matrix input widget
+
+    .. figure:: images/CEA_matrix_weights.png
+       :alt: CEA sensitivities matrix input widget
+       :align: center
+       :name: cea-cs-sensmatrix
+
+       CEA sensitivities matrix input widget
+
+#.  Click on ``Run Case Study`` to run teh module for the current case study.
+    When the Run is complete the results will be listed in the same page on a new tab.
+
+
+    .. figure:: images/CEA_matrix_weights.png
+       :alt: CEA sensitivities matrix input widget
+       :align: center
+       :name: cea-cs-results
+
+       CEA results list: json results (1) and raster outpus (2)
+
+    To make another Run click again on the ``Layer`` tab (3).
+
+
+
+.. _customized-cea-case-studies:
 
 Clone case study to a customized one
 ------------------------------------
-(in progress)
-* create new layer expression and add it to case study
 
-* add new layers to case study
+#. select ``Clone case Study``: the new  case study will open in the same page but
+   you'll see *Type: customized*  in the summary box over 6 (:numref:`ca-cs-detail`)
+
+#. write down the Case Study ID number in the las part of the new URL
+   (e.g.  ``https://www.portodimare.eu/casestudies/XXX/``)
+
+.. TODO remove this step when will be available case study editing
+
+#. create new layer expression and add it to case study as described in :ref:`create_new-gd-exp`
+   section and link to the new created case study (you can identify the correct
+   one with title and ID see :ref:`gair-gdb-create` number 2).
+
+#. to add new layers already stored in the geoportal you need to create a
+   simple layer expression with just one layer without operators.
+
+#. get back to the customized case study using ``View case study`` Button (:numref:`gair-gdb-viewcs`)
+
+#. click ``Run Expression`` (:numref:`gair-gdb-exp-run`) for each customized layer
+
+* Select layers and set matrix inputs as described in :ref:`default-cea-case-studies` section
 
 
