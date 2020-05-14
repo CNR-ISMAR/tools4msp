@@ -75,7 +75,7 @@ with a larger preview image and a ``Download layer`` control.
 Configure default run
 ---------------------
 
-#. Select input layers layers from list.
+#.  Select input layers layers from list.
     You'll see the list of input layers displayed as a grid with layer name,
     thumbnail and selection control.
     The input layers thumbnails are is loaded directly from the
@@ -154,7 +154,7 @@ Clone case study to a customized one
 #. write down the Case Study ID number in the las part of the new URL
    (e.g.  ``https://www.portodimare.eu/casestudies/XXX/``)
 
-.. TODO remove this step when will be available case study editing
+    .. TODO remove this step when will be available case study editing
 
 #. create new layer expression and add it to case study as described in :ref:`create_new-gd-exp`
    section and link to the new created case study (you can identify the correct
@@ -167,6 +167,6 @@ Clone case study to a customized one
 
 #. click ``Run Expression`` (:numref:`gair-gdb-exp-run`) for each customized layer
 
-* Select layers and set matrix inputs as described in :ref:`default-cea-case-studies` section
+#. Select layers and set matrix inputs as described in :ref:`default-cea-case-studies` section
 
 
