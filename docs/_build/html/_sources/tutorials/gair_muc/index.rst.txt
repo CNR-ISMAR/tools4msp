@@ -133,7 +133,7 @@ Configure default run
        :align: center
        :name: muc-cs-pconflictmatrix
 
-       MUC  potential conflict matrix input widget
+       MUC sensitivities matrix potential conflict
 
 #.  Click on ``Run Case Study`` to run teh module for the current case study.
     When the Run is complete the results will be listed in the same page on a new tab.

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="6c226aa5-cb8d-4dbb-af65-c59aba179564" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/tutorials/gair_muc/index.rst" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/gair_muc/index.rst" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectId" id="1bcSxoPqjIcwqJkszZkGE9dsP5M" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="ServiceViewManager">
+    <option name="viewStates">
+      <list>
+        <serviceView>
+          <treeState>
+            <expand />
+            <select />
+          </treeState>
+        </serviceView>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="6c226aa5-cb8d-4dbb-af65-c59aba179564" name="Default Changelist" comment="" />
+      <created>1588930137406</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1588930137406</updated>
+    </task>
+    <task id="LOCAL-00001" summary="Added geodatabuildere expression">
+      <created>1589186471543</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1589186471543</updated>
+    </task>
+    <task id="LOCAL-00002" summary="CEA tutorial complete">
+      <created>1589488000404</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1589488000404</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Fixed number  formatting">
+      <created>1589488605015</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1589488605015</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Updated MUC tutorial">
+      <created>1589805806681</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1589805806681</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
+    <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Added geodatabuildere expression" />
+    <MESSAGE value="CEA tutorial complete" />
+    <MESSAGE value="Fixed number  formatting" />
+    <MESSAGE value="Updated MUC tutorial" />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated MUC tutorial" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="410" y="48" width="1277" height="1032" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1589388499823">
+      <screen x="0" y="32" width="1920" height="1048" />
+    </state>
+    <state x="410" y="48" width="1277" height="1032" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.32.1920.1048@0.32.1920.1048" timestamp="1589388499823" />
+    <state x="306" y="32" width="1298" height="1048" key="CommitChangelistDialog2" timestamp="1589805805608">
+      <screen x="0" y="32" width="1920" height="1048" />
+    </state>
+    <state x="306" y="32" width="1298" height="1048" key="CommitChangelistDialog2/0.32.1920.1048@0.32.1920.1048" timestamp="1589805805608" />
+    <state x="217" y="32" key="SettingsEditor" timestamp="1588930281153">
+      <screen x="0" y="32" width="1920" height="1048" />
+    </state>
+    <state x="217" y="32" key="SettingsEditor/0.32.1920.1048@0.32.1920.1048" timestamp="1588930281153" />
+    <state x="355" y="167" width="1200" height="781" key="Vcs.Push.Dialog.v2" timestamp="1589488612598">
+      <screen x="0" y="32" width="1920" height="1048" />
+    </state>
+    <state x="355" y="167" width="1200" height="781" key="Vcs.Push.Dialog.v2/0.32.1920.1048@0.32.1920.1048" timestamp="1589488612598" />
+    <state x="496" y="306" key="com.intellij.ide.util.TipDialog" timestamp="1589800042375">
+      <screen x="0" y="32" width="1920" height="1048" />
+    </state>
+    <state x="496" y="306" key="com.intellij.ide.util.TipDialog/0.32.1920.1048@0.32.1920.1048" timestamp="1589800042375" />
+    <state x="482" y="257" width="946" height="600" key="git4idea.merge.GitPullDialog" timestamp="1589488013416">
+      <screen x="0" y="32" width="1920" height="1048" />
+    </state>
+    <state x="482" y="257" width="946" height="600" key="git4idea.merge.GitPullDialog/0.32.1920.1048@0.32.1920.1048" timestamp="1589488013416" />
+  </component>
+</project>
