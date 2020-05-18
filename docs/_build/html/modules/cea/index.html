@@ -1,0 +1,420 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Cumulative Effects Assessment &mdash; Tools4MSP modules 2.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Particle Tracking" href="../partrac/index.html" />
+    <link rel="prev" title="Maritime Use Conflict" href="../muc/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Tools4MSP modules
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">About:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Modules:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../muc/index.html">Maritime Use Conflict</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Cumulative Effects Assessment</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#aim">Aim</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#conceptual-model">Conceptual model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-inputs">Module inputs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#input-layers">Input layers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#weights-and-distances-matrix">Weights and distances matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sensitivity">Sensitivity</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#cea-outputs">CEA outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cea-supporting-msp">CEA supporting MSP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../partrac/index.html">Particle Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../governance/index.html">Governance analysis framework</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorials:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">How to use Modules through GAIR interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/gair_muc/index.html">MUC Module on GAIR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/gair_cea/index.html">CEA Module on GAIR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/qgis_partrac/index.html">Particle tracking module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/gair_geodatabuilder.html">Layer expression input</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Advanced:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/coded_labels.html">Tools4MSP Coded Labels</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Tools4MSP modules</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>Cumulative Effects Assessment</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/modules/cea/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="cumulative-effects-assessment">
+<h1>Cumulative Effects Assessment<a class="headerlink" href="#cumulative-effects-assessment" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="aim">
+<h2>Aim<a class="headerlink" href="#aim" title="Permalink to this headline">¶</a></h2>
+<p>The CEA module allows users to assess and map Cumulative Effects based on the Tools4MSP Modelling Framework. An
+MSP-oriented tool for the analysis and mapping of the effects of single or multiple human activities on marine
+environmental components. <a class="reference internal" href="#cea-workflow"><span class="std std-numref">Fig. 7</span></a> illustrates the CEA impact chain defined by three components:
+Human use (U), the anthropogenic pressures (P) exerted by the use U and the environmental components (E) that are
+impacted the pressure.</p>
+<div class="figure align-center" id="cea-workflow">
+<a class="reference internal image-reference" href="../../_images/cea_workflow.png"><img alt="CEA module workflow." src="../../_images/cea_workflow.png" style="width: 60%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 7 </span><span class="caption-text">CEA module workflow.</span><a class="headerlink" href="#cea-workflow" title="Permalink to this image">¶</a></p>
+</div>
+<p>The method is based on a consolidated methodology developed within the Tools4MSP modelling framework. Results of the
+CEA will highlight sea areas of highest cumulative on a single and multisector level Cumulative Effects based on the
+Tools4MSP Modelling Framework.</p>
+</div>
+<div class="section" id="conceptual-model">
+<h2>Conceptual model<a class="headerlink" href="#conceptual-model" title="Permalink to this headline">¶</a></h2>
+<p>The main characteristic of the method is the geospatial modelling of the impact chain based on a
+source-pressure-pathway-receptor linkage. The impact chain process is based on two steps
+(see <a class="reference internal" href="#cea-workflow"><span class="std std-numref">Fig. 7</span></a>):</p>
+<ol class="arabic simple">
+<li><p>from human uses to pressures: to assess the propagation of pressures generated by one or multiple
+anthropogenic uses. By default, CEA module implements a flexible distance model based on a 2D convolution with
+a gaussian kernel function. The convolution distance model can be applied to any human use independently from its
+spatial structure (point, polygon or line feature). Alternatively, in case of non-isotropic propagation of
+pressures generated by complex hydrodynamic phenomena (e.g. river plume induced currents, transitional waters),
+the users are allowed to directly integrate pressure indicators from measured datasets or generated by external
+models, such as hydrodynamic model applications (see modelling of land-based activities on Menegon et al., 2017
+and Depellegrin et al., 2017).</p></li>
+<li><p>from pressure to impact: to assess the spatial distribution of impact exerted by one or multiple
+pressures on one or multiple environmental receptors.</p></li>
+</ol>
+</div>
+<div class="section" id="module-inputs">
+<span id="cea-module-inputs"></span><h2>Module inputs<a class="headerlink" href="#module-inputs" title="Permalink to this headline">¶</a></h2>
+<p>The inputs of the Tools4MSP CEA tool are:</p>
+<ol class="arabic simple">
+<li><p>the area of analysis (domain area);</p></li>
+<li><p>the grid cell resolution;</p></li>
+<li><p>layers representing intensity or presence/absence of human uses
+(e.g., intensity of fishery and maritime transport, presence of aquacultures and oil &amp; gas platforms)
+(see <a class="reference internal" href="#cea-input-layers"><span class="std std-numref">Fig. 8</span></a>);</p></li>
+<li><p>layers representing intensity or presence/absence of environmental components
+(e.g., seabed habitats, probability of presence of nursery habitats, probability
+of presence of marine mammals) (see <a class="reference internal" href="#cea-input-layers-env"><span class="std std-numref">Fig. 9</span></a>);</p></li>
+<li><p>use-specific relative pressure weights (<a class="reference internal" href="#cea-weights-matrix"><span class="std std-numref">Fig. 10</span></a>)
+and distances of pressure propagation (<a class="reference internal" href="#cea-distances-matrix"><span class="std std-numref">Fig. 11</span></a>);</p></li>
+<li><p>environmental component sensitivities related to specific pressures or more general ecological
+models that describe the response of the environmental components to a specific pressure
+(<a class="reference internal" href="#cea-sensitivities-matrix"><span class="std std-numref">Fig. 12</span></a>).</p></li>
+</ol>
+<div class="section" id="input-layers">
+<h3>Input layers<a class="headerlink" href="#input-layers" title="Permalink to this headline">¶</a></h3>
+<div class="figure align-center" id="cea-input-layers">
+<a class="reference internal image-reference" href="../../_images/cea_input_layers.png"><img alt="CEA imput layer uses" src="../../_images/cea_input_layers.png" style="width: 75%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 8 </span><span class="caption-text">Web map representing the geospatial distribution of human activities.</span><a class="headerlink" href="#cea-input-layers" title="Permalink to this image">¶</a></p>
+</div>
+<div class="figure align-center" id="cea-input-layers-env">
+<a class="reference internal image-reference" href="../../_images/cea_input_layers_env.png"><img alt="CEA imput layer envs" src="../../_images/cea_input_layers_env.png" style="width: 75%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 9 </span><span class="caption-text">Web map representing the geospatial distribution of environmental receptors.</span><a class="headerlink" href="#cea-input-layers-env" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+<div class="section" id="weights-and-distances-matrix">
+<h3>Weights and distances matrix<a class="headerlink" href="#weights-and-distances-matrix" title="Permalink to this headline">¶</a></h3>
+<div class="figure align-center" id="cea-weights-matrix">
+<a class="reference internal image-reference" href="../../_images/cea_weights_matrix.png"><img alt="Weights matrix for pressures combination" src="../../_images/cea_weights_matrix.png" style="width: 75%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 10 </span><span class="caption-text">Example of weights matrix.</span><a class="headerlink" href="#cea-weights-matrix" title="Permalink to this image">¶</a></p>
+</div>
+<div class="figure align-center" id="cea-distances-matrix">
+<a class="reference internal image-reference" href="../../_images/cea_distances_matrix.png"><img alt="Distances matrix for pressures spread" src="../../_images/cea_distances_matrix.png" style="width: 75%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 11 </span><span class="caption-text">Example of distances matrix.</span><a class="headerlink" href="#cea-distances-matrix" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+<div class="section" id="sensitivity">
+<h3>Sensitivity<a class="headerlink" href="#sensitivity" title="Permalink to this headline">¶</a></h3>
+<div class="figure align-center" id="cea-sensitivities-matrix">
+<a class="reference internal image-reference" href="../../_images/cea_sensitivities_matrix.png"><img alt="Sensitivities matrix" src="../../_images/cea_sensitivities_matrix.png" style="width: 75%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 12 </span><span class="caption-text">Example of distances matrix.</span><a class="headerlink" href="#cea-sensitivities-matrix" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+</div>
+<div class="section" id="cea-outputs">
+<h2>CEA outputs<a class="headerlink" href="#cea-outputs" title="Permalink to this headline">¶</a></h2>
+<p>The CEA module produces the following main outputs:</p>
+<ul class="simple">
+<li><p>geospatial distribution of CEA score (CEASCORE) (see <a class="reference internal" href="#cea-output-map"><span class="std std-numref">Fig. 13</span></a>).
+A 2-D GeoTIFF raster file representing the overall Cumulative Effects score in
+each raster grid cell. Coordinate reference system (CRS) and resolution are defined
+by the Case Study configuration.</p></li>
+<li><p>Barplot of CEA score for Human Use (BARCEAUSE). A table/barplot representing
+the contribution (in percentage) of human uses (U) to the overall CEA score for the whole area of analysis.</p></li>
+<li><p>Barplot of CEA score for Environmental Receptor (BARCEAENV). A table/barplot representing
+the contribution (in percentage) of environmental receptors (E) to the overall CEA score
+for the whole area of analysis.</p></li>
+<li><p>Barplot of CEA score for exerted pressure (BARPRESCORE). A table/barplot representing
+the contribution (in percentage) of exerted pressure (P) to the overall CEA score
+for the whole area of analysis.</p></li>
+<li><p>CEA score for each P-E combination (HEATPREENVCEA). A table/matrix representing
+the contribution (in percentage) of the single pairwise combination of pressure (P) and environmental
+receptor (E) to the total CEA score (for the whole area of analysis).</p></li>
+<li><p>Heatmap of Pressure scores due to human uses (HEATUSEPRESCORE). A table/matrix representing
+the contribution (in percentage) of the single pairwise combination of human use (U) and pressure (P)
+to the total CEA score (for the whole area of analysis).</p></li>
+<li><p>Distribution of CEA score (HISTCEASCORE). A table/histogram representing the number of grid cells for each
+class of CEA score.</p></li>
+</ul>
+<div class="figure align-center" id="cea-output-map">
+<img alt="Geospatial distribution of CEA scores" src="../../_images/cea_output_map.png" />
+<p class="caption"><span class="caption-number">Fig. 13 </span><span class="caption-text">Geospatial distribution of CEA scores.</span><a class="headerlink" href="#cea-output-map" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+<div class="section" id="cea-supporting-msp">
+<h2>CEA supporting MSP<a class="headerlink" href="#cea-supporting-msp" title="Permalink to this headline">¶</a></h2>
+<p>Cumulative Effects Assessment is the privileged tool to incorporate ecosystem based approach into the MSP process.</p>
+<p>According to Pinarbasi et al. (2017), the MSP process can be subdivided into seven steps
+(see <a class="reference internal" href="#cea-msp-steps"><span class="std std-numref">Table 3</span></a>). CEA module has been designed to directly support three steps:
+Gather data and define current condition, Identify issues, constraints, and future condition and
+Evaluate alternative management actions.</p>
+<table class="colwidths-auto docutils align-default" id="cea-msp-steps">
+<caption><span class="caption-number">Table 3 </span><span class="caption-text">Major steps of the MSP conceptual method</span><a class="headerlink" href="#cea-msp-steps" title="Permalink to this table">¶</a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>Stages</p></th>
+<th class="head"><p>Definition</p></th>
+<th class="head"><p>CEA module</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>Define goals and objectives</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p><strong>Gather data and define current conditions</strong></p></td>
+<td><p><a class="reference internal" href="../../_images/check_circle.png"><img alt="logo_check" src="../../_images/check_circle.png" style="width: 18.75px; height: 18.75px;" /></a></p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p><strong>Identify issues, constraints, and future condition</strong></p></td>
+<td><p><a class="reference internal" href="../../_images/check_circle.png"><img alt="logo_check" src="../../_images/check_circle.png" style="width: 18.75px; height: 18.75px;" /></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>4</p></td>
+<td><p>Develop alternative management actions</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>5</p></td>
+<td><p><strong>Evaluate alternative management actions</strong></p></td>
+<td><p><a class="reference internal" href="../../_images/check_circle.png"><img alt="logo_check" src="../../_images/check_circle.png" style="width: 18.75px; height: 18.75px;" /></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>6</p></td>
+<td><p>Monitor and evaluate management actions</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>7</p></td>
+<td><p>Refine goals, objectives and management actions</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Additional examples of use of CEA module in supporting the MSP process are:</p>
+<ul class="simple">
+<li><p>investigate the area of influence of the pressure: distinguish among local, short and long range cumulative effects.</p></li>
+<li><p>identify and localize transboundary dimension of cumulative effects</p></li>
+<li><p>performing scenario analysis to test planning options</p></li>
+</ul>
+</div>
+<div class="section" id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<p>Depellegrin, Daniel, Stefano Menegon, Giulio Farella, Michol Ghezzo, Elena Gissi, Alessandro Sarretta, Chiara Venier,
+and Andrea Barbanti. 2017. “Multi-Objective Spatial Tools to Inform Maritime Spatial Planning in the Adriatic Sea.”
+Science of The Total Environment 609 (December): 1627–39. <a class="reference external" href="https://doi.org/10.1016/j.scitotenv.2017.07.264">https://doi.org/10.1016/j.scitotenv.2017.07.264</a>.</p>
+<p>Gissi, Elena, Stefano Menegon, Alessandro Sarretta, Federica Appiotti, Denis Maragno, Andrea Vianello, Daniel
+Depellegrin, Chiara Venier, and Andrea Barbanti. 2017. “Addressing Uncertainty in Modelling Cumulative Impacts within
+Maritime Spatial Planning in the Adriatic and Ionian Region.” Edited by Judi Hewitt. PLOS ONE 12 (7): e0180501.
+<a class="reference external" href="https://doi.org/10.1371/journal.pone.0180501">https://doi.org/10.1371/journal.pone.0180501</a>.</p>
+<p>Menegon, Stefano, Daniel Depellegrin, Giulio Farella, Elena Gissi, Michol Ghezzo, Alessandro Sarretta, Chiara Venier,
+and Andrea Barbanti. 2018. “A Modelling Framework for MSP-Oriented Cumulative Effects Assessment.” Ecological
+Indicators 91 (August): 171–81. <a class="reference external" href="https://doi.org/10.1016/j.ecolind.2018.03.060">https://doi.org/10.1016/j.ecolind.2018.03.060</a>.</p>
+<p>Menegon, Stefano, Daniel Depellegrin, Giulio Farella, Alessandro Sarretta, Chiara Venier, and Andrea Barbanti. 2018.
+“Addressing Cumulative Effects, Maritime Conflicts and Ecosystem Services Threats through MSP-Oriented Geospatial
+Webtools.” Ocean &amp; Coastal Management 163 (September): 417–36. <a class="reference external" href="https://doi.org/10.1016/j.ocecoaman.2018.07.009">https://doi.org/10.1016/j.ocecoaman.2018.07.009</a>.</p>
+<p>Menegon, Stefano, Michol Ghezzo, and Daniel Depellegrin. 2017. “Cumulative Impact Analysis: Affinamento Della
+Metodologia E Delle Stime Di Impatti Cumulativi.” Zenodo. <a class="reference external" href="https://doi.org/10.5281/zenodo.569815">https://doi.org/10.5281/zenodo.569815</a>.</p>
+<p>Menegon, Stefano, Alessandro Sarretta, Daniel Depellegrin, Giulio Farella, Chiara Venier, and Andrea Barbanti. 2018.
+“Tools4MSP: An Open Source Software Package to Support Maritime Spatial Planning.” PeerJ Computer Science 4 (October):
+e165. <a class="reference external" href="https://doi.org/10.7717/peerj-cs.165">https://doi.org/10.7717/peerj-cs.165</a>.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../partrac/index.html" class="btn btn-neutral float-right" title="Particle Tracking" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../muc/index.html" class="btn btn-neutral float-left" title="Maritime Use Conflict" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, CNR-ISMAR
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
