@@ -2,148 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6c226aa5-cb8d-4dbb-af65-c59aba179564" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/docs.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/rSettings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/doctrees/api/coded_labels.doctree" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/doctrees/environment.pickle" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/doctrees/index.doctree" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/doctrees/intro.doctree" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/doctrees/modules/cea/index.doctree" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/doctrees/modules/governance/index.doctree" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/doctrees/modules/muc/index.doctree" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/doctrees/modules/partrac/index.doctree" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/doctrees/tutorials/gair_cea/index.doctree" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/doctrees/tutorials/gair_geodatabuilder.doctree" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/doctrees/tutorials/gair_muc/index.doctree" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/doctrees/tutorials/index.doctree" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/doctrees/tutorials/qgis_partrac/index.doctree" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/.buildinfo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_images/CEA_case_studies_list.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_images/CEA_case_study_detail.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_images/CEA_case_study_list_item.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_images/GAIR_case_studies_menu.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_images/GAIR_gdbuilder_list.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_images/GAIR_gdbuilder_new_exp.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_images/GAIR_menu_data.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_images/adri_bathy_blue.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_images/cea_distances_matrix.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_images/cea_input_layers.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_images/cea_input_layers_env.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_images/cea_output_map.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_images/cea_sensitivities_matrix.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_images/cea_weights_matrix.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_images/cea_workflow.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_images/check_circle.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_images/check_circle1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_images/cs_workflow.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_images/governance_table_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_images/governance_table_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_images/muc_conceptual_schema.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_images/muc_input_layers.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_images/muc_output_map.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_images/muc_output_matrix.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_images/muc_potential_score_matrix.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_images/test_er.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_images/test_er_den.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_images/test_er_traj.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_images/test_split_bathy-mesh1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_sources/api/coded_labels.rst.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_sources/index.rst.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_sources/intro.rst.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_sources/modules/cea/index.rst.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_sources/modules/governance/index.rst.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_sources/modules/muc/index.rst.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_sources/modules/partrac/index.rst.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_sources/tutorials/gair_cea/index.rst.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_sources/tutorials/gair_geodatabuilder.rst.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_sources/tutorials/gair_muc/index.rst.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_sources/tutorials/index.rst.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_sources/tutorials/qgis_partrac/index.rst.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/basic.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/css/badge_only.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/css/theme.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/doctools.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/documentation_options.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/file.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/Inconsolata-Bold.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/Inconsolata-Regular.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/Inconsolata.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/Lato-Bold.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/Lato-Regular.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/Lato/lato-bold.eot" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/Lato/lato-bold.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/Lato/lato-bold.woff" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/Lato/lato-bold.woff2" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/Lato/lato-bolditalic.eot" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/Lato/lato-bolditalic.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/Lato/lato-bolditalic.woff" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/Lato/lato-bolditalic.woff2" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/Lato/lato-italic.eot" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/Lato/lato-italic.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/Lato/lato-italic.woff" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/Lato/lato-italic.woff2" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/Lato/lato-regular.eot" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/Lato/lato-regular.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/Lato/lato-regular.woff" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/Lato/lato-regular.woff2" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/RobotoSlab-Bold.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/RobotoSlab-Regular.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/RobotoSlab/roboto-slab-v7-bold.eot" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/RobotoSlab/roboto-slab-v7-bold.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/RobotoSlab/roboto-slab-v7-bold.woff" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/RobotoSlab/roboto-slab-v7-bold.woff2" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/RobotoSlab/roboto-slab-v7-regular.eot" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/RobotoSlab/roboto-slab-v7-regular.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/RobotoSlab/roboto-slab-v7-regular.woff" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/RobotoSlab/roboto-slab-v7-regular.woff2" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/fontawesome-webfont.eot" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/fontawesome-webfont.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/fontawesome-webfont.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/fontawesome-webfont.woff" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/fonts/fontawesome-webfont.woff2" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/jquery-3.4.1.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/jquery.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/js/modernizr.min.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/js/theme.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/language_data.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/minus.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/plus.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/pygments.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/searchtools.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/underscore-1.3.1.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/_static/underscore.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/api/coded_labels.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/genindex.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/index.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/intro.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/modules/cea/index.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/modules/governance/index.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/modules/muc/index.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/modules/partrac/index.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/objects.inv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/search.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/searchindex.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/tutorials/gair_cea/index.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/tutorials/gair_geodatabuilder.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/tutorials/gair_muc/index.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/tutorials/index.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_build/html/tutorials/qgis_partrac/index.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tutorials/gair_muc/images/MUC_case_studies_list.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tutorials/gair_muc/images/MUC_case_study_detail.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tutorials/gair_muc/images/MUC_case_study_list_item.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tutorials/gair_muc/images/MUC_matrix_pconflict.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tutorials/gair_muc/images/MUC_matrix_sens.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tutorials/gair_muc/images/MUC_matrix_weights.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tutorials/gair_muc/images/MUC_select_label.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tutorials/images/GAIR_gdbuilder_filter_clear.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/muc/index.rst" beforeDir="false" afterPath="$PROJECT_DIR$/modules/muc/index.rst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tutorials/gair_cea/index.rst" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/gair_cea/index.rst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tutorials/gair_geodatabuilder.rst" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/gair_geodatabuilder.rst" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tutorials/gair_muc/index.rst" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/gair_muc/index.rst" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -210,14 +68,22 @@
       <option name="project" value="LOCAL" />
       <updated>1589488605015</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Updated MUC tutorial">
+      <created>1589805806681</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1589805806681</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Added geodatabuildere expression" />
     <MESSAGE value="CEA tutorial complete" />
     <MESSAGE value="Fixed number  formatting" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed number  formatting" />
+    <MESSAGE value="Updated MUC tutorial" />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated MUC tutorial" />
   </component>
   <component name="WindowStateProjectService">
     <state x="410" y="48" width="1277" height="1032" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1589388499823">
