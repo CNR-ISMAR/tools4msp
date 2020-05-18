@@ -121,7 +121,7 @@ Configure default run
 
       CEA weights matrix input widget
 
-    .. figure:: images/CEA_matrix_weights.png
+    .. figure:: images/CEA_matrix_sens.png
        :alt: CEA sensitivities matrix input widget
        :align: center
        :name: cea-cs-sensmatrix
@@ -132,8 +132,8 @@ Configure default run
     When the Run is complete the results will be listed in the same page on a new tab.
 
 
-    .. figure:: images/CEA_matrix_weights.png
-       :alt: CEA sensitivities matrix input widget
+    .. figure:: images/CEA_case_study_results.png
+       :alt: CEA results list
        :align: center
        :name: cea-cs-results
 

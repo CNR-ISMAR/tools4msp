@@ -54,10 +54,6 @@ The create expression interface contains the following items
 
 5) Filters to narrow the layers list
 
-<<<<<<< HEAD
-#) Expression builder: here is shown the expression components (layers, operators, numbers)
-   click on one item to reorder, change value or delete them.
-=======
 6) Layers list: just click on the layer name to add it to the current
    expression.
 

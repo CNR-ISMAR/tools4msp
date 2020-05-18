@@ -1,7 +1,6 @@
 # coding: utf-8
 
-
-
+import logging
 import itertools
 import numpy as np
 import pandas as pd
@@ -9,6 +8,7 @@ from os import path
 from os import path, listdir
 from .casestudy import CaseStudyBase
 
+logger = logging.getLogger(__name__)
 
 # def coexist_rules(use1conf,
 #                   use2conf):
@@ -40,17 +40,15 @@ class MUCCaseStudy(CaseStudyBase):
         return self.potential_conflict_scores.loc[use1id, use2id]
 
     def run(self, uses=None, intensity=False, outputmask=None):
+        logger.debug("uses = {}".format(uses))
         # TODO using outputmask
-        print(self.grid)
-        print("############")
         couses_data = []
         muc = np.zeros_like(self.grid)
         alluses_iter = self.get_uses().iterrows()
         for _use1, _use2 in itertools.combinations(alluses_iter, 2):
             use1id, use1 = _use1
             use2id, use2 = _use2
-
-            if uses is not None and use1id not in uses and use2id not in uses:
+            if uses is not None and (use1id not in uses or use2id not in uses):
                 continue
 
             score = self.get_potential_conflict_score(use1id, use2id)
@@ -79,7 +77,6 @@ class MUCCaseStudy(CaseStudyBase):
             })
         muc.fill_underlying_data(0)
         muc.mask = (self.grid.mask) | (self.grid==0)
-        print(muc.mask)
         self.outputs['muc'] = muc
         self.outputs['muc_couses'] = couses_data
         self.outputs['muc_totalscore'] = muc.sum()

@@ -99,6 +99,8 @@ def get_coded_label_choices():
 ]
     return lt
 
+# TODO: replace with
+# https://gist.github.com/mappingvermont/d534539fa3ebe4a1e242644e528bf7b9
 def get_zoomlevel(extent):
     GLOBE_WIDTH = 256
     west = extent[0]
@@ -342,6 +344,7 @@ def _run(csr, selected_layers=None):
         module_cs.load_layers()
         module_cs.load_grid()
         module_cs.load_inputs()
+        print("muc uses", uses)
         module_cs.run(uses=uses)
         totalscore = module_cs.outputs['muc_totalscore']
 
@@ -830,6 +833,7 @@ class CaseStudy(models.Model):
     thumbnail_tag.short_description = 'Thumbnail'
 
     def run(self, selected_layers=None):
+        print("Selected layers", selected_layers)
         if self.module in ['cea', 'muc', 'partrac']:
             csr = self.casestudyrun_set.create()
             _run(csr, selected_layers=selected_layers)
