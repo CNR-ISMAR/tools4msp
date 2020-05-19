@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6c226aa5-cb8d-4dbb-af65-c59aba179564" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/tutorials/gair_muc/index.rst" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/gair_muc/index.rst" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tutorials/qgis_partrac/images/QGIS_wms_gair.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tutorials/qgis_partrac/index.rst" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/qgis_partrac/index.rst" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,7 +23,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/.." />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="ServiceViewManager">
@@ -75,7 +77,14 @@
       <option name="project" value="LOCAL" />
       <updated>1589805806681</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Updated MUC tutorial">
+      <created>1589805854019</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1589805854019</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -90,18 +99,22 @@
       <screen x="0" y="32" width="1920" height="1048" />
     </state>
     <state x="410" y="48" width="1277" height="1032" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.32.1920.1048@0.32.1920.1048" timestamp="1589388499823" />
-    <state x="306" y="32" width="1298" height="1048" key="CommitChangelistDialog2" timestamp="1589805805608">
+    <state x="306" y="32" width="1298" height="1048" key="CommitChangelistDialog2" timestamp="1589805853930">
       <screen x="0" y="32" width="1920" height="1048" />
     </state>
-    <state x="306" y="32" width="1298" height="1048" key="CommitChangelistDialog2/0.32.1920.1048@0.32.1920.1048" timestamp="1589805805608" />
+    <state x="306" y="32" width="1298" height="1048" key="CommitChangelistDialog2/0.32.1920.1048@0.32.1920.1048" timestamp="1589805853930" />
+    <state x="637" y="200" width="636" height="715" key="FileChooserDialogImpl" timestamp="1589821002922">
+      <screen x="0" y="32" width="1920" height="1048" />
+    </state>
+    <state x="637" y="200" width="636" height="715" key="FileChooserDialogImpl/0.32.1920.1048@0.32.1920.1048" timestamp="1589821002922" />
     <state x="217" y="32" key="SettingsEditor" timestamp="1588930281153">
       <screen x="0" y="32" width="1920" height="1048" />
     </state>
     <state x="217" y="32" key="SettingsEditor/0.32.1920.1048@0.32.1920.1048" timestamp="1588930281153" />
-    <state x="355" y="167" width="1200" height="781" key="Vcs.Push.Dialog.v2" timestamp="1589488612598">
+    <state x="355" y="167" width="1200" height="781" key="Vcs.Push.Dialog.v2" timestamp="1589805863877">
       <screen x="0" y="32" width="1920" height="1048" />
     </state>
-    <state x="355" y="167" width="1200" height="781" key="Vcs.Push.Dialog.v2/0.32.1920.1048@0.32.1920.1048" timestamp="1589488612598" />
+    <state x="355" y="167" width="1200" height="781" key="Vcs.Push.Dialog.v2/0.32.1920.1048@0.32.1920.1048" timestamp="1589805863877" />
     <state x="496" y="306" key="com.intellij.ide.util.TipDialog" timestamp="1589800042375">
       <screen x="0" y="32" width="1920" height="1048" />
     </state>
