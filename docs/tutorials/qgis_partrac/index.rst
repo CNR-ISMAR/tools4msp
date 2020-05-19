@@ -11,7 +11,7 @@ or using interactive forms at `api.tools4msp.eu <https://api.tools4msp.eu/docs/>
 Prepare input source layer in QGIS
 ----------------------------------
 
-As already described in the :ref:`PARTRAC module inputs` section the deployment locations of
+As already described in the :ref:`partrac-module-inputs` section the deployment locations of
 the lagrangian particles are providede by a polygon layer.
 First of all you have to preapare this input layer in geojson format,
 then you will create a new case study and upload the layer of particle sources.
@@ -41,14 +41,14 @@ wich  contact you can find on `this page <http://tools4msp.eu/contacts>`_.
 
 Once you0ve received the Token set authentication method on api page
 
-.. figure:: PARTRAC_token_auth01.png
+.. figure:: images/PARTRAC_token_auth01.png
    :alt: Auth Token configuration
    :align: center
    :name: token-config-01
 
    Auth Token configuration
 
-.. figure:: PARTRAC_token_auth02.png
+.. figure:: images/PARTRAC_token_auth02.png
    :alt: Set use token Authentication
    :align: center
    :name: token-config-02
