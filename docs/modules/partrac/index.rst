@@ -238,6 +238,8 @@ to Soulsby (1997) for the sediments and Chubarenko et al. (2016) for the
 microplastics. The decay rate of coliform bacteria in seawaters were selected
 according to Eregno et al. (2018).
 
+.. _partrac-module-inputs:
+
 PARTRAC module outputs
 ----------------------
 The PARTRAC module produces outputs in terms of the positions of the released
