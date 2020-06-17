@@ -71,7 +71,7 @@ MODULE_TYPE_CHOICES = (
 
 CASESTUDY_TYPE_CHOICES = (
     ('default', 'Default run'),
-    ('customize', 'Customize run'),
+    ('customized', 'Customized run'),
 )
 
 
@@ -627,6 +627,8 @@ class CaseStudy(models.Model):
             ('download_casestudy', 'Download case study'),
             ('run_casestudy', 'Run case study'),
         )
+        ordering = ['-cstype', 'created']
+
 
     # TODO: add deprecated warning
     def get_CS(self):

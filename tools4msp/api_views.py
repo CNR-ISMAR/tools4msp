@@ -187,7 +187,7 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
         cs = _cs.clone()
 
         cs.owner = request.user
-        cs.cstype = 'customize'
+        cs.cstype = 'customized'
         cs.save()
 
         cs_serializer = CaseStudySerializer(cs, context={'request': request})
