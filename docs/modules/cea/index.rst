@@ -1,8 +1,22 @@
 Cumulative Effects Assessment
 =============================
 
-Aim
-----
+Introduction
+------------
+In the last decade cumulative effects assessment (CEA) analysis has become an essential tool for the geospatial
+identification of highly impacted environmental components by marine anthropogenic uses. Since the application
+of Halpern’s CEA analysis on global scale in 2008 (Halpern et al., 2008), several studies around the world have
+been investigating CEA patterns on sea basin level, such as in the Mediterranean Sea (Micheli et al., 2013),
+Baltic Sea (Korpinen et al., 2012) or North Sea (Andersen et al., 2013).
+
+The Tools4MSP CEA, based on methodology develped by Halper et al. (2008) and later modified by
+Andersen et al. (2013), provides planners with an additional instrument for the setup and monitoring of
+conservation strategies supporting the ecosystem-based approach, that can localize type of pressures and most
+impacting maritime uses also in transboundary domain, and therefore define sea use specific management strategies
+for target ecosystem components (Menegon et al. 2018).
+
+Aim of the module
+-----------------
 
 The CEA module allows users to assess and map Cumulative Effects based on the Tools4MSP Modelling Framework. An
 MSP-oriented tool for the analysis and mapping of the effects of single or multiple human activities on marine
@@ -213,6 +227,8 @@ Additional examples of use of CEA module in supporting the MSP process are:
 References
 ----------
 
+Andersen, J.H., A. Stock, S. Heinänen, M. Mannerla, and M. Vinther. 2013. “Human Uses, Pressures and Impacts in the Eastern North Sea.” Technical Report from DCE – Danish Centre for Environment and Energy 18. Aarhus University. http://www.dmu.dk/Pub/TR18.pdf.
+
 Depellegrin, Daniel, Stefano Menegon, Giulio Farella, Michol Ghezzo, Elena Gissi, Alessandro Sarretta, Chiara Venier,
 and Andrea Barbanti. 2017. “Multi-Objective Spatial Tools to Inform Maritime Spatial Planning in the Adriatic Sea.”
 Science of The Total Environment 609 (December): 1627–39. https://doi.org/10.1016/j.scitotenv.2017.07.264.
@@ -221,6 +237,10 @@ Gissi, Elena, Stefano Menegon, Alessandro Sarretta, Federica Appiotti, Denis Mar
 Depellegrin, Chiara Venier, and Andrea Barbanti. 2017. “Addressing Uncertainty in Modelling Cumulative Impacts within
 Maritime Spatial Planning in the Adriatic and Ionian Region.” Edited by Judi Hewitt. PLOS ONE 12 (7): e0180501.
 https://doi.org/10.1371/journal.pone.0180501.
+
+Halpern, Benjamin S., Shaun Walbridge, Kimberly A. Selkoe, Carrie V. Kappel, Fiorenza Micheli, Caterina D’Agrosa, John F. Bruno, et al. 2008. “A Global Map of Human Impact on Marine Ecosystems.” Science 319 (5865): 948–52. https://doi.org/10.1126/science.1149345.
+
+Korpinen, Samuli, Laura Meski, Jesper H. Andersen, and Maria Laamanen. 2012. “Human Pressures and Their Potential Impact on the Baltic Sea Ecosystem.” Ecological Indicators 15 (1): 105–14. https://doi.org/10.1016/j.ecolind.2011.09.023.
 
 Menegon, Stefano, Daniel Depellegrin, Giulio Farella, Elena Gissi, Michol Ghezzo, Alessandro Sarretta, Chiara Venier,
 and Andrea Barbanti. 2018. “A Modelling Framework for MSP-Oriented Cumulative Effects Assessment.” Ecological
@@ -236,3 +256,5 @@ Metodologia E Delle Stime Di Impatti Cumulativi.” Zenodo. https://doi.org/10.5
 Menegon, Stefano, Alessandro Sarretta, Daniel Depellegrin, Giulio Farella, Chiara Venier, and Andrea Barbanti. 2018.
 “Tools4MSP: An Open Source Software Package to Support Maritime Spatial Planning.” PeerJ Computer Science 4 (October):
 e165. https://doi.org/10.7717/peerj-cs.165.
+
+Micheli, Fiorenza, Benjamin S. Halpern, Shaun Walbridge, Saul Ciriaco, Francesco Ferretti, Simonetta Fraschetti, Rebecca Lewison, Leo Nykjaer, and Andrew A. Rosenberg. 2013. “Cumulative Human Impacts on Mediterranean and Black Sea Marine Ecosystems: Assessing Current Pressures and Opportunities.” Edited by James P. Meador. PLoS ONE 8 (12): e79889. https://doi.org/10.1371/journal.pone.0079889.
