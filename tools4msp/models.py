@@ -1137,6 +1137,50 @@ class WeightManager(models.Manager):
                               w=F('weight'),
                               d=F('distance')))
 
+    def clone_weights(self,
+                      old_context_label, new_context_label,
+                      old_use_code=None, new_use_code=None,
+                      old_pres_code=None, new_pres_code=None,
+                      overwrite=False):
+        list_created = []
+        # get original sensitivities
+        qs =  Weight.objects.filter(context__label=old_context_label)
+        if old_use_code is not None:
+            qs = qs.filter(use__code=old_use_code)
+        if old_pres_code is not None:
+            qs = qs.filter(pres__code=old_pres_code)
+
+        new_context, created = Context.objects.get_or_create(label=new_context_label)
+
+        for w in qs:
+            if new_use_code is not None:
+                new_use = Use.objects.get_or_create(code=new_use_code)
+            else:
+                new_use = w.use
+            if new_pres_code is not None:
+                new_pres = Pressure.objects.get_or_create(code=new_pres_code)
+            else:
+                new_pres = w.pres
+
+            try:
+                existing_w = Weight.objects.get(context=new_context, use=new_use, pres=new_pres)
+                if overwrite:
+                    existing_w.delete()
+                    existing_w = None
+            except Weight.DoesNotExist:
+                existing_w = False
+
+            if not existing_w:
+                w.pk = None
+                w.context = new_context
+                w.use = new_use
+                w.pres = new_pres
+                w.save()
+                list_created.append([w, True])
+            else:
+                list_created.append([w, False])
+        return list_created
+
 
 class Weight(models.Model):
     """Model for storing use-specific relative pressure weights.
@@ -1168,6 +1212,51 @@ class SensitivityManager(models.Manager):
         return list(qs.values(p=F('pres__code'),
                               e=F('env__code'),
                               s=F('sensitivity')))
+
+    def clone_sensitivities(self,
+                            old_context_label, new_context_label,
+                            old_pres_code=None, new_pres_code=None,
+                            old_env_code=None, new_env_code=None,
+                            overwrite=False):
+        list_created = []
+        # get original sensitivities
+        qs =  Sensitivity.objects.filter(context__label=old_context_label)
+        if old_pres_code is not None:
+            qs = qs.filter(pres__code=old_pres_code)
+        if old_env_code is not None:
+            qs = qs.filter(env__code=old_env_code)
+
+        new_context, created = Context.objects.get_or_create(label=new_context_label)
+
+        for s in qs:
+            if new_pres_code is not None:
+                new_pres = Pressure.objects.get_or_create(code=new_pres_code)
+            else:
+                new_pres = s.pres
+            if new_env_code is not None:
+                new_env = Env.objects.get_or_create(code=new_env_code)
+            else:
+                new_env = s.env
+
+            try:
+                existing_s = Sensitivity.objects.get(context=new_context, env=new_env, pres=new_pres)
+                if overwrite:
+                    existing_s.delete()
+                    existing_s = None
+            except Sensitivity.DoesNotExist:
+                existing_s = False
+
+            if not existing_s:
+                s.pk = None
+                s.context = new_context
+                s.pres = new_pres
+                s.env = new_env
+                s.save()
+                list_created.append([s, True])
+            else:
+                list_created.append([s, False])
+        return list_created
+
 
 class Sensitivity(models.Model):
     """Model for storing sensitivities of the environmental components to
@@ -1204,6 +1293,66 @@ class MucPotentialCOnflictManager(models.Manager):
     def plot_matrix(self, context_label):
         m = self.get_matrix(context_label)
 
+    def clone_muc_potential_conflicts(self,
+                                      old_context_label, new_context_label,
+                                      old_use_code=None, new_use_code=None,
+                                      old_new_muc_conflict=0,
+                                      overwrite=False):
+        list_created = []
+
+        # get original sensitivities
+        qs =  MUCPotentialConflict.objects.filter(context__label=old_context_label)
+        old_use = None
+        new_use = None
+        if old_use_code is not None:
+            old_use = Use.objects.get(code=old_use_code)
+            qs1 = qs.filter(use1=old_use)
+            qs2 = qs.filter(use2=old_use)
+            qs = list(qs1) + list(qs2)
+        if new_use_code is not None:
+            new_use = Use.objects.get(code=new_use_code)
+
+        new_context, created = Context.objects.get_or_create(label=new_context_label)
+
+        for muc in qs:
+            _use1 = muc.use1
+            _use2 = muc.use2
+            if new_use is not None:
+                if old_use == _use1:
+                    _use1 = new_use
+                if old_use == _use2:
+                    _use2 = new_use
+            if _use1 == _use2:
+                continue
+
+            try:
+                existing_muc = MUCPotentialConflict.objects.get(context=new_context, use1=_use1, use2=_use2)
+                if overwrite:
+                    existing_muc.delete()
+                    existing_muc = None
+            except MUCPotentialConflict.DoesNotExist:
+                existing_muc = False
+
+            if not existing_muc:
+                muc.pk = None
+                muc.context = new_context
+                muc.use1 = _use1
+                muc.use2 = _use2
+                muc.save()
+                list_created.append([muc, True])
+            else:
+                list_created.append([muc, False])
+
+        # add old_use, new_use record
+        if new_use is not None:
+            muc, created = MUCPotentialConflict.objects.get_or_create(
+                context=new_context,
+                use1=new_use,
+                use2=old_use,
+                defaults={'score': old_new_muc_conflict})
+            list_created.append([muc, created])
+
+        return list_created
 
 
 class MUCPotentialConflict(models.Model):
@@ -1214,8 +1363,11 @@ class MUCPotentialConflict(models.Model):
 
     objects = MucPotentialCOnflictManager()
 
+    def __str__(self):
+        return "{}: {} - {}".format(self.context, self.use1,
+                                     self.use2)
     class Meta:
-        unique_together = [['use1', 'use2']]
+        unique_together = [['context', 'use1', 'use2']]
 
 
 class Dataset(models.Model):
@@ -1627,6 +1779,13 @@ class PartracGrid(models.Model):
     rast = models.RasterField(srid=3035)
     filename = models.TextField()
 
+
+class PartracDataGrid(models.Model):
+    scenario = models.ForeignKey(PartracScenario, on_delete=models.CASCADE)
+    grid = models.ForeignKey(PartracGrid, on_delete=models.CASCADE)
+    grid_columnx = models.IntegerField(null=True, blank=True, db_index=True)
+    grid_rowy = models.IntegerField(null=True, blank=True, db_index=True)
+    
 
 # class CaseStudyRunLayers(models.Model):
 #     lid = models.CharField(max_length=5)
