@@ -192,7 +192,8 @@ def _run(csr, selected_layers=None):
         # WEIGHTS
         cl = CodedLabel.objects.get(code='WEIGHTS')
         csr_o = csr.outputs.create(coded_label=cl)
-        matrix = module_cs.weights.to_dict('record')
+        filter_used_weights = module_cs.weights.usecode.isin(module_cs.layers.code)
+        matrix = module_cs.weights[filter_used_weights].to_dict('record')
         write_to_file_field(csr_o.file, lambda buf: json.dump(matrix, buf), 'json', is_text_file=True)
         ax = plot_heatmap(matrix, 'usecode', 'precode', 'weight',
                           # scale_measure=1852,# nm conversion
@@ -210,10 +211,32 @@ def _run(csr, selected_layers=None):
         plt.clf()
         plt.close()
 
+        # DISTANCES
+        cl = CodedLabel.objects.get(code='DISTANCES')
+        csr_o = csr.outputs.create(coded_label=cl)
+        write_to_file_field(csr_o.file, lambda buf: json.dump(matrix, buf), 'json', is_text_file=True)
+        ax = plot_heatmap(matrix, 'usecode', 'precode', 'distance',
+                          scale_measure=1852,# nm conversion
+                          fillval=0,
+                          figsize=[8, 8],
+                          cmap='Greens',
+                          cbar=False
+                          )
+
+        ax.set_title('Distances matrix (nm)')
+        ax.set_xlabel('Human uses')
+        ax.set_ylabel('Pressures')
+        plt.tight_layout()
+        write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
+        plt.clf()
+        plt.close()
+
         # SENS
         cl = CodedLabel.objects.get(code='SENS')
         csr_o = csr.outputs.create(coded_label=cl)
-        matrix = module_cs.sensitivities.to_dict('record')
+        # matrix = module_cs.sensitivities.to_dict('record')
+        filter_used_sens = module_cs.sensitivities.envcode.isin(module_cs.layers.code)
+        matrix = module_cs.sensitivities[filter_used_sens].to_dict('record')
         write_to_file_field(csr_o.file, lambda buf: json.dump(matrix, buf), 'json', is_text_file=True)
         ax = plot_heatmap(matrix, 'precode', 'envcode', 'sensitivity',
                           # scale_measure=1852,# nm conversion
