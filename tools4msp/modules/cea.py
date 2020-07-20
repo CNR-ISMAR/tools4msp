@@ -117,8 +117,8 @@ class CEACaseStudy(CaseStudyBase):
 
         # filtered_dict = {k:v for (k,v) in d.items() if filter_string in k}
         # Modificare per evitare la normalizzazione nel caso di layer espliciti di pressione
-        for key, op in out_pressures.items():
-            out_pressures[key] = op.norm()
+        # for key, op in out_pressures.items():
+        #    out_pressures[key] = op.norm()
 
     def run(self, uses=None, envs=None,
                            outputmask=None, fulloutput=True, pressures=None,
