@@ -330,7 +330,7 @@ def _run(csr, selected_layers=None):
             })
             totscore += l.sum()
         write_to_file_field(csr_o.file, lambda buf: json.dump(_upscores, buf), 'json', is_text_file=True)
-        ax = plot_heatmap(_upscores, 'u', 'p', 'upscore', scale_measure=totscore / 100, fmt='.1f', fillval=0, cbar=False)
+        ax = plot_heatmap(_upscores, 'u', 'p', 'upscore', scale_measure=totscore / 100, fmt='.1f', fillval=0, cbar=False, figsize=[8, 10])
         ax.set_title('Pressure scores (%)')
         ax.set_xlabel('Uses')
         ax.set_ylabel('Pressures')
