@@ -78,8 +78,8 @@ def plot_heatmap(matrix,
     if scale_measure is not None:
         _df = _df/scale_measure
     print(_df)
-    xticklabels = _df.columns + "\n" + _df.sum(axis=0).astype('str')
-    yticklabels = _df.index + "\n" + _df.sum(axis=1).astype('str')
+    xticklabels = _df.columns + "\n" + _df.sum(axis=0).round(2).astype('str')
+    yticklabels = _df.index + "\n" + _df.sum(axis=1).round(2).astype('str')
 
     if ax is None:
         fig, ax = plt.subplots(figsize=figsize)
