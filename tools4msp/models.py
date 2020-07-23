@@ -193,7 +193,13 @@ def _run(csr, selected_layers=None):
         cl = CodedLabel.objects.get(code='WEIGHTS')
         csr_o = csr.outputs.create(coded_label=cl)
         filter_used_weights = module_cs.weights.usecode.isin(module_cs.layers.code)
-        matrix = module_cs.weights[filter_used_weights].to_dict('record')
+        matrix = module_cs.weights[filter_used_weights]
+        # remove pressures with all zeros in weights
+        _df = matrix.pivot('precode', 'usecode', 'weight')
+        non_empty_pressures_uses = _df.loc[(_df!=0).any(axis=1)].index
+        filter_used_pressures = module_cs.weights.precode.isin(non_empty_pressures_uses)
+        matrix = module_cs.weights[filter_used_weights & filter_used_pressures]
+        matrix = matrix.to_dict('record')
         write_to_file_field(csr_o.file, lambda buf: json.dump(matrix, buf), 'json', is_text_file=True)
         ax = plot_heatmap(matrix, 'usecode', 'precode', 'weight',
                           # scale_measure=1852,# nm conversion
@@ -236,7 +242,13 @@ def _run(csr, selected_layers=None):
         csr_o = csr.outputs.create(coded_label=cl)
         # matrix = module_cs.sensitivities.to_dict('record')
         filter_used_sens = module_cs.sensitivities.envcode.isin(module_cs.layers.code)
-        matrix = module_cs.sensitivities[filter_used_sens].to_dict('record')
+        matrix = module_cs.sensitivities[filter_used_sens]
+        # remove pressures with all zeros in weights
+        _df = matrix.pivot('precode', 'envcode', 'sensitivity')
+        non_empty_pressures_envs = _df.loc[(_df!=0).any(axis=1)].index
+        filter_used_pressures = module_cs.sensitivities.precode.isin(non_empty_pressures_envs)
+        matrix = module_cs.sensitivities[filter_used_sens & filter_used_pressures]
+        matrix = matrix.to_dict('record')
         write_to_file_field(csr_o.file, lambda buf: json.dump(matrix, buf), 'json', is_text_file=True)
         ax = plot_heatmap(matrix, 'precode', 'envcode', 'sensitivity',
                           # scale_measure=1852,# nm conversion
@@ -262,8 +274,18 @@ def _run(csr, selected_layers=None):
         n, bins, patches = plt.hist(data, bins=15)
         histdata = {'n': n.tolist(), 'bins': bins.tolist()}
         write_to_file_field(csr_o.file, lambda buf: json.dump(histdata, buf), 'json', is_text_file=True)
-        plt.xlabel('CEA score')
-        plt.ylabel('Number of cells')
+
+        ax = plt.gca()
+        ax.set_ylabel('n. of cells')
+        totscoreperc = data.shape[0] / 100
+        y1, y2 = ax.get_ylim()
+        x1, x2= ax.get_xlim()
+        ax2 = ax.twinx()
+        ax2.set_ylim(y1/totscoreperc, y2/totscoreperc)
+        ax2.set_ylabel('% of cells')
+
+        ax.set_xlabel('CEA score')
+        plt.tight_layout()
         write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
         plt.clf()
         plt.close()
@@ -272,11 +294,20 @@ def _run(csr, selected_layers=None):
         cl = CodedLabel.objects.get(code='BARPRESCORE')
         csr_o = csr.outputs.create(coded_label=cl)
         out_pressures = module_cs.outputs['pressures']
-        _pscores = [{'p': k, 'pscore': float(l.sum())} for (k, l) in out_pressures.items()]
+        _pscores = [{'p': k, 'pscore': float(l.sum())} for (k, l) in out_pressures.items() if l.sum()>0]
         write_to_file_field(csr_o.file, lambda buf: json.dump(_pscores, buf), 'json', is_text_file=True)
         pscores = pd.DataFrame(_pscores)
         pscores.set_index('p', inplace=True)
-        pscores.plot.bar()
+        ax = pscores.plot.bar(legend=False)
+        ax.set_xlabel('Pressures')
+        ax.set_ylabel('pressure score')
+        totscoreperc = pscores.pscore.sum()/100
+        y1, y2 = ax.get_ylim()
+        x1, x2= ax.get_xlim()
+        ax2 = ax.twinx()
+        ax2.set_ylim(y1/totscoreperc, y2/totscoreperc)
+        ax2.set_ylabel('% of the total pressure score')
+            
         plt.tight_layout()
         write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
         plt.clf()
@@ -290,6 +321,8 @@ def _run(csr, selected_layers=None):
         totscore = 0
         for (k, l) in out_usepressures.items():
             (u, p) = k.split('--')
+            if l.sum() == 0:
+                continue
             _upscores.append({
                 'u': u,
                 'p': p,
@@ -324,6 +357,30 @@ def _run(csr, selected_layers=None):
         ax = plot_heatmap(pescore, 'p', 'e', 'pescore', scale_measure=totscore / 100, fmt='.1f', fillval=0, cbar=False, figsize=[8, 10])
         ax.set_title('CEA score (%)')
         ax.set_xlabel('Pressures')
+        ax.set_ylabel('Environmental receptors')
+        plt.tight_layout()
+        write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
+        plt.clf()
+        plt.close()
+
+        #HEATUSEENVCEA heatmap
+        cl = CodedLabel.objects.get(code='HEATUSEENVCEA')
+        csr_o = csr.outputs.create(coded_label=cl)
+        out_usesenvs = module_cs.outputs['usesenvs']
+        uescore = []
+        totscore = 0
+        for (k, l) in out_usesenvs.items():
+            (u, e) = k.split('--')
+            uescore.append({
+                'u': u,
+                'e': e,
+                'uescore': float(l.sum())
+            })
+            totscore += l.sum()
+        write_to_file_field(csr_o.file, lambda buf: json.dump(uescore, buf), 'json', is_text_file=True)
+        ax = plot_heatmap(uescore, 'u', 'e', 'uescore', scale_measure=totscore / 100, fmt='.1f', fillval=0, cbar=False, figsize=[8, 10])
+        ax.set_title('CEA score (%)')
+        ax.set_xlabel('Human uses')
         ax.set_ylabel('Environmental receptors')
         plt.tight_layout()
         write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')

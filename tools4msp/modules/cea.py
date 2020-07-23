@@ -125,7 +125,9 @@ class CEACaseStudy(CaseStudyBase):
                            cienvs_info=True, ciuses_info=True, cipres_info=True,
                            ciscores_info=True):
         self.outputs['presenvs'] = {}
+        self.outputs['usesenvs'] = {}
         out_presenvs = self.outputs['presenvs']
+        out_usesenvs = self.outputs['usesenvs']
         self.run_pressures(uses=uses,
                            pressures=pressures,
                            outputmask=outputmask)
@@ -145,6 +147,22 @@ class CEACaseStudy(CaseStudyBase):
                     sensarray = pressure_layer * env_layer * sens.sensitivity
                     ci += sensarray
                     out_presenvs[presenvsid] = sensarray.copy()
+
+                # collect information for a single use-env CEA
+                # assiuming linear interactions
+                _sum = 0
+                for usepresid, _up in self.outputs['usepressures'].items():
+                    useid, presid = usepresid.split('--')
+                    if presid == sens.precode and _up is not None:                        
+                        _sum += _up.sum()
+                        useenvid = "{}--{}".format(useid, idx)
+                        if useenvid not in out_usesenvs:
+                            _r = np.zeros_like(self.grid)
+                            out_usesenvs[useenvid] = _r
+                        out_usesenvs[useenvid] += _up.copy() * env_layer * sens.sensitivity
+                        # print("##########")
+                        # print(usepresid, useenvid, _up.sum())
+                # print(presenvsid, _p.sum(), _sum)
 
         self.outputs['ci'] = ci
         return True
