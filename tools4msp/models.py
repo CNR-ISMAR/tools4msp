@@ -298,9 +298,6 @@ def _run(csr, selected_layers=None):
             _pscores = [{'p': k, 'pscore': float(l.sum())} for (k, l) in out_pressures.items() if l.sum()>0]
             write_to_file_field(csr_o.file, lambda buf: json.dump(_pscores, buf), 'json', is_text_file=True)
             pscores = pd.DataFrame(_pscores)
-            print("########################")
-            print(pscores)
-            print("------------------------")
             pscores.set_index('p', inplace=True)
             ax = pscores.plot.bar(legend=False)
             ax.set_xlabel('Pressures')
@@ -1353,7 +1350,7 @@ class Sensitivity(models.Model):
     confidence = models.FloatField(null=True, blank=True)
     #
     references = models.TextField(null=True, blank=True)
-    notes = models.TextField(null=True, blank=True)    
+    notes = models.TextField(null=True, blank=True)
 
     # custom manager
     objects = SensitivityManager()
@@ -1869,7 +1866,7 @@ class PartracDataGrid(models.Model):
     grid = models.ForeignKey(PartracGrid, on_delete=models.CASCADE)
     grid_columnx = models.IntegerField(null=True, blank=True, db_index=True)
     grid_rowy = models.IntegerField(null=True, blank=True, db_index=True)
-    
+
 
 # class CaseStudyRunLayers(models.Model):
 #     lid = models.CharField(max_length=5)
