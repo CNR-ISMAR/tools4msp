@@ -452,7 +452,7 @@ def _run(csr, selected_layers=None):
         pconflict = MUCPotentialConflict.objects.get_matrix('AIR')
         write_to_file_field(csr_o.file, lambda buf: json.dump(pconflict, buf), 'json', is_text_file=True)
         ax = plot_heatmap(pconflict, 'u1', 'u2', 'score',
-                          figsize=[10, 10],
+                          figsize=[12, 12],
                           sparse_tri=True,
                           fmt='.0f', fillval=0, cbar=False,
                           square=True)
@@ -470,7 +470,7 @@ def _run(csr, selected_layers=None):
         write_to_file_field(csr_o.file, lambda buf: json.dump(out_muc_couses, buf), 'json', is_text_file=True)
         ax = plot_heatmap(out_muc_couses, 'u1', 'u2', 'score',
                           # scale_measure=totscore/100,
-                          figsize=[10, 10],
+                          figsize=[12, 12],
                           scale_measure=totalscore/100,
                           sparse_tri=True,
                           fmt='.1f', fillval=0, cbar=False,
