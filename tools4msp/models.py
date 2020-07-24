@@ -266,156 +266,160 @@ def _run(csr, selected_layers=None):
         plt.clf()
         plt.close()
 
-        # CEASCORE histogram
-        cl = CodedLabel.objects.get(code='HISTCEASCORE')
-        csr_o = csr.outputs.create(coded_label=cl)
-        data = ci.flatten()
-        data = data[data.mask == False]
-        n, bins, patches = plt.hist(data, bins=15)
-        histdata = {'n': n.tolist(), 'bins': bins.tolist()}
-        write_to_file_field(csr_o.file, lambda buf: json.dump(histdata, buf), 'json', is_text_file=True)
+        if ci.sum() > 0:
+            # CEASCORE histogram
+            cl = CodedLabel.objects.get(code='HISTCEASCORE')
+            csr_o = csr.outputs.create(coded_label=cl)
+            data = ci.flatten()
+            data = data[data.mask == False]
+            n, bins, patches = plt.hist(data, bins=15)
+            histdata = {'n': n.tolist(), 'bins': bins.tolist()}
+            write_to_file_field(csr_o.file, lambda buf: json.dump(histdata, buf), 'json', is_text_file=True)
 
-        ax = plt.gca()
-        ax.set_ylabel('n. of cells')
-        totscoreperc = data.shape[0] / 100
-        y1, y2 = ax.get_ylim()
-        x1, x2= ax.get_xlim()
-        ax2 = ax.twinx()
-        ax2.set_ylim(y1/totscoreperc, y2/totscoreperc)
-        ax2.set_ylabel('% of cells')
+            ax = plt.gca()
+            ax.set_ylabel('n. of cells')
+            totscoreperc = data.shape[0] / 100
+            y1, y2 = ax.get_ylim()
+            x1, x2= ax.get_xlim()
+            ax2 = ax.twinx()
+            ax2.set_ylim(y1/totscoreperc, y2/totscoreperc)
+            ax2.set_ylabel('% of cells')
 
-        ax.set_xlabel('CEA score')
-        plt.tight_layout()
-        write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
-        plt.clf()
-        plt.close()
-
-        # PRESCORE barplot
-        cl = CodedLabel.objects.get(code='BARPRESCORE')
-        csr_o = csr.outputs.create(coded_label=cl)
-        out_pressures = module_cs.outputs['pressures']
-        _pscores = [{'p': k, 'pscore': float(l.sum())} for (k, l) in out_pressures.items() if l.sum()>0]
-        write_to_file_field(csr_o.file, lambda buf: json.dump(_pscores, buf), 'json', is_text_file=True)
-        pscores = pd.DataFrame(_pscores)
-        pscores.set_index('p', inplace=True)
-        ax = pscores.plot.bar(legend=False)
-        ax.set_xlabel('Pressures')
-        ax.set_ylabel('pressure score')
-        totscoreperc = pscores.pscore.sum()/100
-        y1, y2 = ax.get_ylim()
-        x1, x2= ax.get_xlim()
-        ax2 = ax.twinx()
-        ax2.set_ylim(y1/totscoreperc, y2/totscoreperc)
-        ax2.set_ylabel('% of the total pressure score')
-            
-        plt.tight_layout()
-        write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
-        plt.clf()
-        plt.close()
-
-        #USEPRESCORE heatmap
-        cl = CodedLabel.objects.get(code='HEATUSEPRESCORE')
-        csr_o = csr.outputs.create(coded_label=cl)
-        out_usepressures = module_cs.outputs['usepressures']
-        _upscores = []
-        totscore = 0
-        for (k, l) in out_usepressures.items():
-            (u, p) = k.split('--')
-            if l.sum() == 0:
-                continue
-            _upscores.append({
-                'u': u,
-                'p': p,
-                'upscore': float(l.sum())
-            })
-            totscore += l.sum()
-        write_to_file_field(csr_o.file, lambda buf: json.dump(_upscores, buf), 'json', is_text_file=True)
-        ax = plot_heatmap(_upscores, 'u', 'p', 'upscore', scale_measure=totscore / 100, fmt='.1f', fillval=0, cbar=False)
-        ax.set_title('Pressure scores (%)')
-        ax.set_xlabel('Uses')
-        ax.set_ylabel('Pressures')
-        plt.tight_layout()
-        write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
-        plt.clf()
-        plt.close()
-
-        #PRESENVSCEA heatmap
-        cl = CodedLabel.objects.get(code='HEATPREENVCEA')
-        csr_o = csr.outputs.create(coded_label=cl)
-        out_presenvs = module_cs.outputs['presenvs']
-        pescore = []
-        totscore = 0
-        for (k, l) in out_presenvs.items():
-            (p, e) = k.split('--')
-            pescore.append({
-                'p': p,
-                'e': e,
-                'pescore': float(l.sum())
-            })
-            totscore += l.sum()
-        write_to_file_field(csr_o.file, lambda buf: json.dump(pescore, buf), 'json', is_text_file=True)
-        ax = plot_heatmap(pescore, 'p', 'e', 'pescore', scale_measure=totscore / 100, fmt='.1f', fillval=0, cbar=False, figsize=[8, 10])
-        ax.set_title('CEA score (%)')
-        ax.set_xlabel('Pressures')
-        ax.set_ylabel('Environmental receptors')
-        plt.tight_layout()
-        write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
-        plt.clf()
-        plt.close()
-
-        #HEATUSEENVCEA heatmap
-        cl = CodedLabel.objects.get(code='HEATUSEENVCEA')
-        csr_o = csr.outputs.create(coded_label=cl)
-        out_usesenvs = module_cs.outputs['usesenvs']
-        uescore = []
-        totscore = 0
-        for (k, l) in out_usesenvs.items():
-            (u, e) = k.split('--')
-            uescore.append({
-                'u': u,
-                'e': e,
-                'uescore': float(l.sum())
-            })
-            totscore += l.sum()
-        write_to_file_field(csr_o.file, lambda buf: json.dump(uescore, buf), 'json', is_text_file=True)
-        ax = plot_heatmap(uescore, 'u', 'e', 'uescore', scale_measure=totscore / 100, fmt='.1f', fillval=0, cbar=False, figsize=[8, 10])
-        ax.set_title('CEA score (%)')
-        ax.set_xlabel('Human uses')
-        ax.set_ylabel('Environmental receptors')
-        plt.tight_layout()
-        write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
-        plt.clf()
-        plt.close()
-
-        
-        MSFDGROUPS = {'Biological': 'MAPCEA-MSFDBIO',
-                      'Physical': 'MAPCEA-MSFDPHY',
-                      'Substances, litter and energy': 'MAPCEA-MSFDSUB'}
-        for ptheme, msfdcode in MSFDGROUPS.items():
-            plist = list(Pressure.objects.filter(msfd__theme=ptheme).values_list('code', flat=True))
-            module_cs.run(uses=uses, envs=envs, pressures=plist)
-            #
-            ci = module_cs.outputs['ci']
-            cl = CodedLabel.objects.get(code=msfdcode)
-
-            plist_str = ", ".join(CodedLabel.objects.filter(code__in=plist).values_list('label', flat=True))
-            description = 'MSFD {} pressures: {}'.format(ptheme, plist_str)
-            csr_ol = csr.outputlayers.create(coded_label=cl, description=description)
-            write_to_file_field(csr_ol.file, ci.write_raster, 'geotiff')
-
-            plt.figure(figsize=get_map_figure_size(ci.bounds))
-            ax, mapimg = ci.plotmap(#ax=ax,
-                       cmap='jet',
-                       logcolor=True,
-                       legend=True,
-                       # maptype='minimal',
-                       grid=True, gridrange=1,
-                       vmax=ceamaxval)
-            # CEASCORE map as png for
-            ax.add_image(cimgt.Stamen('toner-lite'), get_zoomlevel(ci.geobounds))
-            write_to_file_field(csr_ol.thumbnail, plt.savefig, 'png')
+            ax.set_xlabel('CEA score')
+            plt.tight_layout()
+            write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
             plt.clf()
             plt.close()
+
+            # PRESCORE barplot
+            cl = CodedLabel.objects.get(code='BARPRESCORE')
+            csr_o = csr.outputs.create(coded_label=cl)
+            out_pressures = module_cs.outputs['pressures']
+            _pscores = [{'p': k, 'pscore': float(l.sum())} for (k, l) in out_pressures.items() if l.sum()>0]
+            write_to_file_field(csr_o.file, lambda buf: json.dump(_pscores, buf), 'json', is_text_file=True)
+            pscores = pd.DataFrame(_pscores)
+            print("########################")
+            print(pscores)
+            print("------------------------")
+            pscores.set_index('p', inplace=True)
+            ax = pscores.plot.bar(legend=False)
+            ax.set_xlabel('Pressures')
+            ax.set_ylabel('pressure score')
+            totscoreperc = pscores.pscore.sum()/100
+            y1, y2 = ax.get_ylim()
+            x1, x2= ax.get_xlim()
+            ax2 = ax.twinx()
+            ax2.set_ylim(y1/totscoreperc, y2/totscoreperc)
+            ax2.set_ylabel('% of the total pressure score')
+
+            plt.tight_layout()
+            write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
+            plt.clf()
+            plt.close()
+
+            #USEPRESCORE heatmap
+            cl = CodedLabel.objects.get(code='HEATUSEPRESCORE')
+            csr_o = csr.outputs.create(coded_label=cl)
+            out_usepressures = module_cs.outputs['usepressures']
+            _upscores = []
+            totscore = 0
+            for (k, l) in out_usepressures.items():
+                (u, p) = k.split('--')
+                if l.sum() == 0:
+                    continue
+                _upscores.append({
+                    'u': u,
+                    'p': p,
+                    'upscore': float(l.sum())
+                })
+                totscore += l.sum()
+            write_to_file_field(csr_o.file, lambda buf: json.dump(_upscores, buf), 'json', is_text_file=True)
+            ax = plot_heatmap(_upscores, 'u', 'p', 'upscore', scale_measure=totscore / 100, fmt='.1f', fillval=0, cbar=False)
+            ax.set_title('Pressure scores (%)')
+            ax.set_xlabel('Uses')
+            ax.set_ylabel('Pressures')
+            plt.tight_layout()
+            write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
+            plt.clf()
+            plt.close()
+
+            #PRESENVSCEA heatmap
+            cl = CodedLabel.objects.get(code='HEATPREENVCEA')
+            csr_o = csr.outputs.create(coded_label=cl)
+            out_presenvs = module_cs.outputs['presenvs']
+            pescore = []
+            totscore = 0
+            for (k, l) in out_presenvs.items():
+                (p, e) = k.split('--')
+                pescore.append({
+                    'p': p,
+                    'e': e,
+                    'pescore': float(l.sum())
+                })
+                totscore += l.sum()
+            write_to_file_field(csr_o.file, lambda buf: json.dump(pescore, buf), 'json', is_text_file=True)
+            ax = plot_heatmap(pescore, 'p', 'e', 'pescore', scale_measure=totscore / 100, fmt='.1f', fillval=0, cbar=False, figsize=[8, 10])
+            ax.set_title('CEA score (%)')
+            ax.set_xlabel('Pressures')
+            ax.set_ylabel('Environmental receptors')
+            plt.tight_layout()
+            write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
+            plt.clf()
+            plt.close()
+
+            #HEATUSEENVCEA heatmap
+            cl = CodedLabel.objects.get(code='HEATUSEENVCEA')
+            csr_o = csr.outputs.create(coded_label=cl)
+            out_usesenvs = module_cs.outputs['usesenvs']
+            uescore = []
+            totscore = 0
+            for (k, l) in out_usesenvs.items():
+                (u, e) = k.split('--')
+                uescore.append({
+                    'u': u,
+                    'e': e,
+                    'uescore': float(l.sum())
+                })
+                totscore += l.sum()
+            write_to_file_field(csr_o.file, lambda buf: json.dump(uescore, buf), 'json', is_text_file=True)
+            ax = plot_heatmap(uescore, 'u', 'e', 'uescore', scale_measure=totscore / 100, fmt='.1f', fillval=0, cbar=False, figsize=[8, 10])
+            ax.set_title('CEA score (%)')
+            ax.set_xlabel('Human uses')
+            ax.set_ylabel('Environmental receptors')
+            plt.tight_layout()
+            write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
+            plt.clf()
+            plt.close()
+
+
+            MSFDGROUPS = {'Biological': 'MAPCEA-MSFDBIO',
+                          'Physical': 'MAPCEA-MSFDPHY',
+                          'Substances, litter and energy': 'MAPCEA-MSFDSUB'}
+            for ptheme, msfdcode in MSFDGROUPS.items():
+                plist = list(Pressure.objects.filter(msfd__theme=ptheme).values_list('code', flat=True))
+                module_cs.run(uses=uses, envs=envs, pressures=plist)
+                #
+                ci = module_cs.outputs['ci']
+                cl = CodedLabel.objects.get(code=msfdcode)
+
+                plist_str = ", ".join(CodedLabel.objects.filter(code__in=plist).values_list('label', flat=True))
+                description = 'MSFD {} pressures: {}'.format(ptheme, plist_str)
+                csr_ol = csr.outputlayers.create(coded_label=cl, description=description)
+                write_to_file_field(csr_ol.file, ci.write_raster, 'geotiff')
+
+                plt.figure(figsize=get_map_figure_size(ci.bounds))
+                ax, mapimg = ci.plotmap(#ax=ax,
+                           cmap='jet',
+                           logcolor=True,
+                           legend=True,
+                           # maptype='minimal',
+                           grid=True, gridrange=1,
+                           vmax=ceamaxval)
+                # CEASCORE map as png for
+                ax.add_image(cimgt.Stamen('toner-lite'), get_zoomlevel(ci.geobounds))
+                write_to_file_field(csr_ol.thumbnail, plt.savefig, 'png')
+                plt.clf()
+                plt.close()
 
     elif csr.casestudy.module == 'muc':
         csr.casestudy.set_or_update_context('AIR')
