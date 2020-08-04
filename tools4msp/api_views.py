@@ -20,7 +20,7 @@ from .drf_extensions_patch import NestedViewSetMixin
 
 from .serializers import CaseStudySerializer, CaseStudyLayerSerializer, CaseStudyInputSerializer, \
     CaseStudyListSerializer, DomainAreaSerializer, DomainAreaListSerializer, CodedLabelSerializer, \
-    FileUploadSerializer, CaseStudyRunSerializer, ThumbnailUploadSerializer
+    FileUploadSerializer, CaseStudyRunSerializer, ThumbnailUploadSerializer, CaseStudyCloneSerializer
 from .models import CaseStudy, CaseStudyLayer, CaseStudyInput, DomainArea, CodedLabel, \
     CaseStudyRun, Context
 from rest_framework.schemas import AutoSchema
@@ -93,7 +93,8 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
     filterset_fields = ('cstype', 'module')
 
     # used by Mixin to implement multiple serializer
-    action_serializers = {'list': CaseStudyListSerializer}
+    action_serializers = {'list': CaseStudyListSerializer,
+                          'cloneupdate': CaseStudyCloneSerializer}
 
     def get_queryset(self):
         """
@@ -123,6 +124,12 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
                 required=False,
                 location='query'
             ),
+            coreapi.Field(
+                "runtypelevel",
+                schema=coreschema.String(description="Level of run type: 3 (default)"),
+                required=False,
+                location='query'
+            ),
         ]
     )
     @action(detail=True, schema=run_schema)
@@ -138,9 +145,13 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
         if selected_layers is not None:
             selected_layers = selected_layers.split(',')
 
+        runtypelevel = int(self.request.GET.get('runtypelevel', 3))
+        # check for valid runtypelevels
+        # raise ParseError("Invalid runtypelevel parameter")
+
         rjson = {'success': False}
         cs = self.get_object()
-        csr = cs.run(selected_layers=selected_layers)
+        csr = cs.run(selected_layers=selected_layers, runtypelevel=runtypelevel)
         csr.owner = request.user
         csr.save()
         if csr is not None:
@@ -171,6 +182,45 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
                  'context' : context_label}
         return Response(rjson)
 
+    @action(detail=True, methods=['post'])
+    def cloneupdate(self, request, *args, **kwargs):
+        """
+        Clone the Case Study
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+
+        cs_clone_serializer = CaseStudyCloneSerializer(data=request.data)
+        if not cs_clone_serializer.is_valid():
+            return Response(cs_clone_serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST)
+                    
+        
+        rjson = {'success': False}
+        _cs = self.get_object()
+
+        cs = _cs.clone()
+
+        cs.owner = request.user
+        cs.cstype = 'customized'
+
+        if cs_clone_serializer.data['label'] is not None:
+            cs.label = cs_clone_serializer.data['label']
+        if cs_clone_serializer.data['description'] is not None:
+            cs.description = cs_clone_serializer.data['description']
+            
+        cs.save()
+
+        cs_serializer = CaseStudySerializer(cs, context={'request': request})
+
+        rjson['success'] = True
+        rjson['url'] = cs_serializer.data['url']
+        rjson['id'] = cs.pk
+
+        return Response(rjson)
+
     @action(detail=True)
     def clone(self, request, *args, **kwargs):
         """
@@ -180,7 +230,7 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
         :param kwargs:
         :return:
         """
-
+        
         rjson = {'success': False}
         _cs = self.get_object()
 

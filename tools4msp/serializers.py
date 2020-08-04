@@ -160,6 +160,12 @@ class CaseStudyListSerializer(CaseStudySerializer):
         read_only_fields = ('extent', 'owner''created',
                             'updated', 'layers', 'inputs')
 
+class CaseStudyCloneSerializer(CaseStudySerializer):
+    class Meta:
+        model = CaseStudy
+        fields = ('label',
+                  'description')
+
 class CaseStudyRunInlineBaseSerializer(serializers.ModelSerializer):
     code = serializers.SlugField(source="coded_label.code",
                               read_only=True)
