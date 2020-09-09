@@ -605,7 +605,8 @@ class CaseStudy(models.Model):
 
     cstype = models.CharField(_('CS Type'), max_length=10, choices=CASESTUDY_TYPE_CHOICES)
     module = models.CharField(_('Module type'), max_length=10, choices=MODULE_TYPE_CHOICES)
-
+    tag = models.CharField(max_length=100, null=True, blank=True)
+    
     resolution = models.FloatField(default=1000, help_text='resoution of analysis (meters)')
     domain_area = models.MultiPolygonField(blank=True, null=True,
                                            help_text="polygon geometry(Lat Log WGS84)")

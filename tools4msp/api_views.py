@@ -90,7 +90,7 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
     """
     permission_classes = [IsAuthenticated]
     serializer_class = CaseStudySerializer
-    filterset_fields = ('cstype', 'module')
+    filterset_fields = ('cstype', 'module', 'tag')
 
     # used by Mixin to implement multiple serializer
     action_serializers = {'list': CaseStudyListSerializer,
