@@ -70,15 +70,27 @@ different categories were:
 • Link (web link to the planning instrument and/or data)
 
 
-.. image:: images/governance_table_1.png
+.. figure:: images/governance_table_1.png
    :align: center
 
+   Snapshots of the Excel Table provided and compiled for the collection of all the relevant governance information
+   (Part 1).
+
+
 .. figure:: images/governance_table_2.png
+   :align: center
+
+   Snapshots of the Excel Table provided and compiled for the collection of all the relevant governance information
+   (Part 2).
+
+
+.. figure:: images/governance_table_3.png
    :alt: Governance categories
    :align: center
    :name: governance-categories
 
-   Snapshots of the Excel Table provided and compiled for the collection of all the relevant governance information.
+   Snapshots of the Excel Table provided and compiled for the collection of all the relevant governance information
+   (Part 3).
 
 
 MSP considerations
