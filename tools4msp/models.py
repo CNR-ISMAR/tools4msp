@@ -181,14 +181,40 @@ def _run(csr, selected_layers=None, runtypelevel=3):
                    gridrange=1)
         ax.add_image(cimgt.Stamen('toner-lite'), get_zoomlevel(ci.geobounds))
 
+        if runtypelevel >= 3:
+            # CEASCORE map as png for
+            write_to_file_field(csr_ol.thumbnail, plt.savefig, 'png', dpi=300)
+            plt.clf()
+            plt.close()
+
+        #PRESENVSCEA heatmap
+        cl = CodedLabel.objects.get(code='HEATPREENVCEA')
+        csr_o = csr.outputs.create(coded_label=cl)
+        out_presenvs = module_cs.outputs['presenvs']
+        pescore = []
+        totscore = 0
+        for (k, l) in out_presenvs.items():
+            (p, e) = k.split('--')
+            pescore.append({
+                'p': p,
+                'e': e,
+                'pescore': float(l.sum())
+            })
+            totscore += l.sum()
+        write_to_file_field(csr_o.file, lambda buf: json.dump(pescore, buf), 'json', is_text_file=True)
+
+        if runtypelevel >= 3:
+            ax = plot_heatmap(pescore, 'p', 'e', 'pescore', scale_measure=totscore / 100, fmt='.1f', fillval=0, cbar=False, figsize=[8, 10])
+            ax.set_title('CEA score (%)')
+            ax.set_xlabel('Pressures')
+            ax.set_ylabel('Environmental receptors')
+            plt.tight_layout()
+            write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
+            plt.clf()
+            plt.close()
+
         if runtypelevel < 3:
             return module_cs
-        # CEASCORE map as png for
-        write_to_file_field(csr_ol.thumbnail, plt.savefig, 'png', dpi=300)
-        plt.clf()
-        plt.close()
-
-        ceamaxval = ci.max()
 
         # WEIGHTS
         cl = CodedLabel.objects.get(code='WEIGHTS')
@@ -341,29 +367,6 @@ def _run(csr, selected_layers=None, runtypelevel=3):
         plt.clf()
         plt.close()
 
-        #PRESENVSCEA heatmap
-        cl = CodedLabel.objects.get(code='HEATPREENVCEA')
-        csr_o = csr.outputs.create(coded_label=cl)
-        out_presenvs = module_cs.outputs['presenvs']
-        pescore = []
-        totscore = 0
-        for (k, l) in out_presenvs.items():
-            (p, e) = k.split('--')
-            pescore.append({
-                'p': p,
-                'e': e,
-                'pescore': float(l.sum())
-            })
-            totscore += l.sum()
-        write_to_file_field(csr_o.file, lambda buf: json.dump(pescore, buf), 'json', is_text_file=True)
-        ax = plot_heatmap(pescore, 'p', 'e', 'pescore', scale_measure=totscore / 100, fmt='.1f', fillval=0, cbar=False, figsize=[8, 10])
-        ax.set_title('CEA score (%)')
-        ax.set_xlabel('Pressures')
-        ax.set_ylabel('Environmental receptors')
-        plt.tight_layout()
-        write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
-        plt.clf()
-        plt.close()
 
         #HEATUSEENVCEA heatmap
         cl = CodedLabel.objects.get(code='HEATUSEENVCEA')
@@ -390,6 +393,7 @@ def _run(csr, selected_layers=None, runtypelevel=3):
         plt.close()
 
         
+        ceamaxval = ci.max()
         MSFDGROUPS = {'Biological': 'MAPCEA-MSFDBIO',
                       'Physical': 'MAPCEA-MSFDPHY',
                       'Substances, litter and energy': 'MAPCEA-MSFDSUB'}
