@@ -166,7 +166,8 @@ class CaseStudyCloneSerializer(CaseStudySerializer):
     class Meta:
         model = CaseStudy
         fields = ('label',
-                  'description')
+                  'description',
+                  'tag')
 
 class CaseStudyRunInlineBaseSerializer(serializers.ModelSerializer):
     code = serializers.SlugField(source="coded_label.code",

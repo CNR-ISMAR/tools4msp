@@ -210,7 +210,8 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
             cs.label = cs_clone_serializer.data['label']
         if cs_clone_serializer.data['description'] is not None:
             cs.description = cs_clone_serializer.data['description']
-            
+        if cs_clone_serializer.data['tag'] is not None:
+            cs.tag = cs_clone_serializer.data['tag']
         cs.save()
 
         cs_serializer = CaseStudySerializer(cs, context={'request': request})
