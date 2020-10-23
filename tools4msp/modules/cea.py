@@ -1,13 +1,11 @@
 # coding: utf-8
 
-
-
 import itertools
 import numpy as np
 import pandas as pd
 from os import path, listdir
 from .casestudy import CaseStudyBase
-
+from .sue import CaseStudySUA
 
 class ResponseFunction(object):
     def __init__(self, a=None, k=None, c=1, q=1, b=1, m=1, v=1):
@@ -60,6 +58,25 @@ class CEACaseStudy(CaseStudyBase):
         super().__init__(csdir=csdir,
                          rundir=rundir,
                          name='unnamed')
+
+    def get_score_stats(self, output_type):
+        """
+        Collect CEA score statistics from module outputs
+
+        :param output_type: one of the CEA outputs e.g. usepressures, presenvs, usesenvs
+        :return: dataframe of CEA score statistics
+        """
+        outs = self.outputs.get(output_type)
+        stats = []
+        for (k, l) in outs.items():
+            (k1, k2) = k.split('--')
+            score = l.sum()
+            stats.append({
+                'k1': k1,
+                'k2': k2,
+                'score': float(score)
+            })
+        return pd.DataFrame(stats)
 
     def run_pressures(self, uses=None, pressures=None,
                       outputmask=None):
@@ -124,6 +141,7 @@ class CEACaseStudy(CaseStudyBase):
                            outputmask=None, fulloutput=True, pressures=None,
                            cienvs_info=True, ciuses_info=True, cipres_info=True,
                            ciscores_info=True, runtypelevel=3):
+        self.runtypelevel = runtypelevel
         self.outputs['presenvs'] = {}
         self.outputs['usesenvs'] = {}
         out_presenvs = self.outputs['presenvs']
@@ -150,7 +168,7 @@ class CEACaseStudy(CaseStudyBase):
                         out_presenvs[presenvsid] = sensarray.copy()
 
                 # collect information for a single use-env CEA
-                # assiuming linear interactions
+                # assuming linear interactions
                 if runtypelevel >= 3:
                     _sum = 0
                     for usepresid, _up in self.outputs['usepressures'].items():
@@ -168,6 +186,18 @@ class CEACaseStudy(CaseStudyBase):
 
         self.outputs['ci'] = ci
         return True
+
+    def get_main_output(self):
+        """
+        This function returns the main model output
+        """
+        return self.outputs['ci']
+
+    def get_SUA_target(self):
+        """
+        Returns target value for Sensitivity Analysis
+        """
+        return self.get_main_output().sum()
 
     # @property
     # def labels(self):
@@ -263,14 +293,15 @@ class CEACaseStudy(CaseStudyBase):
                     _df.rename(columns={'u': 'usecode',
                                         'p': 'precode',
                                         'd': 'distance',
-                                        'w': 'weight'
+                                        'w': 'weight',
                     }, inplace=True)
                     self.weights = _df
                 elif fname == 'cea-SENS':
                     _df = pd.read_json(filepath)
                     _df.rename(columns={'e': 'envcode',
                                         'p': 'precode',
-                                        's': 'sensitivity'
+                                        's': 'sensitivity',
+                                        'c': 'confidence',
                     }, inplace=True)
                     self.sensitivities = _df
 
@@ -299,3 +330,78 @@ class CEACaseStudy(CaseStudyBase):
         # self.outputs['ciscores'] = scores
 
         super().dump_outputs()
+
+
+class CEACaseStudySUA(CaseStudySUA):
+    def set_problem(self):
+        nparams = self.nparams
+        module_cs = self.module_cs
+        self.normalize_distance = None
+
+        sensitivities = module_cs.sensitivities
+        sensitivities.fillna({'confidence': 0.2},
+                             inplace=True)
+        sensitivities['sua_var_name'] = sensitivities['precode'] + '--' + sensitivities['envcode']
+        df_presenvs = module_cs.get_score_stats('presenvs')
+        df_presenvs = df_presenvs.merge(sensitivities,
+                                        left_on=['k1', 'k2'],
+                                        right_on=['precode', 'envcode']
+                                        )
+        topsensitivities = df_presenvs.sort_values('score', ascending=False)[:nparams]
+        for i, s in topsensitivities.iterrows():
+            label = s.sua_var_name
+            confidence = s.confidence
+            int_confidence = 1. - confidence
+            if int_confidence == 0:
+                int_confidence = 0.1
+            sensitivity_score = s.sensitivity
+
+            self.add_problem_var(['sensitivities', 'sensitivity', label],
+                                 [sensitivity_score,
+                                  int_confidence],
+                                 'triang',
+                                 'sensitivity'
+                                 )
+
+        weighs = module_cs.weights
+        self.normalize_distance = weighs.distance.max() * 2
+        weighs['sua_var_name'] = weighs['usecode'] + '--' + weighs['precode']
+        df_usepressures = module_cs.get_score_stats('usepressures')
+        df_usepressures = df_usepressures.merge(weighs,
+                                                left_on=['k1', 'k2'],
+                                                right_on=['usecode', 'precode']
+                                                )
+        topweights = df_usepressures.sort_values('score', ascending=False)[:nparams]
+        for i, s in topweights.iterrows():
+            label = s.sua_var_name
+            confidence = 0.5
+            int_confidence = 1. - confidence
+            if int_confidence == 0:
+                int_confidence = 0.1
+            weight = s.weight
+            distance = s.distance / self.normalize_distance
+            if distance == 0:
+                distance = 0.0001
+
+            self.add_problem_var(['weights', 'weight', label],
+                                 [weight,
+                                  int_confidence],
+                                 'triang',
+                                 'weight'
+                                 )
+
+            self.add_problem_var(['weights', 'distance', label],
+                                 [distance,
+                                  int_confidence],
+                                 'triang',
+                                 'distance'
+                                 )
+
+    def set_params(self, params):
+        for i, (var_type, var_column, var_name) in enumerate(self.var_index):
+            df = getattr(self.module_cs, var_type)
+            # print(obj[obj.sua_var_name == var_name])
+            val = params[i]
+            if var_column == 'distance':
+                val = val * self.normalize_distance
+            df.loc[df.sua_var_name == var_name, var_column] = val
