@@ -1297,7 +1297,9 @@ class SensitivityManager(models.Manager):
         qs = self.filter(context__label=context_label)
         return list(qs.values(p=F('pres__code'),
                               e=F('env__code'),
-                              s=F('sensitivity')))
+                              s=F('sensitivity'),
+                              c=F('confidence'),
+                              ))
 
     def clone_sensitivities(self,
                             old_context_label, new_context_label,
