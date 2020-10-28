@@ -3,13 +3,21 @@ import numpy as np
 import pandas as pd
 from SALib.sample import saltelli
 from SALib.analyze import sobol
-from tools4msp.models import CaseStudyRun
 
 logger = logging.getLogger('tools4msp.sua')
 
 
-# def run_sua(csrunid, nparams, nruns):
-#     csr = CaseStudyRun.objects.get(pk=csrunid)
+def run_sua(module_cs, nparams, nruns):
+    module_cs.load_layers()
+    module_cs.load_grid()
+    module_cs.load_inputs()
+    module_cs.run()
+
+    module_cs_sua = CEACaseStudySUA(module_cs, nparams=nparams)
+    module_cs_sua.runall(nruns)
+
+    return module_cs_sua
+
 
 class CaseStudySUA(object):
     """
