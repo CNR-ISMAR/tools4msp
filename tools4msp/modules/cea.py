@@ -146,7 +146,7 @@ class CEACaseStudy(CaseStudyBase):
                     pressure_layer = _p.copy()
                     sensarray = pressure_layer * env_layer * sens.sensitivity
                     ci += sensarray
-                    if runtypelevel >= 3:
+                    if runtypelevel >= 2:
                         out_presenvs[presenvsid] = sensarray.copy()
 
                 # collect information for a single use-env CEA
