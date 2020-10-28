@@ -33,14 +33,14 @@ from io import StringIO
 import json
 from django.dispatch import receiver
 import os
-from .utils import write_to_file_field
+from .utils import write_to_file_field, plot_heatmap
+from .plotutils import plot_map, get_map_figure_size
 from django.conf import settings
 from .modules.cea import CEACaseStudy
 from .modules.muc import MUCCaseStudy
 from .modules.partrac import ParTracCaseStudy
 from os import path
 import pandas as pd
-from tools4msp.utils import plot_heatmap
 import cartopy
 import cartopy.io.img_tiles as cimgt
 import matplotlib.animation as animation
@@ -109,10 +109,6 @@ def get_zoomlevel(extent):
     zoom = round(math.log(300 * 360 / angle / GLOBE_WIDTH) / math.log(2))
     return zoom
 
-def get_map_figure_size(extent, height=8.):
-    width = height / (extent[3] - extent[1]) * (extent[2] - extent[0])
-    return [width + 1, height]
-
 if not geonode:
     # fake model
     class Layer(models.Model):
@@ -127,11 +123,16 @@ class Context(models.Model):
     def __str__(self):
         return self.label
 
+def _run_sua(csr, nparams=20, nruns=100):
+    module_cs = csr.module_cs
+    module_cs_sua = run_sua(module_cs, nparams=nparams, nruns=nruns)
+    mean = module_cs_sua.model_output_stats.mean()
+    std = module_cs_sua.model_output_stats.std()
+    cv = std / mean
+
 
 def _run(csr, selected_layers=None, runtypelevel=3):
-    csdir = path.join(settings.MEDIA_ROOT,
-                      'casestudy',
-                      str(csr.casestudy.pk))
+    module_cs = csr.casestudy.module_cs
     uses = None
     envs = None
     pres = None
@@ -157,8 +158,6 @@ def _run(csr, selected_layers=None, runtypelevel=3):
             pres = None
 
     if csr.casestudy.module == 'cea':
-        module_class = CEACaseStudy
-        module_cs = module_class(csdir=csdir)
         module_cs.load_layers()
         module_cs.load_grid()
         module_cs.load_inputs()
@@ -409,24 +408,10 @@ def _run(csr, selected_layers=None, runtypelevel=3):
             csr_ol = csr.outputlayers.create(coded_label=cl, description=description)
             write_to_file_field(csr_ol.file, ci.write_raster, 'geotiff')
 
-            plt.figure(figsize=get_map_figure_size(ci.bounds))
-            ax, mapimg = ci.plotmap(#ax=ax,
-                       cmap='jet',
-                       logcolor=True,
-                       legend=True,
-                       # maptype='minimal',
-                       grid=True, gridrange=1,
-                       vmax=ceamaxval)
-            # CEASCORE map as png for
-            ax.add_image(cimgt.Stamen('toner-lite'), get_zoomlevel(ci.geobounds))
-            write_to_file_field(csr_ol.thumbnail, plt.savefig, 'png')
-            plt.clf()
-            plt.close()
+            plot_map(ci, csr_ol.thumbnail)
 
     elif csr.casestudy.module == 'muc':
         csr.casestudy.set_or_update_context('AIR')
-        module_class = MUCCaseStudy
-        module_cs = module_class(csdir=csdir)
         module_cs.load_layers()
         module_cs.load_grid()
         module_cs.load_inputs()
@@ -488,8 +473,6 @@ def _run(csr, selected_layers=None, runtypelevel=3):
         return module_cs
 
     elif csr.casestudy.module == 'partrac':
-        module_class = ParTracCaseStudy
-        module_cs = module_class(csdir=csdir)
         # module_cs.load_layers()
         module_cs.load_grid()
         module_cs.load_inputs()
@@ -1093,6 +1076,9 @@ class CodedLabelManager(models.Manager):
         values = self.all().values('code', 'group', 'label')
         return {v['code']: v for v in values}
 
+    def get_by_natural_key(self, code):
+        return self.get(code=code)
+
 
 class CodedLabel(models.Model):
     group = models.CharField(max_length=10, choices=CODEDLABEL_GROUP_CHOICES)
@@ -1105,6 +1091,9 @@ class CodedLabel(models.Model):
 
     def __str__(self):
         return "{} | {}".format(self.group, self.label)
+
+    def natural_key(self):
+        return (self.code,)
 
     class Meta:
         ordering = ['group', 'label']
