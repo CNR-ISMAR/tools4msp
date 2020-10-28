@@ -34,7 +34,7 @@ import json
 from django.dispatch import receiver
 import os
 from .utils import write_to_file_field, plot_heatmap
-from .plotutils import plot_map, get_map_figure_size
+from .plotutils import plot_map, get_map_figure_size, get_zoomlevel
 from django.conf import settings
 from .modules.cea import CEACaseStudy
 from .modules.muc import MUCCaseStudy
@@ -99,15 +99,6 @@ def get_coded_label_choices():
 ]
     return lt
 
-# TODO: replace with
-# https://gist.github.com/mappingvermont/d534539fa3ebe4a1e242644e528bf7b9
-def get_zoomlevel(extent):
-    GLOBE_WIDTH = 256
-    west = extent[0]
-    east = extent[2]
-    angle = east - west
-    zoom = round(math.log(300 * 360 / angle / GLOBE_WIDTH) / math.log(2))
-    return zoom
 
 if not geonode:
     # fake model
@@ -408,7 +399,7 @@ def _run(csr, selected_layers=None, runtypelevel=3):
             csr_ol = csr.outputlayers.create(coded_label=cl, description=description)
             write_to_file_field(csr_ol.file, ci.write_raster, 'geotiff')
 
-            plot_map(ci, csr_ol.thumbnail)
+            plot_map(ci, csr_ol.thumbnail, ceamaxval=ceamaxval)
 
     elif csr.casestudy.module == 'muc':
         csr.casestudy.set_or_update_context('AIR')
