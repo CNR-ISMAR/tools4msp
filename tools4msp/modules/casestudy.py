@@ -60,6 +60,12 @@ class CaseStudyBase(object):
 
         self.outputs = {}
 
+        # store last runtypelevel
+        # None: no run has been performed or the child module doesn't support runtypelevel parameter
+        # 1: only main output
+        # 3: default level of outputs. This is sufficient to perform Uncertainty and Sensitivity analysis
+        self.runtypelevel = None
+
     def get_outpath(self, code, outtype, extension=None):
         path = [self.csdir, outtype, code]
         if extension is not None:
