@@ -297,6 +297,8 @@ class CEACaseStudy(CaseStudyBase):
                     self.weights = _df
                 elif fname == 'cea-SENS':
                     _df = pd.read_json(filepath)
+                    if 'c' not in _df.columns:
+                        _df['c'] = np.NaN
                     _df.rename(columns={'e': 'envcode',
                                         'p': 'precode',
                                         's': 'sensitivity',
