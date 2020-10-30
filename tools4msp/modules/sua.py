@@ -7,13 +7,13 @@ from SALib.analyze import sobol
 logger = logging.getLogger('tools4msp.sua')
 
 
-def run_sua(module_cs, nparams, nruns):
+def run_sua(module_cs, nparams, nruns, kwargs_run={}):
     module_cs.load_layers()
     module_cs.load_grid()
     module_cs.load_inputs()
-    module_cs.run()
+    module_cs.run(**kwargs_run)
 
-    module_cs_sua = CEACaseStudySUA(module_cs, nparams=nparams)
+    module_cs_sua = CEACaseStudySUA(module_cs, nparams=nparams, kwargs_run=kwargs_run)
     module_cs_sua.runall(nruns)
 
     return module_cs_sua
@@ -24,7 +24,7 @@ class CaseStudySUA(object):
     This is a base class for support Sensitivity and Uncertainty Analysis.
     Child classes have to implement "set_problem" and "set_params" methods.
     """
-    def __init__(self, module_cs, nparams=40, kwargs_run=None):
+    def __init__(self, module_cs, nparams=40, kwargs_run={}):
         self.module_cs = module_cs
         self.kwargs_run = kwargs_run
         # check runtypelevel

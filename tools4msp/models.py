@@ -48,7 +48,7 @@ import numpy as np
 import rectifiedgrid as rg
 from django.core.exceptions import ObjectDoesNotExist
 import math
-from .modules.sue import run_sua
+from .modules.sua import run_sua
 
 logger = logging.getLogger('tools4msp.models')
 
@@ -117,37 +117,20 @@ class Context(models.Model):
 
 
 def _run_sua(csr, nparams=20, nruns=100):
+    selected_layers = csr.configuration['selected_layers']
+    uses, pres, envs = check_coded_labels(selected_layers)
+    kwargs_run = {'uses': uses, 'pressures': pres, 'envs': envs}
     module_cs = csr.casestudy.module_cs
-    module_cs_sua = run_sua(module_cs, nparams=nparams, nruns=nruns)
+    module_cs_sua = run_sua(module_cs, nparams=nparams,
+                            nruns=nruns, kwargs_run=kwargs_run)
     cv = module_cs_sua.cv
     return cv
 
 
-def _run(csr, selected_layers=None, runtypelevel=3):
+def _run(csr, runtypelevel=3):
+    selected_layers = csr.configuration['selected_layers']
     module_cs = csr.casestudy.module_cs
-    uses = None
-    envs = None
-    pres = None
-    if selected_layers is not None:
-        coded_labels = CodedLabel.objects.get_dict()
-        uses = []
-        envs = []
-        pres = []
-        for code in selected_layers:
-            l = coded_labels.get(code, {})
-            g = l.get('group', None)
-            if g == 'use':
-                uses.append(code)
-            elif g == 'env':
-                envs.append(code)
-            elif g == 'pre':
-                pres.append(code)
-        if len(uses) == 0:
-            uses = None
-        if len(envs) == 0:
-            envs = None
-        if len(pres) == 0:
-            pres = None
+    uses, pres, envs = check_coded_labels(selected_layers)
 
     if csr.casestudy.module == 'cea':
         module_cs.load_layers()
@@ -578,6 +561,33 @@ def _run(csr, selected_layers=None, runtypelevel=3):
     return module_cs
 
 
+def check_coded_labels(selected_layers):
+    uses = None
+    envs = None
+    pres = None
+    if selected_layers is not None:
+        coded_labels = CodedLabel.objects.get_dict()
+        uses = []
+        envs = []
+        pres = []
+        for code in selected_layers:
+            l = coded_labels.get(code, {})
+            g = l.get('group', None)
+            if g == 'use':
+                uses.append(code)
+            elif g == 'env':
+                envs.append(code)
+            elif g == 'pre':
+                pres.append(code)
+        if len(uses) == 0:
+            uses = None
+        if len(envs) == 0:
+            envs = None
+        if len(pres) == 0:
+            pres = None
+    return uses, pres, envs
+
+
 class CaseStudy(models.Model):
     label = models.CharField(max_length=100)
     description = models.CharField(max_length=400, null=True, blank=True)
@@ -896,10 +906,12 @@ class CaseStudy(models.Model):
     thumbnail_tag.short_description = 'Thumbnail'
 
     def run(self, selected_layers=None, runtypelevel=3):
-        # print("Selected layers", selected_layers)
         if self.module in ['cea', 'muc', 'partrac']:
-            csr = self.casestudyrun_set.create()
-            _run(csr, selected_layers=selected_layers, runtypelevel=runtypelevel)
+            conf = {'selected_layers': selected_layers,
+                    'runtypelevel': runtypelevel}
+            csr = self.casestudyrun_set.create(configuration=conf)
+
+            _run(csr, runtypelevel=runtypelevel)
             rlist = self.casestudyrun_set.filter(pk=csr.pk)
         else:
             import time
