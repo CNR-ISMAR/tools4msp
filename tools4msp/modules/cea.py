@@ -1,11 +1,10 @@
 # coding: utf-8
 
-import itertools
 import numpy as np
 import pandas as pd
 from os import path, listdir
 from .casestudy import CaseStudyBase
-from .sue import CaseStudySUA
+
 
 class ResponseFunction(object):
     def __init__(self, a=None, k=None, c=1, q=1, b=1, m=1, v=1):
@@ -332,76 +331,3 @@ class CEACaseStudy(CaseStudyBase):
         super().dump_outputs()
 
 
-class CEACaseStudySUA(CaseStudySUA):
-    def set_problem(self):
-        nparams = self.nparams
-        module_cs = self.module_cs
-        self.normalize_distance = None
-
-        sensitivities = module_cs.sensitivities
-        sensitivities.fillna({'confidence': 0.2},
-                             inplace=True)
-        sensitivities['sua_var_name'] = sensitivities['precode'] + '--' + sensitivities['envcode']
-        df_presenvs = module_cs.get_score_stats('presenvs')
-        df_presenvs = df_presenvs.merge(sensitivities,
-                                        left_on=['k1', 'k2'],
-                                        right_on=['precode', 'envcode']
-                                        )
-        topsensitivities = df_presenvs.sort_values('score', ascending=False)[:nparams]
-        for i, s in topsensitivities.iterrows():
-            label = s.sua_var_name
-            confidence = s.confidence
-            int_confidence = 1. - confidence
-            if int_confidence == 0:
-                int_confidence = 0.1
-            sensitivity_score = s.sensitivity
-
-            self.add_problem_var(['sensitivities', 'sensitivity', label],
-                                 [sensitivity_score,
-                                  int_confidence],
-                                 'triang',
-                                 'sensitivity'
-                                 )
-
-        weighs = module_cs.weights
-        self.normalize_distance = weighs.distance.max() * 2
-        weighs['sua_var_name'] = weighs['usecode'] + '--' + weighs['precode']
-        df_usepressures = module_cs.get_score_stats('usepressures')
-        df_usepressures = df_usepressures.merge(weighs,
-                                                left_on=['k1', 'k2'],
-                                                right_on=['usecode', 'precode']
-                                                )
-        topweights = df_usepressures.sort_values('score', ascending=False)[:nparams]
-        for i, s in topweights.iterrows():
-            label = s.sua_var_name
-            confidence = 0.5
-            int_confidence = 1. - confidence
-            if int_confidence == 0:
-                int_confidence = 0.1
-            weight = s.weight
-            distance = s.distance / self.normalize_distance
-            if distance == 0:
-                distance = 0.0001
-
-            self.add_problem_var(['weights', 'weight', label],
-                                 [weight,
-                                  int_confidence],
-                                 'triang',
-                                 'weight'
-                                 )
-
-            self.add_problem_var(['weights', 'distance', label],
-                                 [distance,
-                                  int_confidence],
-                                 'triang',
-                                 'distance'
-                                 )
-
-    def set_params(self, params):
-        for i, (var_type, var_column, var_name) in enumerate(self.var_index):
-            df = getattr(self.module_cs, var_type)
-            # print(obj[obj.sua_var_name == var_name])
-            val = params[i]
-            if var_column == 'distance':
-                val = val * self.normalize_distance
-            df.loc[df.sua_var_name == var_name, var_column] = val

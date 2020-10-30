@@ -20,11 +20,11 @@ def get_map_figure_size(extent, height=8.):
     return [width + 1, height]
 
 
-def plot_map(raster, file_field=None, ceamaxval=None):
+def plot_map(raster, file_field=None, ceamaxval=None, logcolor=True):
     plt.figure(figsize=get_map_figure_size(raster.bounds))
     ax, mapimg = raster.plotmap(  # ax=ax,
         cmap='jet',
-        logcolor=True,
+        logcolor=logcolor,
         legend=True,
         # maptype='minimal',
         grid=True, gridrange=1,
