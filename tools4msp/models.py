@@ -117,14 +117,24 @@ class Context(models.Model):
 
 
 def _run_sua(csr, nparams=20, nruns=100):
+    if isinstance(csr, int):
+        csr = CaseStudyRun.objects.get(pk=csr)
     selected_layers = csr.configuration['selected_layers']
     uses, pres, envs = check_coded_labels(selected_layers)
     kwargs_run = {'uses': uses, 'pressures': pres, 'envs': envs}
     module_cs = csr.casestudy.module_cs
     module_cs_sua = run_sua(module_cs, nparams=nparams,
                             nruns=nruns, kwargs_run=kwargs_run)
-    cv = module_cs_sua.cv
-    return cv
+
+    layers = {'MAPCEA-SUA-MEAN': module_cs_sua.mean,
+              'MAPCEA-SUA-CV': module_cs_sua.cv,}
+    for code, l in layers.items():
+        cl = CodedLabel.objects.get(code=code)
+        csr_ol = csr.outputlayers.create(coded_label=cl)
+        write_to_file_field(csr_ol.file, l.write_raster, 'geotiff')
+        plot_map(l, csr_ol.thumbnail, ceamaxval=None, logcolor=False)
+
+    return module_cs
 
 
 def _run(csr, runtypelevel=3):
