@@ -1,1 +1,1592 @@
-[{"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "ACQFIN", "label": "Aquaculture - Finfish", "description": "", "old_label": "Aquaculture"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "ACQSHEL", "label": "Aquaculture - Shellfish", "description": "", "old_label": "Aquaculture"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "TBOAT", "label": "Tourism - boating/yachting", "description": "", "old_label": "Coastal and Maritime Tourism"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "TBEACH", "label": "Tourism - beach uses", "description": "", "old_label": "nan"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "TWSPO", "label": "Tourism -  water sports (surface)", "description": "", "old_label": "nan"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "SCUBA", "label": "Tourism - scuba diving", "description": "", "old_label": "nan"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "WWATCH", "label": "Tourism - wildlife watching", "description": "", "old_label": "nan"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "TMAR", "label": "Tourism and leisure: marinas and leisure harbours \n", "description": "", "old_label": "nan"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "FPORTS", "label": "Fishing ports", "description": "", "old_label": "Naval base activities"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "IPORTS", "label": "Industrial ports", "description": "", "old_label": "Naval base activities"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "SHIPDENS", "label": "Passage of ships/boats", "description": "", "old_label": "Maritime Transport"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "MOOR", "label": "Mooring, anchoring", "description": "", "old_label": "nan"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "OSDEP", "label": "Offshore sand deposits", "description": "", "old_label": "Offshore sand deposits"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "DADREDG", "label": "Dumping areas for dredging", "description": "", "old_label": "Dumping areas for dredging"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "COASTDEF", "label": "Coastal defence works", "description": "", "old_label": "Coastal Defence Work"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "TRAWL", "label": "OTB + TBB + PTM", "description": "", "old_label": "Trawling"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "SSF", "label": "Small Scale Fishery", "description": "", "old_label": "Small scale fishery"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "OGEXTR", "label": "Oil & Gas Extraction", "description": "", "old_label": "Oil & Gas extraction"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "OGRES", "label": "Oil & Gas Research", "description": "", "old_label": "Oil & Gas research"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "LNG", "label": "LNGs", "description": "", "old_label": "LNGs"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "PIPELN", "label": "Pipelines", "description": "", "old_label": "Cables and Pipelines"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "MIL", "label": "Military areas", "description": "", "old_label": "Military Areas"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "MILTEMP", "label": "Military temporary areas", "description": "", "old_label": "Military temporary"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "LBA", "label": "Land based activities", "description": "", "old_label": "Land based activities"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "NOTRAWL", "label": "No trawling areas", "description": "", "old_label": "No trawling areas"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "pre", "code": "INPNIS", "label": "Introduction of non-indigenous species and translocations", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "pre", "code": "MICRPAT", "label": "Introduction of microbial pathogens", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "pre", "code": "DISTSP", "label": "Food availability", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "pre", "code": "SELEXTR", "label": "Selective extraction of species, including incidental non-target catches", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "pre", "code": "CSILT", "label": "Changes in siltation", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "pre", "code": "SMOTH", "label": "Smothering", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "pre", "code": "ABR", "label": "Abrasion (surface, light, heavy)", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "pre", "code": "REMOVAL", "label": "Removal of substratum (extraction)", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "pre", "code": "SEAL", "label": "Sealing", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "pre", "code": "CSALIN", "label": "Significant changes in salinity regime", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "pre", "code": "CTHERM", "label": "Significant changes in thermal regime", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "pre", "code": "FERT", "label": "Inputs of fertilisers and other nitrogen and phosphorus-rich substances", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "pre", "code": "ORGMAT", "label": "Inputs of organic matter", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "pre", "code": "SYNTH", "label": "Introduction of synthetic compounds", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "pre", "code": "OTHERS", "label": "Introduction of other substances", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "pre", "code": "RADNUC", "label": "Introduction of radio-nuclides", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "pre", "code": "NONSYNTH", "label": "Introduction of non-synthetic substances and compounds", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "pre", "code": "MLITTER", "label": "Marine litter", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "pre", "code": "NOISE", "label": "Underwater noise", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "MBIRD", "label": "Marine birds", "description": "", "old_label": "SB - Seabirds"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "MAM", "label": "Mammals", "description": "", "old_label": "MM - Marine mammals"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "SEALS", "label": "Monk seals", "description": "", "old_label": "nan"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "TURT", "label": "Turtles", "description": "", "old_label": "TU - Turtles"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "MOBMOB", "label": "Mobula mobular", "description": "", "old_label": "GDR - Giant devil ray"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A3", "label": "A3 - Infralittoral rock and other hard substrata", "description": "", "old_label": "A3 - Infralittoral rock and other hard substrata"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A4", "label": "A4 - Circalittoral rock and other hard substrata", "description": "", "old_label": "A4.7 - Circalittoral rock and other hard substrata"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A4-26", "label": "A4.26 - Mediterranean coralligenous communities", "description": "", "old_label": "A4.26 - Mediterranean coralligenous communities"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A4-27", "label": "A4.27 - Fauna communities on deep moderate energy", "description": "", "old_label": "A4.27 - Fauna communities on deep moderate energy"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A5-13", "label": "A5.13 - Infralittoral coarse sediment", "description": "", "old_label": "A5.13 - Infralittoral coarse sediment"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A5-13MIX", "label": "A5.13 - Infralittoral coarse sediment (mixed)", "description": "", "old_label": "nan"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A5-14", "label": "A5.14 - Circalittoral coarse sediment", "description": "", "old_label": "A5.14 - Circalittoral coarse sediment"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A5-14MIX", "label": "A5.14 - Circalittoral coarse sediment (mixed)", "description": "", "old_label": "nan"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A5-23", "label": "A5.23 - Infralittoral fine sands", "description": "", "old_label": "A5.23 - Infralittoral fine sands"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A5-25", "label": "A5.25 - Circalittoral fine sands", "description": "", "old_label": "A5.25 - Circalittoral fine sands"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A5-26", "label": "A5.26 - Circalittoral muddy sand", "description": "", "old_label": "A5.26 - Circalittoral muddy sand"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A5-33", "label": "A5.33 - Infralittoral sandy mud", "description": "", "old_label": "A5.33 - Infralittoral sandy mud"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A5-34", "label": "A5.34 - Infralittoral fine mud", "description": "", "old_label": "A5.34 - Infralittoral fine mud"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A5-35", "label": "A5.35 - Circalittoral sandy mud", "description": "", "old_label": "A5.35 - Circalittoral sandy mud"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A5-36", "label": "A5.36 - Circalittoral fine mud", "description": "", "old_label": "A5.36 - Circalittoral fine mud"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A5-38", "label": "A5.38 - Mediterranean biocenosis of muddy detritic bottoms", "description": "", "old_label": "A5.38 - Mediterranean biocenosis of muddy detritic bottoms"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A5-39", "label": "A5.39 - Mediterranean biocenosis of coastal terrigenous muds", "description": "", "old_label": "A5.39 - Mediterranean biocenosis of coastal terrigenous muds"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A5-46", "label": "A5.46 - Mediterranean biocenosis of coastal detritic bottoms", "description": "", "old_label": "A5.46 - Mediterranean biocenosis of coastal detritic bottoms"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A5-46MIX", "label": "A5.46 - Mediterranean biocenosis of coastal detritic bottoms (mixed)", "description": "", "old_label": "nan"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A5-46SAN", "label": "A5.46 - Mediterranean biocenosis of coastal detritic bottoms (sand)", "description": "", "old_label": "nan"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A5-47", "label": "A5.47 - Mediterranean biocenosis of shelf-edge detritic bottoms", "description": "", "old_label": "A5.47 - Mediterranean biocenosis of shelf-edge detritic bottoms"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A5-47COA", "label": "A5.47 - Mediterranean biocenosis of shelf-edge detritic bottoms (coarse)", "description": "", "old_label": "nan"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A5-47MIX", "label": "A5.47 - Mediterranean biocenosis of shelf-edge detritic bottoms (mixed)", "description": "", "old_label": "nan"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A5-47SAN", "label": "A5.47 - Mediterranean biocenosis of shelf-edge detritic bottoms (sand)", "description": "", "old_label": "nan"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A5-51", "label": "A5.51 - Maerl beds", "description": "", "old_label": "A5.51 - Maerl beds"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A5-531", "label": "A5.531 - Cymodocea beds", "description": "", "old_label": "A5.531 - Cymodocea beds"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A5-535", "label": "A5.535 - Posidonia beds", "description": "", "old_label": "A5.535 - Posidonia beds"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A6-1", "label": "A6.1 - Deep-sea rock and artificial hard substrata", "description": "", "old_label": "A6.1 - Deep-sea rock and artificial hard substrata"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A6-2", "label": "A6.2 - Deep-sea mixed substrata", "description": "", "old_label": "A6.2 - Deep-sea mixed substrata"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A6-3", "label": "A6.3 - Deep-sea sand", "description": "", "old_label": "A6.3 - Deep-sea sand"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A6-4", "label": "A6.4 - Deep-sea muddy sand", "description": "", "old_label": "A6.4 - Deep-sea muddy sand"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A6-51", "label": "A6.51 - Mediterranean communities of bathyal muds", "description": "", "old_label": "A6.51 - Mediterranean communities of bathyal muds"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A6-511", "label": "A6.511 - Facies of sandy muds with Thenea muricata", "description": "", "old_label": "A6.511 - Facies of sandy muds with Thenea muricata"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A6-52", "label": "A6.52 - Communities of abyssal muds", "description": "", "old_label": "A6.52 - Communities of abyssal muds"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "MEDDEEP", "label": "Mediterranean deep sea ", "description": "", "old_label": "IDS - Ionian deep sea"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "BATHDEEP", "label": "BDS - Bathypelagic component of deep sea areas", "description": "", "old_label": "BDS - Bathypelagic component of deep sea areas"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "NURSPAW", "label": "Essential Fish Habitats (Nursery and Spawning grounds)", "description": "", "old_label": "NH - Nursery habitats"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "casestudy", "code": "GRID", "label": "Grid of analysis", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "casestudy", "code": "CS-THUMB", "label": "Case Study Thumbanil", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "cea", "code": "SENS", "label": "Sensitivities matrix for CEA analysis", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "cea", "code": "WEIGHTS", "label": "Weights matrix for CEA analysis", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "cea", "code": "MAPCEA", "label": "Spatial distribution of CEA score", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "cea", "code": "BARCEAUSE", "label": "Barplot of CEA score for Human Use", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "cea", "code": "BARCEAENV", "label": "Barplot of CEA score for Environmental Receptor", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "cea", "code": "CEAICHAIN", "label": "CEA Impact Chain", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "cea", "code": "CEASCORE", "label": "Geospatial distribution of CEA score", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "muc", "code": "PCONFLICT", "label": "MUC Potential conflict", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "cea", "code": "HISTCEASCORE", "label": "Histogram of CEA score", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "muc", "code": "MUCSCORE", "label": "Geospatial distribution of MUC score", "description": "A 2-D GeoTIFF raster file representing the comprehensive conflict score in each raster. Coordinate reference system (CRS) and resolution are defined by the  Case Study configuration.", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "cea", "code": "BARPRESCORE", "label": "Barplot of Pressure scores", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "cea", "code": "HEATUSEPRESCORE", "label": "Heatmap of Pressure scores due to human uses", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "cea", "code": "HEATPREENVCEA", "label": "CEA score for each P-E combination", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "muc", "code": "HEATUSEMUC", "label": "MUC score for each U-U combination", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "partrac", "code": "PARTRACSEEDING", "label": "Seeding particle for ParTrac module", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "partrac", "code": "PARTRACGRID", "label": "Numerical grid for ParTrac module", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "partrac", "code": "PARTRACTRAJSIM", "label": "Trajectory simulation from ParTrac module", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "OFFWINDFARM-OP", "label": "Offshore Wind Farm (Operational phase)", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "OFFWINDFARM-DE", "label": "Offshore Wind farm (Decommissioning phase)", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "OFFWINDFARM-CO", "label": "Offshore WInd farm (Construction phase)", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "pre", "code": "VESSEL-COLL", "label": "Collision with vessels", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "pre", "code": "TURBINE-COLL", "label": "turbine collision", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "pre", "code": "BARRIER-EFF", "label": "Barrier effect (physical)", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "pre", "code": "INDIRECT-EFF", "label": "Indirect effects", "description": "effects of restricted fishery in the area of the wind farm (includes effects on the sediment due to restricted near bottom fishery)", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "pre", "code": "VIBRATION", "label": "Water vibration", "description": "vibrations due to activities that come along with the wind farm on any temporal scale", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "pre", "code": "NEW-HAB", "label": "New habitat (hard structure)", "description": "effects the wind farm has due to the introduction of hard substrate on which species can settle", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "pre", "code": "SEDIM", "label": "Sedimentation", "description": "sediments that are lifted from the ground and replaced somewhere else", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "pre", "code": "SEDIM-AG", "label": "Sediment agitation", "description": "effects of turbidity/smoothing caused by agitated sediments", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "pre", "code": "REL-SEDIM", "label": "Release of sediment bound contaminants", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "pre", "code": "CELECTRO", "label": "Significant changes in electromagnetic field", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "pre", "code": "CTHERM-CABL", "label": "Heat effect (due to cabling)", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A5", "label": "A5 - Sublittoral sediment", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "A6", "label": "A6 - Deep sea bed", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "MAM-PORP", "label": "Harbour porpoise ( Phocoena phocoena)", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "MBIRD-RAZ", "label": "Razorbill (Alca torda)", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "MBIRD-FULM", "label": "Fulmar (Fulmarus glacialis)", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "MBIRD-GUILLE", "label": "Guillemot (Uria aalge)", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "FISH-SPRAT", "label": "Sprat (Sprattus sprattus)", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "FISH-SAITHE", "label": "Saithe Pollock ( Pollachius virens)", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "FISH-WHIT", "label": "Whiting (Merlangius merlangus)", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "FISH-SANDEEL", "label": "Sandeel (Ammodytes tobianus)", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "FISH-HAD", "label": "Haddock (Melanogrammus aeglefinus)", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "MONACHUS", "label": "Monachus-monachus", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "DOLPHINS", "label": "Delphinus delphis", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "ACQ", "label": "Aquaculture", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "partrac", "code": "PARTRACSOURCES", "label": "Geojson sources for ParTrac module", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "partrac", "code": "PARTRACCONF", "label": "Configuration parameters for ParTrac module", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "partrac", "code": "PARTRACSCEN", "label": "Available scenarios for ParTrac Case Study", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "partrac", "code": "PARTRACSCORE", "label": "Geospatial distribution of particle density/concentration", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "usepre", "code": "LBA--ORGMAT", "label": "Inputs of organic matter from LBA", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "usepre", "code": "LBA--FERT", "label": "Inputs of fertilisers from LBA", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "usepre", "code": "LBA--NONSYNTH", "label": "Introduction of non-synthetic substances and compounds from LBA", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "usepre", "code": "LBA--OTHERS", "label": "Introduction of other substances from LBA", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "usepre", "code": "LBA--RADNUC", "label": "Introduction of radio-nuclides from LBA", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "usepre", "code": "LBA--SYNTH", "label": "Introduction of synthetic compounds from LBA", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "CIRC-SEABED", "label": "Circalittoral seabed", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "env", "code": "INF-SEABED", "label": "'Infralittoral seabed", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "TBB", "label": "Trawling TBB", "description": "", "old_label": "Trawling TBB"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "OTB", "label": "Trawling OTB", "description": "", "old_label": "Trawling OTB"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "PTM", "label": "Trawling PTM", "description": "", "old_label": "Flying"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "MPA", "label": "Marine Protected Areas", "description": "", "old_label": "Protected Areas"}}, {"model": "tools4msp.codedlabel", "fields": {"group": "cea", "code": "MAPCEA-MSFDSUB", "label": "CEA score from substances, litter and energy pressures", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "cea", "code": "MAPCEA-MSFDBIO", "label": "CEA score from biological pressures", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "cea", "code": "MAPCEA-MSFDPHY", "label": "CEA score from physical pressures", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "OTB-BRD", "label": "Trawling OTB (bycatch reduction device)", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "pre", "code": "CH-HYDRODIN", "label": "Change in the hydrodynamic regime", "description": "Change in the hydrodynamic regime", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "cea", "code": "DISTANCES", "label": "Pressure distances", "description": "", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "use", "code": "HYDREDGES", "label": "Hydraulic dredges", "description": "Hydraulic dredges for clam fisheries", "old_label": null}}, {"model": "tools4msp.codedlabel", "fields": {"group": "cea", "code": "HEATUSEENVCEA", "label": "CEA score for each U-E combination", "description": "", "old_label": null}}]
+[
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "ACQFIN",
+    "label": "Aquaculture - Finfish",
+    "description": "",
+    "old_label": "Aquaculture"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "ACQSHEL",
+    "label": "Aquaculture - Shellfish",
+    "description": "",
+    "old_label": "Aquaculture"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "TBOAT",
+    "label": "Tourism - boating/yachting",
+    "description": "",
+    "old_label": "Coastal and Maritime Tourism"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "TBEACH",
+    "label": "Tourism - beach uses",
+    "description": "",
+    "old_label": "nan"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "TWSPO",
+    "label": "Tourism -  water sports (surface)",
+    "description": "",
+    "old_label": "nan"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "SCUBA",
+    "label": "Tourism - scuba diving",
+    "description": "",
+    "old_label": "nan"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "WWATCH",
+    "label": "Tourism - wildlife watching",
+    "description": "",
+    "old_label": "nan"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "TMAR",
+    "label": "Tourism and leisure: marinas and leisure harbours \n",
+    "description": "",
+    "old_label": "nan"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "FPORTS",
+    "label": "Fishing ports",
+    "description": "",
+    "old_label": "Naval base activities"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "IPORTS",
+    "label": "Industrial ports",
+    "description": "",
+    "old_label": "Naval base activities"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "SHIPDENS",
+    "label": "Passage of ships/boats",
+    "description": "",
+    "old_label": "Maritime Transport"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "MOOR",
+    "label": "Mooring, anchoring",
+    "description": "",
+    "old_label": "nan"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "OSDEP",
+    "label": "Offshore sand deposits",
+    "description": "",
+    "old_label": "Offshore sand deposits"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "DADREDG",
+    "label": "Dumping areas for dredging",
+    "description": "",
+    "old_label": "Dumping areas for dredging"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "COASTDEF",
+    "label": "Coastal defence works",
+    "description": "",
+    "old_label": "Coastal Defence Work"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "TRAWL",
+    "label": "OTB + TBB + PTM",
+    "description": "",
+    "old_label": "Trawling"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "SSF",
+    "label": "Small Scale Fishery",
+    "description": "",
+    "old_label": "Small scale fishery"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "OGEXTR",
+    "label": "Oil & Gas Extraction",
+    "description": "",
+    "old_label": "Oil & Gas extraction"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "OGRES",
+    "label": "Oil & Gas Research",
+    "description": "",
+    "old_label": "Oil & Gas research"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "LNG",
+    "label": "LNGs",
+    "description": "",
+    "old_label": "LNGs"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "PIPELN",
+    "label": "Pipelines",
+    "description": "",
+    "old_label": "Cables and Pipelines"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "MIL",
+    "label": "Military areas",
+    "description": "",
+    "old_label": "Military Areas"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "MILTEMP",
+    "label": "Military temporary areas",
+    "description": "",
+    "old_label": "Military temporary"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "LBA",
+    "label": "Land based activities",
+    "description": "",
+    "old_label": "Land based activities"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "NOTRAWL",
+    "label": "No trawling areas",
+    "description": "",
+    "old_label": "No trawling areas"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "pre",
+    "code": "INPNIS",
+    "label": "Introduction of non-indigenous species and translocations",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "pre",
+    "code": "MICRPAT",
+    "label": "Introduction of microbial pathogens",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "pre",
+    "code": "DISTSP",
+    "label": "Food availability",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "pre",
+    "code": "SELEXTR",
+    "label": "Selective extraction of species, including incidental non-target catches",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "pre",
+    "code": "CSILT",
+    "label": "Changes in siltation",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "pre",
+    "code": "SMOTH",
+    "label": "Smothering",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "pre",
+    "code": "ABR",
+    "label": "Abrasion (surface, light, heavy)",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "pre",
+    "code": "REMOVAL",
+    "label": "Removal of substratum (extraction)",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "pre",
+    "code": "SEAL",
+    "label": "Sealing",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "pre",
+    "code": "CSALIN",
+    "label": "Significant changes in salinity regime",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "pre",
+    "code": "CTHERM",
+    "label": "Significant changes in thermal regime",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "pre",
+    "code": "FERT",
+    "label": "Inputs of fertilisers and other nitrogen and phosphorus-rich substances",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "pre",
+    "code": "ORGMAT",
+    "label": "Inputs of organic matter",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "pre",
+    "code": "SYNTH",
+    "label": "Introduction of synthetic compounds",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "pre",
+    "code": "OTHERS",
+    "label": "Introduction of other substances",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "pre",
+    "code": "RADNUC",
+    "label": "Introduction of radio-nuclides",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "pre",
+    "code": "NONSYNTH",
+    "label": "Introduction of non-synthetic substances and compounds",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "pre",
+    "code": "MLITTER",
+    "label": "Marine litter",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "pre",
+    "code": "NOISE",
+    "label": "Underwater noise",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "MBIRD",
+    "label": "Marine birds",
+    "description": "",
+    "old_label": "SB - Seabirds"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "MAM",
+    "label": "Mammals",
+    "description": "",
+    "old_label": "MM - Marine mammals"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "SEALS",
+    "label": "Monk seals",
+    "description": "",
+    "old_label": "nan"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "TURT",
+    "label": "Turtles",
+    "description": "",
+    "old_label": "TU - Turtles"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "MOBMOB",
+    "label": "Mobula mobular",
+    "description": "",
+    "old_label": "GDR - Giant devil ray"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A3",
+    "label": "A3 - Infralittoral rock and other hard substrata",
+    "description": "",
+    "old_label": "A3 - Infralittoral rock and other hard substrata"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A4",
+    "label": "A4 - Circalittoral rock and other hard substrata",
+    "description": "",
+    "old_label": "A4.7 - Circalittoral rock and other hard substrata"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A4-26",
+    "label": "A4.26 - Mediterranean coralligenous communities",
+    "description": "",
+    "old_label": "A4.26 - Mediterranean coralligenous communities"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A4-27",
+    "label": "A4.27 - Fauna communities on deep moderate energy",
+    "description": "",
+    "old_label": "A4.27 - Fauna communities on deep moderate energy"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A5-13",
+    "label": "A5.13 - Infralittoral coarse sediment",
+    "description": "",
+    "old_label": "A5.13 - Infralittoral coarse sediment"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A5-13MIX",
+    "label": "A5.13 - Infralittoral coarse sediment (mixed)",
+    "description": "",
+    "old_label": "nan"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A5-14",
+    "label": "A5.14 - Circalittoral coarse sediment",
+    "description": "",
+    "old_label": "A5.14 - Circalittoral coarse sediment"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A5-14MIX",
+    "label": "A5.14 - Circalittoral coarse sediment (mixed)",
+    "description": "",
+    "old_label": "nan"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A5-23",
+    "label": "A5.23 - Infralittoral fine sands",
+    "description": "",
+    "old_label": "A5.23 - Infralittoral fine sands"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A5-25",
+    "label": "A5.25 - Circalittoral fine sands",
+    "description": "",
+    "old_label": "A5.25 - Circalittoral fine sands"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A5-26",
+    "label": "A5.26 - Circalittoral muddy sand",
+    "description": "",
+    "old_label": "A5.26 - Circalittoral muddy sand"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A5-33",
+    "label": "A5.33 - Infralittoral sandy mud",
+    "description": "",
+    "old_label": "A5.33 - Infralittoral sandy mud"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A5-34",
+    "label": "A5.34 - Infralittoral fine mud",
+    "description": "",
+    "old_label": "A5.34 - Infralittoral fine mud"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A5-35",
+    "label": "A5.35 - Circalittoral sandy mud",
+    "description": "",
+    "old_label": "A5.35 - Circalittoral sandy mud"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A5-36",
+    "label": "A5.36 - Circalittoral fine mud",
+    "description": "",
+    "old_label": "A5.36 - Circalittoral fine mud"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A5-38",
+    "label": "A5.38 - Mediterranean biocenosis of muddy detritic bottoms",
+    "description": "",
+    "old_label": "A5.38 - Mediterranean biocenosis of muddy detritic bottoms"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A5-39",
+    "label": "A5.39 - Mediterranean biocenosis of coastal terrigenous muds",
+    "description": "",
+    "old_label": "A5.39 - Mediterranean biocenosis of coastal terrigenous muds"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A5-46",
+    "label": "A5.46 - Mediterranean biocenosis of coastal detritic bottoms",
+    "description": "",
+    "old_label": "A5.46 - Mediterranean biocenosis of coastal detritic bottoms"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A5-46MIX",
+    "label": "A5.46 - Mediterranean biocenosis of coastal detritic bottoms (mixed)",
+    "description": "",
+    "old_label": "nan"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A5-46SAN",
+    "label": "A5.46 - Mediterranean biocenosis of coastal detritic bottoms (sand)",
+    "description": "",
+    "old_label": "nan"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A5-47",
+    "label": "A5.47 - Mediterranean biocenosis of shelf-edge detritic bottoms",
+    "description": "",
+    "old_label": "A5.47 - Mediterranean biocenosis of shelf-edge detritic bottoms"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A5-47COA",
+    "label": "A5.47 - Mediterranean biocenosis of shelf-edge detritic bottoms (coarse)",
+    "description": "",
+    "old_label": "nan"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A5-47MIX",
+    "label": "A5.47 - Mediterranean biocenosis of shelf-edge detritic bottoms (mixed)",
+    "description": "",
+    "old_label": "nan"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A5-47SAN",
+    "label": "A5.47 - Mediterranean biocenosis of shelf-edge detritic bottoms (sand)",
+    "description": "",
+    "old_label": "nan"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A5-51",
+    "label": "A5.51 - Maerl beds",
+    "description": "",
+    "old_label": "A5.51 - Maerl beds"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A5-531",
+    "label": "A5.531 - Cymodocea beds",
+    "description": "",
+    "old_label": "A5.531 - Cymodocea beds"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A5-535",
+    "label": "A5.535 - Posidonia beds",
+    "description": "",
+    "old_label": "A5.535 - Posidonia beds"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A6-1",
+    "label": "A6.1 - Deep-sea rock and artificial hard substrata",
+    "description": "",
+    "old_label": "A6.1 - Deep-sea rock and artificial hard substrata"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A6-2",
+    "label": "A6.2 - Deep-sea mixed substrata",
+    "description": "",
+    "old_label": "A6.2 - Deep-sea mixed substrata"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A6-3",
+    "label": "A6.3 - Deep-sea sand",
+    "description": "",
+    "old_label": "A6.3 - Deep-sea sand"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A6-4",
+    "label": "A6.4 - Deep-sea muddy sand",
+    "description": "",
+    "old_label": "A6.4 - Deep-sea muddy sand"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A6-51",
+    "label": "A6.51 - Mediterranean communities of bathyal muds",
+    "description": "",
+    "old_label": "A6.51 - Mediterranean communities of bathyal muds"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A6-511",
+    "label": "A6.511 - Facies of sandy muds with Thenea muricata",
+    "description": "",
+    "old_label": "A6.511 - Facies of sandy muds with Thenea muricata"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A6-52",
+    "label": "A6.52 - Communities of abyssal muds",
+    "description": "",
+    "old_label": "A6.52 - Communities of abyssal muds"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "MEDDEEP",
+    "label": "Mediterranean deep sea ",
+    "description": "",
+    "old_label": "IDS - Ionian deep sea"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "BATHDEEP",
+    "label": "BDS - Bathypelagic component of deep sea areas",
+    "description": "",
+    "old_label": "BDS - Bathypelagic component of deep sea areas"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "NURSPAW",
+    "label": "Essential Fish Habitats (Nursery and Spawning grounds)",
+    "description": "",
+    "old_label": "NH - Nursery habitats"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "casestudy",
+    "code": "GRID",
+    "label": "Grid of analysis",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "casestudy",
+    "code": "CS-THUMB",
+    "label": "Case Study Thumbanil",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "cea",
+    "code": "SENS",
+    "label": "Sensitivities matrix for CEA analysis",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "cea",
+    "code": "WEIGHTS",
+    "label": "Weights matrix for CEA analysis",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "cea",
+    "code": "MAPCEA",
+    "label": "Spatial distribution of CEA score",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "cea",
+    "code": "BARCEAUSE",
+    "label": "Barplot of CEA score for Human Use",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "cea",
+    "code": "BARCEAENV",
+    "label": "Barplot of CEA score for Environmental Receptor",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "cea",
+    "code": "CEAICHAIN",
+    "label": "CEA Impact Chain",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "cea",
+    "code": "CEASCORE",
+    "label": "Geospatial distribution of CEA score",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "muc",
+    "code": "PCONFLICT",
+    "label": "MUC Potential conflict",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "cea",
+    "code": "HISTCEASCORE",
+    "label": "Histogram of CEA score",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "muc",
+    "code": "MUCSCORE",
+    "label": "Geospatial distribution of MUC score",
+    "description": "A 2-D GeoTIFF raster file representing the comprehensive conflict score in each raster. Coordinate reference system (CRS) and resolution are defined by the  Case Study configuration.",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "cea",
+    "code": "BARPRESCORE",
+    "label": "Barplot of Pressure scores",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "cea",
+    "code": "HEATUSEPRESCORE",
+    "label": "Heatmap of Pressure scores due to human uses",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "cea",
+    "code": "HEATPREENVCEA",
+    "label": "CEA score for each P-E combination",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "muc",
+    "code": "HEATUSEMUC",
+    "label": "MUC score for each U-U combination",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "partrac",
+    "code": "PARTRACSEEDING",
+    "label": "Seeding particle for ParTrac module",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "partrac",
+    "code": "PARTRACGRID",
+    "label": "Numerical grid for ParTrac module",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "partrac",
+    "code": "PARTRACTRAJSIM",
+    "label": "Trajectory simulation from ParTrac module",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "OFFWINDFARM-OP",
+    "label": "Offshore Wind Farm (Operational phase)",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "OFFWINDFARM-DE",
+    "label": "Offshore Wind farm (Decommissioning phase)",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "OFFWINDFARM-CO",
+    "label": "Offshore WInd farm (Construction phase)",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "pre",
+    "code": "VESSEL-COLL",
+    "label": "Collision with vessels",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "pre",
+    "code": "TURBINE-COLL",
+    "label": "turbine collision",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "pre",
+    "code": "BARRIER-EFF",
+    "label": "Barrier effect (physical)",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "pre",
+    "code": "INDIRECT-EFF",
+    "label": "Indirect effects",
+    "description": "effects of restricted fishery in the area of the wind farm (includes effects on the sediment due to restricted near bottom fishery)",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "pre",
+    "code": "VIBRATION",
+    "label": "Water vibration",
+    "description": "vibrations due to activities that come along with the wind farm on any temporal scale",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "pre",
+    "code": "NEW-HAB",
+    "label": "New habitat (hard structure)",
+    "description": "effects the wind farm has due to the introduction of hard substrate on which species can settle",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "pre",
+    "code": "SEDIM",
+    "label": "Sedimentation",
+    "description": "sediments that are lifted from the ground and replaced somewhere else",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "pre",
+    "code": "SEDIM-AG",
+    "label": "Sediment agitation",
+    "description": "effects of turbidity/smoothing caused by agitated sediments",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "pre",
+    "code": "REL-SEDIM",
+    "label": "Release of sediment bound contaminants",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "pre",
+    "code": "CELECTRO",
+    "label": "Significant changes in electromagnetic field",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "pre",
+    "code": "CTHERM-CABL",
+    "label": "Heat effect (due to cabling)",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A5",
+    "label": "A5 - Sublittoral sediment",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "A6",
+    "label": "A6 - Deep sea bed",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "MAM-PORP",
+    "label": "Harbour porpoise ( Phocoena phocoena)",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "MBIRD-RAZ",
+    "label": "Razorbill (Alca torda)",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "MBIRD-FULM",
+    "label": "Fulmar (Fulmarus glacialis)",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "MBIRD-GUILLE",
+    "label": "Guillemot (Uria aalge)",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "FISH-SPRAT",
+    "label": "Sprat (Sprattus sprattus)",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "FISH-SAITHE",
+    "label": "Saithe Pollock ( Pollachius virens)",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "FISH-WHIT",
+    "label": "Whiting (Merlangius merlangus)",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "FISH-SANDEEL",
+    "label": "Sandeel (Ammodytes tobianus)",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "FISH-HAD",
+    "label": "Haddock (Melanogrammus aeglefinus)",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "MONACHUS",
+    "label": "Monachus-monachus",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "DOLPHINS",
+    "label": "Delphinus delphis",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "ACQ",
+    "label": "Aquaculture",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "partrac",
+    "code": "PARTRACSOURCES",
+    "label": "Geojson sources for ParTrac module",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "partrac",
+    "code": "PARTRACCONF",
+    "label": "Configuration parameters for ParTrac module",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "partrac",
+    "code": "PARTRACSCEN",
+    "label": "Available scenarios for ParTrac Case Study",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "partrac",
+    "code": "PARTRACSCORE",
+    "label": "Geospatial distribution of particle density/concentration",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "usepre",
+    "code": "LBA--ORGMAT",
+    "label": "Inputs of organic matter from LBA",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "usepre",
+    "code": "LBA--FERT",
+    "label": "Inputs of fertilisers from LBA",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "usepre",
+    "code": "LBA--NONSYNTH",
+    "label": "Introduction of non-synthetic substances and compounds from LBA",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "usepre",
+    "code": "LBA--OTHERS",
+    "label": "Introduction of other substances from LBA",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "usepre",
+    "code": "LBA--RADNUC",
+    "label": "Introduction of radio-nuclides from LBA",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "usepre",
+    "code": "LBA--SYNTH",
+    "label": "Introduction of synthetic compounds from LBA",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "CIRC-SEABED",
+    "label": "Circalittoral seabed",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "env",
+    "code": "INF-SEABED",
+    "label": "'Infralittoral seabed",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "TBB",
+    "label": "Trawling TBB",
+    "description": "",
+    "old_label": "Trawling TBB"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "OTB",
+    "label": "Trawling OTB",
+    "description": "",
+    "old_label": "Trawling OTB"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "PTM",
+    "label": "Trawling PTM",
+    "description": "",
+    "old_label": "Flying"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "MPA",
+    "label": "Marine Protected Areas",
+    "description": "",
+    "old_label": "Protected Areas"
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "cea",
+    "code": "MAPCEA-MSFDSUB",
+    "label": "CEA score from substances, litter and energy pressures",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "cea",
+    "code": "MAPCEA-MSFDBIO",
+    "label": "CEA score from biological pressures",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "cea",
+    "code": "MAPCEA-MSFDPHY",
+    "label": "CEA score from physical pressures",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "OTB-BRD",
+    "label": "Trawling OTB (bycatch reduction device)",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "pre",
+    "code": "CH-HYDRODIN",
+    "label": "Change in the hydrodynamic regime",
+    "description": "Change in the hydrodynamic regime",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "cea",
+    "code": "DISTANCES",
+    "label": "Pressure distances",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "use",
+    "code": "HYDREDGES",
+    "label": "Hydraulic dredges",
+    "description": "Hydraulic dredges for clam fisheries",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "cea",
+    "code": "HEATUSEENVCEA",
+    "label": "CEA score for each U-E combination",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "cea",
+    "code": "MAPCEA-SUA-MEAN",
+    "label": "Uncertainty analysis - mean value of CEA score",
+    "description": "",
+    "old_label": null
+  }
+},
+{
+  "model": "tools4msp.codedlabel",
+  "fields": {
+    "group": "cea",
+    "code": "MAPCEA-SUA-CV",
+    "label": "Uncertainty analysis - coefficient of variation of CEA score",
+    "description": "",
+    "old_label": null
+  }
+}
+]
