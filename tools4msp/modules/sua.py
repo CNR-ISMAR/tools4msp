@@ -24,8 +24,9 @@ class CaseStudySUA(object):
     This is a base class for support Sensitivity and Uncertainty Analysis.
     Child classes have to implement "set_problem" and "set_params" methods.
     """
-    def __init__(self, module_cs, nparams=40):
+    def __init__(self, module_cs, nparams=40, kwargs_run=None):
         self.module_cs = module_cs
+        self.kwargs_run = kwargs_run
         # check runtypelevel
         if self.module_cs.runtypelevel is None or self.module_cs.runtypelevel < 3:
             raise Exception("Case Study doesn't have a sufficient runlevel")
@@ -77,7 +78,7 @@ class CaseStudySUA(object):
         target_values = []
         for i, params in enumerate(samples):
             self.set_params(params)
-            self.module_cs.run(runtypelevel=0)
+            self.module_cs.run(runtypelevel=0, **self.kwargs_run)
             model_output = self.module_cs.get_main_output()
             model_output_stats.push(model_output)
             target_value = self.module_cs.get_SUA_target()
