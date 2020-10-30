@@ -48,6 +48,7 @@ import numpy as np
 import rectifiedgrid as rg
 from django.core.exceptions import ObjectDoesNotExist
 import math
+from .modules.sue import run_sua
 
 logger = logging.getLogger('tools4msp.models')
 
@@ -114,12 +115,12 @@ class Context(models.Model):
     def __str__(self):
         return self.label
 
+
 def _run_sua(csr, nparams=20, nruns=100):
-    module_cs = csr.module_cs
+    module_cs = csr.casestudy.module_cs
     module_cs_sua = run_sua(module_cs, nparams=nparams, nruns=nruns)
-    mean = module_cs_sua.model_output_stats.mean()
-    std = module_cs_sua.model_output_stats.std()
-    cv = std / mean
+    cv = module_cs_sua.cv
+    return cv
 
 
 def _run(csr, selected_layers=None, runtypelevel=3):
