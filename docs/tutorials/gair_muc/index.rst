@@ -49,8 +49,7 @@ presented the following elements:
 
 3) the list of input layers as described in :ref:`muc-module-inputs`;
 
-4) the ``SET MATRIX INPUTS`` button to change values of *weights*
-*sensitivity* and *potential conflict* matrix as described in ::ref:`muc-module-inputs`;
+4) the ``SET MATRIX INPUTS`` button to change values of *potential conflict* matrix as described in ::ref:`muc-module-inputs`;
 
 5) the ``run case study`` button to run the MUC module within this case study;
 
@@ -111,22 +110,8 @@ Configure default run
     select (or deselect) the layers to consider.
 
 
-#.  Review or change input values for weights/sensitivities matrix.
-    Click on ``SET MATRIX INPUTS`` to open the matrix input widget for weights and sensitivities
-
-    .. figure:: images/MUC_matrix_weights.png
-      :alt: MUC weights matrix input widget
-      :align: center
-      :name: muc-cs-weightmatrix
-
-      MUC weights matrix input widget
-
-    .. figure:: images/MUC_matrix_sens.png
-       :alt: MUC sensitivities matrix input widget
-       :align: center
-       :name: muc-cs-sensmatrix
-
-       MUC sensitivities matrix input widget
+#.  Review or change input values for potential conflict matrix.
+    Click on ``SET MATRIX INPUTS`` to open the matrix input widget for potential conflict
 
     .. figure:: images/MUC_matrix_pconflict.png
        :alt: MUC potential conflictMU matrix input widget

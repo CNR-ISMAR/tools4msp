@@ -18,30 +18,6 @@ et al., 2010), already applied within the Adriatic-Ionian Sea
 
    Conceptual schema of the Maritime Use Conflict module
 
-Potential synergies of maritime uses (MUS) were defined and mapped in
-terms Multi-Use (MU) potentials. MU is defined as “the joint use of
-resources in close geographic proximity by either a single user or
-multiple users.” (Schupp et al. under review). Examples include for
-instance the identification of areas adequate for tourism-driven MU,
-such as pescatourism or combination of aquauculture activities and
-tourism.  In addition to geospatial and statistical results, general
-information on the Driver-Added Value-Barrier-Impact (DABI) of a given
-MU will be provided.
-
-Finally, the module will provide a report of existing planning
-instruments (grouped by scale and type) considering the extension of
-the selected area and the presence/absence of specific human uses
-(governance analysis).
-
-MUSC is based on a case-study driven approach. A case-study is defined
-as pre-configured set of specific data with consistent spatial and
-temporal coverage of environmental and anthropogenic uses,
-incorporating all the necessary parameter for the module run.  The
-synergy expressed through Multi-Use potentials will be analyzed
-according to ongoing and past projects and through the analysis of EU
-and macro-regional strategies and national strategies (Blue MED SRIA;
-EUSAIR, etc…)
-
 .. _muc-module-inputs:
 
 Module inputs
