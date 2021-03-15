@@ -54,28 +54,29 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
     API endpoint that allows CaseStudies to be viewed or edited.
 
     retrieve:
-        Return a user instance.
+        Return a CaseStudy instance.
 
     list:
         Return the list of available CaseStudies.
 
     create:
         Add a new Case Study
-        Adds a new Case Study to the server. To ad additional inputs use the following methods:
-            * see [/casestudies/{casestudyId}/layers](#api-casestudies-layers-create) for adding a new Layer
-            * see [/casestudies/{casestudyId}/inputs](#api-casestudies-inputs-create) from adding new input parameters or datasets
+        Adds a new Case Study to the server. To add additional inputs use the following methods:
+ 
+        * see [/casestudies/{casestudyId}/layers](#api-casestudies-layers-create) for adding a new Layer
+        * see [/casestudies/{casestudyId}/inputs](#api-casestudies-inputs-create) from adding new input parameters or datasets
 
     delete:
-        Remove an existing user.
+        Remove an existing CaseStudy.
 
     partial_update:
-        Update one or more fields on an existing user.
+        Update one or more fields on an existing CaseStudy.
 
     update:
-        Update a user.
+        Update a CaseStudy.
 
     parameters:
-        - name: name
+        - name: cstype
             type: string
             required: true
             location: form

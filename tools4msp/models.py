@@ -517,7 +517,8 @@ def _run(csr, runtypelevel=3):
                                       repeat_delay=4000, fargs=[1, ax, vmaxcum])
 
         cl = CodedLabel.objects.get(code='PARTRACSCORE')
-        csr_o = csr.outputs.create(coded_label=cl, description="Diffusion from ontinuous source")
+        csr_o = csr.outputlayers.create(coded_label=cl, description="Diffusion from ontinuous source")
+        # csr_o = csr.outputs.create(coded_label=cl, description="Diffusion from ontinuous source")
 
         write_to_file_field(csr_o.thumbnail, write_to_buffer, 'gif', aniobj=ani)
         plt.clf()
@@ -532,7 +533,8 @@ def _run(csr, runtypelevel=3):
                                       interval=1000, blit=False,
                                       repeat_delay=4000, fargs=[2, ax, vmax]) # use second raster (non-cumulative)
 
-        csr_o = csr.outputs.create(coded_label=cl, description="Dispersion from impulsive source")
+        csr_o = csr.outputlayers.create(coded_label=cl, description="Dispersion from impulsive source")
+        # csr_o = csr.outputs.create(coded_label=cl, description="Dispersion from impulsive source")
 
         write_to_file_field(csr_o.thumbnail, write_to_buffer, 'gif', aniobj=ani)
         plt.clf()
@@ -602,7 +604,7 @@ class CaseStudy(models.Model):
     label = models.CharField(max_length=100)
     description = models.CharField(max_length=400, null=True, blank=True)
 
-    cstype = models.CharField(_('CS Type'), max_length=10, choices=CASESTUDY_TYPE_CHOICES)
+    cstype = models.CharField(_('CS Type'), max_length=10, choices=CASESTUDY_TYPE_CHOICES, help_text="Type of Case Study. Possible values are 'default', or 'customized'")
     module = models.CharField(_('Module type'), max_length=10, choices=MODULE_TYPE_CHOICES)
     tag = models.CharField(max_length=100, null=True, blank=True)
     
