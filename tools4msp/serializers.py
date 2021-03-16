@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework_gis.serializers import GeoModelSerializer
 from .models import CaseStudy, CaseStudyLayer, CaseStudyInput, \
     CodedLabel, DomainArea, CaseStudyRun, \
-    CaseStudyRunOutputLayer, CaseStudyRunOutput
+    CaseStudyRunOutputLayer, CaseStudyRunOutput, Context
 
 
 class CSChildHyperlinkedIdentityField(serializers.HyperlinkedIdentityField):
@@ -41,6 +41,11 @@ class DomainAreaListSerializer(serializers.HyperlinkedModelSerializer):
         model = DomainArea
         fields = ('url', 'label',)
 
+
+class ContextSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Context
+        fields = ('url', 'label', 'description', 'reference_date')
 
 class CodedLabelSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:

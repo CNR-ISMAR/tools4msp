@@ -16,6 +16,10 @@ cs_router = router.register(r'domainareas',
                             api_views.DomainAreaViewSet,
                             )
 
+cs_router = router.register(r'contexts',
+                            api_views.ContextViewSet,
+                            )
+
 cs_router = router.register(r'codedlabels',
                             api_views.CodedLabelViewSet,
                             )

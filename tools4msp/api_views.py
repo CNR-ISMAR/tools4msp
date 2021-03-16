@@ -20,7 +20,8 @@ from .drf_extensions_patch import NestedViewSetMixin
 
 from .serializers import CaseStudySerializer, CaseStudyLayerSerializer, CaseStudyInputSerializer, \
     CaseStudyListSerializer, DomainAreaSerializer, DomainAreaListSerializer, CodedLabelSerializer, \
-    FileUploadSerializer, CaseStudyRunSerializer, ThumbnailUploadSerializer, CaseStudyCloneSerializer
+    FileUploadSerializer, CaseStudyRunSerializer, ThumbnailUploadSerializer, CaseStudyCloneSerializer, \
+    ContextSerializer
 from .models import CaseStudy, CaseStudyLayer, CaseStudyInput, DomainArea, CodedLabel, \
     CaseStudyRun, Context
 from rest_framework.schemas import AutoSchema
@@ -49,45 +50,36 @@ class CodedLabelViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = 'code'
 
 
+class ContextViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Context.objects.all()
+    serializer_class = ContextSerializer
+
+
 class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows CaseStudies to be viewed or edited.
 
     retrieve:
-        Return a CaseStudy instance.
+    Return a CaseStudy instance.
 
     list:
-        Return the list of available CaseStudies.
+    Return the list of available CaseStudies.
 
     create:
-        Add a new Case Study
-        Adds a new Case Study to the server. To add additional inputs use the following methods:
- 
-        * see [/casestudies/{casestudyId}/layers](#api-casestudies-layers-create) for adding a new Layer
-        * see [/casestudies/{casestudyId}/inputs](#api-casestudies-inputs-create) from adding new input parameters or datasets
+    Add a new Case Study
+    Adds a new Case Study to the server. To add additional inputs use the following methods:
+
+    * see [/casestudies/{casestudyId}/layers](#api-casestudies-layers-create) for adding a new Layer
+    * see [/casestudies/{casestudyId}/inputs](#api-casestudies-inputs-create) from adding new input parameters or datasets
 
     delete:
-        Remove an existing CaseStudy.
+    Remove an existing CaseStudy.
 
     partial_update:
-        Update one or more fields on an existing CaseStudy.
+    Update one or more fields on an existing CaseStudy.
 
     update:
-        Update a CaseStudy.
-
-    parameters:
-        - name: cstype
-            type: string
-            required: true
-            location: form
-        - name: bloodgroup
-            type: string
-            required: true
-            location: form
-        - name: birthmark
-            type: string
-            required: true
-            location: form
+    Update a CaseStudy.
     """
     permission_classes = [IsAuthenticated]
     serializer_class = CaseStudySerializer
@@ -97,19 +89,24 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
     action_serializers = {'list': CaseStudyListSerializer,
                           'cloneupdate': CaseStudyCloneSerializer}
 
+    # def retrieve(self, request, *args, **kwargs):
+    #     return super().retrieve(request, *args, **kwargs)
+
+    queryset = CaseStudy.objects.all()
+
     def get_queryset(self):
         """
         This view should return a list of all the CaseStudies
         for the currently authenticated user.
         """
-        qs = CaseStudy.objects.all()
+        queryset = self.queryset #CaseStudy.objects.all()
         # this need for avoid incompatibility with schema generator of django_filter
         if self.request is None:
-            return qs
+            return queryset.none()
         elif not self.request.user.is_superuser:
-            return qs.filter(owner=self.request.user)
+            return queryset.filter(owner=self.request.user)
         else:
-            return qs
+            return queryset
 
     def perform_create(self, serializer):
         cs = serializer.save(owner=self.request.user)
@@ -136,11 +133,7 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
     @action(detail=True, schema=run_schema)
     def run(self, request, *args, **kwargs):
         """
-        Run the module
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
+        Execute an analysis for the current CaseStudy according to the CaseStudy configuration. The reference to a new CaseStudyRun will be returned.
         """
         selected_layers = self.request.GET.get('selected_layers')
         if selected_layers is not None:
@@ -169,11 +162,7 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
             url_path='setcontext/(?P<context_label>[^/.]+)')
     def setcontext(self, request, context_label, *args, **kwargs):
         """
-        Run the module
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
+        Set the input parameters for the current CaseStudy according to the specified context (see. thesaurus of available Contexts).
         """
         context = Context.objects.get(label=context_label)
 
@@ -186,11 +175,7 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
     @action(detail=True, methods=['post'])
     def cloneupdate(self, request, *args, **kwargs):
         """
-        Clone the Case Study
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
+        Clone/duplicate the CaseStudy allowing the updating of parameters/metadata. The reference to the new CaseStudy will be returned.
         """
 
         cs_clone_serializer = CaseStudyCloneSerializer(data=request.data)
@@ -226,11 +211,7 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
     @action(detail=True)
     def clone(self, request, *args, **kwargs):
         """
-        Clone the Case Study
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
+        [DEPRECATED: see cloneupdate] Clone/duplicate the CaseStudy. The reference to the new CaseStudy will be returned.
         """
         
         rjson = {'success': False}
@@ -259,6 +240,7 @@ class CaseStudyLayerViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     #    return CaseStudyLayer.objects.filter(casestudy=self.kwargs['casestudy_pk'])
     queryset = CaseStudyLayer.objects.all()
     serializer_class = CaseStudyLayerSerializer
+    permission_classes = [IsAuthenticated]
 
     @action(detail=True, methods=['put'], serializer_class=FileUploadSerializer)
     @parser_classes([FileUploadParser])
@@ -311,6 +293,7 @@ class CaseStudyInputViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     """
     queryset = CaseStudyInput.objects.all()
     serializer_class = CaseStudyInputSerializer
+    permission_classes = [IsAuthenticated]
 
     @action(detail=True, methods=['put'], serializer_class=FileUploadSerializer)
     @parser_classes([FileUploadParser])

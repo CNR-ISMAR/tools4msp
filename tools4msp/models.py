@@ -49,6 +49,7 @@ import rectifiedgrid as rg
 from django.core.exceptions import ObjectDoesNotExist
 import math
 from .modules.sua import run_sua
+import uuid
 
 logger = logging.getLogger('tools4msp.models')
 
@@ -601,18 +602,23 @@ def check_coded_labels(selected_layers):
 
 
 class CaseStudy(models.Model):
-    label = models.CharField(max_length=100)
-    description = models.CharField(max_length=400, null=True, blank=True)
+    # id = models.AutoField(primary_key=True, help_text="AAAAAAAAA") # TODO: to be removed
+    label = models.CharField(max_length=100, help_text="CaseStudy title")
+    description = models.CharField(max_length=400, null=True, blank=True, help_text="CaseStudy description")
 
-    cstype = models.CharField(_('CS Type'), max_length=10, choices=CASESTUDY_TYPE_CHOICES, help_text="Type of Case Study. Possible values are 'default', or 'customized'")
-    module = models.CharField(_('Module type'), max_length=10, choices=MODULE_TYPE_CHOICES)
-    tag = models.CharField(max_length=100, null=True, blank=True)
-    
-    resolution = models.FloatField(default=1000, help_text='resoution of analysis (meters)')
+    cstype = models.CharField(_('CS Type'), max_length=10, choices=CASESTUDY_TYPE_CHOICES,
+                              help_text="CaseStudy type. Accepted values are: {}".format(", ".join([t[0] for t in CASESTUDY_TYPE_CHOICES])))
+    module = models.CharField(_('Module type'), max_length=10, choices=MODULE_TYPE_CHOICES,
+                              help_text="Module type. Accepted values are: {}".format(
+                                  ", ".join([t[0] for t in MODULE_TYPE_CHOICES])))
+    tag = models.CharField(max_length=100, null=True, blank=True,
+                           help_text="Free tag, label or keyword to facilitate CaseStudy identification and search")
+    resolution = models.FloatField(default=1000, help_text='Default resolution for raster based analysis (meters)')
     domain_area = models.MultiPolygonField(blank=True, null=True,
-                                           help_text="polygon geometry(Lat Log WGS84)")
+                                           help_text="GeoJSON rapresentation of the CaseStudy domain area (MultiPolygon Lat Log WGS84)")
     domain_area_terms = models.ManyToManyField("DomainArea",
-                                               blank=True
+                                               blank=True,
+                                               help_text="Domain area term. See DomainAreas thesaurus"
                                                )
 
     # tools4msp = models.BooleanField(_("Tools4MSP Case Study"), default=False,
@@ -1850,6 +1856,8 @@ class DomainArea(models.Model):
 
 class PartracScenario(models.Model):
     label = models.CharField(max_length=100)
+    # label = models.CharField(max_length=100, unique=True)
+    # title = models.CharField(max_length=100, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
 
 
@@ -1860,6 +1868,7 @@ class PartracTime(models.Model):
 class PartracData(models.Model):
     scenario = models.ForeignKey(PartracScenario, on_delete=models.CASCADE)
     reference_time = models.ForeignKey(PartracTime, on_delete=models.CASCADE)
+    # reference_time = models.IntegerField()
     particle_id = models.IntegerField(db_index=True)
     geo = models.PointField(help_text="point geometry", srid=3035)
     depth = models.FloatField()
@@ -1869,8 +1878,10 @@ class PartracData(models.Model):
 
 class PartracGrid(models.Model):
     rid = models.AutoField(primary_key=True)
+    # label = models.SlugField(unique=True, default=uuid.uuid4)
     rast = models.RasterField(srid=3035)
     filename = models.TextField()
+    # description = models.CharField(max_length=400, null=True, blank=True)
 
 
 class PartracDataGrid(models.Model):
