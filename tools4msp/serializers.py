@@ -83,8 +83,11 @@ class CaseStudyLayerSerializer(serializers.HyperlinkedModelSerializer):
                   'thumbnail',
                   'coded_label',
                   'code',
-                  'label')
+                  'label',
+                  'description',
+                  )
         read_only_fields = ('file',
+                            'thumbnail',
                             'label')
         extra_kwargs = {
             'coded_label': {'lookup_field': 'code'}
@@ -104,8 +107,11 @@ class CaseStudyInputSerializer(serializers.HyperlinkedModelSerializer):
                   'thumbnail',
                   'coded_label',
                   'code',
-                  'label')
+                  'label',
+                  'description',
+                  )
         read_only_fields = ('file',
+                            'thumbnail',
                             'label')
         extra_kwargs = {
             'coded_label': {'lookup_field': 'code'}

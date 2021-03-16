@@ -92,6 +92,7 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
     # def retrieve(self, request, *args, **kwargs):
     #     return super().retrieve(request, *args, **kwargs)
 
+    # this is important to allow correct schema generation
     queryset = CaseStudy.objects.all()
 
     def get_queryset(self):
@@ -182,8 +183,8 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
         if not cs_clone_serializer.is_valid():
             return Response(cs_clone_serializer.errors,
                             status=status.HTTP_400_BAD_REQUEST)
-                    
-        
+
+
         rjson = {'success': False}
         _cs = self.get_object()
 
@@ -213,7 +214,7 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
         """
         [DEPRECATED: see cloneupdate] Clone/duplicate the CaseStudy. The reference to the new CaseStudy will be returned.
         """
-        
+
         rjson = {'success': False}
         _cs = self.get_object()
 
@@ -234,7 +235,7 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
 
 class CaseStudyLayerViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     """
-    API endpoint that allows CaseStudy Layers to be viewed or edited.
+    API endpoint that allows CaseStudyLayers to be viewed or edited.
     """
     # def get_queryset(self):
     #    return CaseStudyLayer.objects.filter(casestudy=self.kwargs['casestudy_pk'])
@@ -246,11 +247,19 @@ class CaseStudyLayerViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     @parser_classes([FileUploadParser])
     def upload(self, request, *args, **kwargs):
         """
-        Upload the file
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
+        Upload a geotiff file into a CaseStudyLayer object. Projection, extension and resolution should
+        be the same for all layers.
+
+        Basic usage example in python
+        ```python
+        import requests
+        url = "https://api.tools4msp.eu/api/casestudies/{parent_lookup_casestudy__id}/layers/{id}/upload/
+        input_file = "[path to the geotiff file]"
+
+        with open(input_file, 'rb') as f:
+            files = {'file': f}
+            r = requests.put(url, auth=('Token', TOKEN), files=files)
+        ```
         """
         if 'file' not in request.data:
             raise ParseError("Empty content")
@@ -271,11 +280,18 @@ class CaseStudyLayerViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     @parser_classes([FileUploadParser])
     def tupload(self, request, *args, **kwargs):
         """
-        Upload the thumbnail
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
+        Upload a thumbnail image (eg. png) into a CaseStudyLayer object.
+
+        Basic usage example in python
+        ```python
+        import requests
+        url = "https://api.tools4msp.eu/api/casestudies/{parent_lookup_casestudy__id}/layers/{id}/tupload/
+        input_file = "[path to the thumbnail image]"
+
+        with open(input_file, 'rb') as f:
+            files = {'file': f}
+            r = requests.put(url, auth=('Token', TOKEN), files=files)
+        ```
         """
         if 'file' not in request.data:
             raise ParseError("Empty content")
@@ -289,7 +305,7 @@ class CaseStudyLayerViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
 
 class CaseStudyInputViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     """
-    API endpoint that allows CaseStudy Input datasets to be viewed or edited.
+    API endpoint that allows CaseStudyInput datasets to be viewed or edited.
     """
     queryset = CaseStudyInput.objects.all()
     serializer_class = CaseStudyInputSerializer
@@ -299,11 +315,18 @@ class CaseStudyInputViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     @parser_classes([FileUploadParser])
     def upload(self, request, *args, **kwargs):
         """
-        Upload the file
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
+        Upload an input parameters file (JSON) into a CaseStudyInput object.
+
+        Basic usage example in python
+        ```python
+        import requests
+        url = "https://api.tools4msp.eu/api/casestudies/{parent_lookup_casestudy__id}/inputs/{id}/upload/
+        input_file = "[path to the JSON file]"
+
+        with open(input_file, 'rb') as f:
+            files = {'file': f}
+            r = requests.put(url, auth=('Token', TOKEN), files=files)
+        ```
         """
         if 'file' not in request.data:
             raise ParseError("Empty content")
@@ -318,11 +341,18 @@ class CaseStudyInputViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     @parser_classes([FileUploadParser])
     def tupload(self, request, *args, **kwargs):
         """
-        Upload the thumbnail
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
+        Upload a thumbnail image (eg. png) into a CaseStudyInput object.
+
+        Basic usage example in python
+        ```python
+        import requests
+        url = "https://api.tools4msp.eu/api/casestudies/{parent_lookup_casestudy__id}/inputs/{id}/tupload/
+        input_file = "[path to the thumbnail image]"
+
+        with open(input_file, 'rb') as f:
+            files = {'file': f}
+            r = requests.put(url, auth=('Token', TOKEN), files=files)
+        ```
         """
         if 'file' not in request.data:
             raise ParseError("Empty content")
