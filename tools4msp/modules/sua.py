@@ -89,7 +89,7 @@ class CaseStudySUA(object):
 
     def analyze(self, calc_second_order=False):
         sa_results = sobol.analyze(self.problem,
-                                   self.model_output_stats,
+                                   self.target_values,
                                    calc_second_order=calc_second_order)
         return sa_results
 
