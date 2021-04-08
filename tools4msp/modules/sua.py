@@ -1,11 +1,12 @@
 import logging
 import numpy as np
 import pandas as pd
+# for loading patched function. This have to be before salib import
+from .salib_util_patch import _nonuniform_scale_samples
 from SALib.sample import saltelli
 from SALib.analyze import sobol
 from joblib import Parallel, delayed
 from copy import deepcopy
-from .salib_util_patch import _nonuniform_scale_samples # for loading patched function
 
 logger = logging.getLogger('tools4msp.sua')
 
@@ -203,7 +204,7 @@ class CEACaseStudySUA(CaseStudySUA):
         self.normalize_distance = None
 
         sensitivities = module_cs.sensitivities
-        sensitivities.fillna({'confidence': 0.2},
+        sensitivities.fillna({'confidence': 0.5},
                              inplace=True)
         sensitivities['sua_var_name'] = sensitivities['precode'] + '--' + sensitivities['envcode']
         df_presenvs = module_cs.get_score_stats('presenvs')
@@ -226,6 +227,8 @@ class CEACaseStudySUA(CaseStudySUA):
                                  )
 
         weights = module_cs.weights
+        weights.fillna({'confidence': 0.5},
+                        inplace=True)
         self.normalize_distance = weights.distance.max() * 2
         weights['sua_var_name'] = weights['usecode'] + '--' + weights['precode']
         df_usepressures = module_cs.get_score_stats('usepressures')
