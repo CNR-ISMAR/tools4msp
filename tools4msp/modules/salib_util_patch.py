@@ -38,13 +38,13 @@ def _nonuniform_scale_samples(params, bounds, dists):
             if b1 <= 0 or b2 <= 0 or b1 >= 1 or b2 >= 1:
                 raise ValueError('''Modified Triangular distribution: Peak and Confidence on interval [0,1]''')
             else:
-                loc = max(b1 - b2 / 2, 0)
+                loc = min(max(b1 - b2 / 2, 0), 1 - b2)
                 scale = b2
                 c = (b1 - loc) / scale
                 conv_params[:, i] = sp.stats.triang.ppf(
                     params[:, i], c=c, scale=scale, loc=loc)
 
-        if dists[i] == 'triang':
+        elif dists[i] == 'triang':
             # checking for correct parameters
             if b1 <= 0 or b2 <= 0 or b2 >= 1:
                 raise ValueError('''Triangular distribution: Scale must be
@@ -79,11 +79,11 @@ def _nonuniform_scale_samples(params, bounds, dists):
                     sp.stats.norm.ppf(params[:, i], loc=b1, scale=b2))
 
         else:
-            valid_dists = ['unif', 'triang', 'norm', 'lognorm']
+            valid_dists = ['unif', 'triang', 'norm', 'lognorm', 'triangmod']
             raise ValueError('Distributions: choose one of %s' %
                              ", ".join(valid_dists))
 
     return conv_params
 
 
-salib_util.nonuniform_scale_samples = _nonuniform_scale_samples()
+salib_util.nonuniform_scale_samples = _nonuniform_scale_samples
