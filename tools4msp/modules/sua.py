@@ -9,7 +9,7 @@ from copy import deepcopy
 logger = logging.getLogger('tools4msp.sua')
 
 
-def run_sua(module_cs, nparams, nruns, bygroup=True, n_jobs=1, kwargs_run={}):
+def run_sua(module_cs, nparams, nruns, bygroup=True, njobs=1, kwargs_run={}):
     module_cs.load_layers()
     module_cs.load_grid()
     module_cs.load_inputs()
@@ -18,7 +18,7 @@ def run_sua(module_cs, nparams, nruns, bygroup=True, n_jobs=1, kwargs_run={}):
     module_cs_sua = CEACaseStudySUA(module_cs, nparams=nparams,
                                     bygroup=bygroup,
                                     kwargs_run=kwargs_run)
-    module_cs_sua.runall(nruns, n_jobs=n_jobs)
+    module_cs_sua.runall(nruns, njobs=njobs)
 
     return module_cs_sua
 
@@ -81,7 +81,7 @@ class CaseStudySUA(object):
         return saltelli.sample(self.problem, nruns,
                                calc_second_order=calc_second_order)
 
-    def runall(self, nruns, calc_second_order=False, n_jobs=1):
+    def runall(self, nruns, calc_second_order=False, njobs=1):
         self.set_problem()
         samples = self.sample(nruns, calc_second_order)
         model_output_stats = RunningStats2D(percentiles=[25, 50, 75])
@@ -96,7 +96,7 @@ class CaseStudySUA(object):
             logger.debug('run {} target={}'.format(i, target_value))
             return target_value
             
-        with Parallel(n_jobs=n_jobs, backend='threading') as parallel:
+        with Parallel(n_jobs=njobs, backend='threading', require='sharedmem') as parallel:
             target_values = parallel(delayed(_single_run)(i, params) for i, params in enumerate(samples))
 
         # for i, params in enumerate(samples):
