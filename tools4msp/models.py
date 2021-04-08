@@ -117,7 +117,7 @@ class Context(models.Model):
         return self.label
 
 
-def _run_sua(csr, nparams=20, nruns=100):
+def _run_sua(csr, nparams=20, nruns=100, bygroup=True, njobs=1):
     if isinstance(csr, int):
         csr = CaseStudyRun.objects.get(pk=csr)
     selected_layers = csr.configuration['selected_layers']
@@ -125,7 +125,8 @@ def _run_sua(csr, nparams=20, nruns=100):
     kwargs_run = {'uses': uses, 'pressures': pres, 'envs': envs}
     module_cs = csr.casestudy.module_cs
     module_cs_sua = run_sua(module_cs, nparams=nparams,
-                            nruns=nruns, kwargs_run=kwargs_run)
+                            nruns=nruns, bygroup=bygroup, njobs=njobs,
+                            kwargs_run=kwargs_run)
 
     layers = {'MAPCEA-SUA-MEAN': module_cs_sua.mean,
               'MAPCEA-SUA-CV': module_cs_sua.cv,}
