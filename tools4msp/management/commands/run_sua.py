@@ -22,10 +22,23 @@ class Command(BaseCommand):
             default=50,
         )
 
+        parser.add_argument(
+            '--njobs',
+            type=int,
+            default=1,
+        )
+
+        parser.add_argument(
+            '--nogroup',
+            action='store_true',
+        )
+
     def handle(self, *args, **options):
         nparams = options['nparams']
         nruns = options['nruns']
+        njobs = options['njobs']
+        bygroup = not options['nogroup']
         for run_id in options['run_ids']:
             self.stdout.write('Starting SUA analysis CaseStudyRun={} ...'.format(run_id))
-            _run_sua(run_id, nparams, nruns)
+            _run_sua(run_id, nparams, nruns, bygroup=bygroup, njobs=njobs)
             self.stdout.write(self.style.SUCCESS('Successfully saved SUA results CaseStudyRun={}\t'.format(run_id)))
