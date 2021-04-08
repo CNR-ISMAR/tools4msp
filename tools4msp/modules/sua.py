@@ -5,6 +5,7 @@ from SALib.sample import saltelli
 from SALib.analyze import sobol
 from joblib import Parallel, delayed
 from copy import deepcopy
+from .salib_util_patch import _nonuniform_scale_samples # for loading patched function
 
 logger = logging.getLogger('tools4msp.sua')
 
@@ -213,50 +214,45 @@ class CEACaseStudySUA(CaseStudySUA):
         topsensitivities = df_presenvs.sort_values('score', ascending=False)[:nparams]
         for i, s in topsensitivities.iterrows():
             label = s.sua_var_name
-            confidence = s.confidence
-            int_confidence = 1. - confidence
-            if int_confidence == 0:
-                int_confidence = 0.1
             sensitivity_score = s.sensitivity
-
+            confidence = s.confidence
+            if confidence == 0:
+                confidence = 0.1
             self.add_problem_var(['sensitivities', 'sensitivity', label],
                                  [sensitivity_score,
-                                  int_confidence],
-                                 'triang',
+                                  confidence],
+                                 'triangmod',
                                  'sensitivity' if self.bygroup else None
                                  )
 
-        weighs = module_cs.weights
-        self.normalize_distance = weighs.distance.max() * 2
-        weighs['sua_var_name'] = weighs['usecode'] + '--' + weighs['precode']
+        weights = module_cs.weights
+        self.normalize_distance = weights.distance.max() * 2
+        weights['sua_var_name'] = weights['usecode'] + '--' + weights['precode']
         df_usepressures = module_cs.get_score_stats('usepressures')
-        df_usepressures = df_usepressures.merge(weighs,
+        df_usepressures = df_usepressures.merge(weights,
                                                 left_on=['k1', 'k2'],
                                                 right_on=['usecode', 'precode']
                                                 )
         topweights = df_usepressures.sort_values('score', ascending=False)[:nparams]
         for i, s in topweights.iterrows():
             label = s.sua_var_name
-            confidence = 0.5
-            int_confidence = 1. - confidence
-            if int_confidence == 0:
-                int_confidence = 0.1
             weight = s.weight
             distance = s.distance / self.normalize_distance
-            if distance == 0:
-                distance = 0.0001
+            confidence = s.confidence
+            if confidence == 0:
+                confidence = 0.1
 
             self.add_problem_var(['weights', 'weight', label],
                                  [weight,
-                                  int_confidence],
-                                 'triang',
+                                  confidence],
+                                 'triangmod',
                                  'weight' if self.bygroup else None
                                  )
 
             self.add_problem_var(['weights', 'distance', label],
                                  [distance,
-                                  int_confidence],
-                                 'triang',
+                                  confidence],
+                                 'triangmod',
                                  'distance' if self.bygroup else None
                                  )
 

@@ -1233,7 +1233,9 @@ class WeightManager(models.Manager):
         return list(qs.values(u=F('use__code'),
                               p=F('pres__code'),
                               w=F('weight'),
-                              d=F('distance')))
+                              d=F('distance'),
+                              c=F('confidence'),
+                              ))
 
     def clone_weights(self,
                       old_context_label, new_context_label,

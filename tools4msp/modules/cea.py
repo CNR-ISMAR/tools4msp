@@ -289,11 +289,14 @@ class CEACaseStudy(CaseStudyBase):
                 fname = fname.split('_')[0]
                 if fname == 'cea-WEIGHTS':
                     _df = pd.read_json(filepath)
+                    if 'c' not in _df.columns:
+                        _df['c'] = np.NaN
                     _df.rename(columns={'u': 'usecode',
                                         'p': 'precode',
                                         'd': 'distance',
                                         'w': 'weight',
-                    }, inplace=True)
+                                        'c': 'confidence',
+                                        }, inplace=True)
                     self.weights = _df
                 elif fname == 'cea-SENS':
                     _df = pd.read_json(filepath)
@@ -303,7 +306,7 @@ class CEACaseStudy(CaseStudyBase):
                                         'p': 'precode',
                                         's': 'sensitivity',
                                         'c': 'confidence',
-                    }, inplace=True)
+                                        }, inplace=True)
                     self.sensitivities = _df
 
                     if 'nrf' not in self.sensitivities.columns:
