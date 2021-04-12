@@ -39,7 +39,7 @@ ipython-genutils==0.2.0
 itypes==1.1.0
 jdcal==1.4.1
 jedi==0.14.0
-Jinja2==2.10.1
+Jinja2==2.11.3
 joblib==0.14.1
 jsonfield==2.0.2
 kiwisolver==1.1.0
