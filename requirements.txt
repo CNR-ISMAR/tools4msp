@@ -94,7 +94,7 @@ tablib==0.13.0
 -e git+https://github.com/CNR-ISMAR/tools4msp.git@9cf20631aa6577b76d931e9e231eee0d7d1772aa#egg=tools4msp
 traitlets==4.3.2
 uritemplate==3.0.0
-urllib3==1.25.3
+urllib3==1.26.5
 wcwidth==0.1.7
 wrapt==1.12.1
 xlrd==1.2.0
