@@ -1,7 +1,7 @@
 affine==2.2.2
 alabaster==0.7.12
 attrs==19.1.0
-Babel==2.7.0
+Babel==2.9.1
 backcall==0.1.0
 backports.csv==1.0.7
 Cartopy==0.17.0
