@@ -9,7 +9,6 @@ except:
 
 import pandas as pd
 import geopandas as gpd
-import rectifiedgrid as rg
 
 logger = logging.getLogger('tools4msp.georeaders')
 
@@ -18,6 +17,8 @@ def localgeonode(l):
     """Get a geo dataset from local GeoNonde installation. It returns a
        Rectifiedgrid object for raster layers and a GeoDataFrame for vector layers.
     """
+    import rectifiedgrid as rg
+
     if not geonode:
         raise ModuleNotFoundError("GeoNode module is not installed or not configured in the project")
         return False

@@ -1,5 +1,8 @@
 # file charts.py
-import rectifiedgrid as rg
+try:
+    import rectifiedgrid as rg
+except:
+    pass
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.dates import DateFormatter
@@ -18,7 +21,6 @@ import pandas as pd
 import geopandas as gpd
 from affine import Affine
 from shapely.geometry import MultiPoint
-import cartopy
 from shapely.ops import transform
 from functools import partial
 import pyproj

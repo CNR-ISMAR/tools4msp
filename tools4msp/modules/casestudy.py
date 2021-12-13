@@ -3,7 +3,10 @@ from os import listdir, path, makedirs
 from slugify import slugify
 import pandas as pd
 import numpy as np
-import rectifiedgrid as rg
+try:
+    import rectifiedgrid as rg
+except:
+    pass
 import json
 
 try:

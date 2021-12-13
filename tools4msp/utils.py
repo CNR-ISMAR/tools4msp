@@ -9,7 +9,10 @@ import numpy as np
 import operator
 import scipy
 import pandas as pd
-import rectifiedgrid as rg
+try:
+    import rectifiedgrid as rg
+except:
+    pass
 from rasterio.warp import reproject
 from django.core.files import File
 import matplotlib

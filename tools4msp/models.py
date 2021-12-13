@@ -41,11 +41,14 @@ from .modules.muc import MUCCaseStudy
 from .modules.partrac import ParTracCaseStudy
 from os import path
 import pandas as pd
-import cartopy
-import cartopy.io.img_tiles as cimgt
+try:
+    import cartopy
+    import cartopy.io.img_tiles as cimgt
+except:
+    pass
 import matplotlib.animation as animation
 import numpy as np
-import rectifiedgrid as rg
+# import rectifiedgrid as rg
 from django.core.exceptions import ObjectDoesNotExist
 import math
 from .modules.sua import run_sua
