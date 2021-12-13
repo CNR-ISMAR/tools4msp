@@ -1479,7 +1479,7 @@ class Dataset(models.Model):
     slug = models.SlugField(max_length=100)
     label = models.CharField(max_length=100)
     expression = models.TextField(null=True, blank=True, verbose_name="Pre-processing expression")
-    dataset_type = models.CharField(max_length=5, choices=CODEDLABEL_GROUP_CHOICES)
+    dataset_type = models.CharField(max_length=10, choices=CODEDLABEL_GROUP_CHOICES)
 
     def __str__(self):
         return "{} - {}".format(self.pk, self.label)
