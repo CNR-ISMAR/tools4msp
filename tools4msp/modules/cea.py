@@ -311,7 +311,7 @@ class CEACaseStudy(CaseStudyBase):
 
                     if 'nrf' not in self.sensitivities.columns:
                         self.sensitivities['nrf'] = None
-                    if 'nrf' not in self.sensitivities.columns:
+                    if 'srf' not in self.sensitivities.columns:
                         self.sensitivities['srf'] = None
 
         super().load_inputs()
