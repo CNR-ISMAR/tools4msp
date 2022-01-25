@@ -41,11 +41,14 @@ from .modules.muc import MUCCaseStudy
 from .modules.partrac import ParTracCaseStudy
 from os import path
 import pandas as pd
-import cartopy
-import cartopy.io.img_tiles as cimgt
+try:
+    import cartopy
+    import cartopy.io.img_tiles as cimgt
+except:
+    pass
 import matplotlib.animation as animation
 import numpy as np
-import rectifiedgrid as rg
+# import rectifiedgrid as rg
 from django.core.exceptions import ObjectDoesNotExist
 import math
 from .modules.sua import run_sua
@@ -1486,7 +1489,7 @@ class Dataset(models.Model):
     slug = models.SlugField(max_length=100)
     label = models.CharField(max_length=100)
     expression = models.TextField(null=True, blank=True, verbose_name="Pre-processing expression")
-    dataset_type = models.CharField(max_length=5, choices=CODEDLABEL_GROUP_CHOICES)
+    dataset_type = models.CharField(max_length=10, choices=CODEDLABEL_GROUP_CHOICES)
 
     def __str__(self):
         return "{} - {}".format(self.pk, self.label)

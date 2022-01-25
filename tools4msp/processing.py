@@ -4,7 +4,12 @@ import logging
 import re
 from .georeaders import localgeonode
 import geopandas as gpd
-import rectifiedgrid as rg
+
+try:
+    import rectifiedgrid as rg
+except:
+    pass
+    
 import numpy as np
 
 logger = logging.getLogger('tools4msp.processing')

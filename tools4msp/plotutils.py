@@ -1,7 +1,10 @@
 import math
 import matplotlib.pyplot as plt
 from .utils import write_to_file_field
-import cartopy.io.img_tiles as cimgt
+try:
+    import cartopy.io.img_tiles as cimgt
+except:
+    pass
 
 
 # TODO: replace with
