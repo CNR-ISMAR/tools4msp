@@ -117,7 +117,7 @@ class Context(models.Model):
         return self.label
 
 
-def _run_sua(csr, nparams=20, nruns=100, bygroup=True, njobs=1):
+def _run_sua(csr, nparams=20, nruns=100, bygroup=True, njobs=1, calc_second_order=False):
     if isinstance(csr, int):
         csr = CaseStudyRun.objects.get(pk=csr)
     selected_layers = csr.configuration['selected_layers']
@@ -126,16 +126,36 @@ def _run_sua(csr, nparams=20, nruns=100, bygroup=True, njobs=1):
     module_cs = csr.casestudy.module_cs
     module_cs_sua = run_sua(module_cs, nparams=nparams,
                             nruns=nruns, bygroup=bygroup, njobs=njobs,
+                            calc_second_order=calc_second_order,
                             kwargs_run=kwargs_run)
 
+    module_cs_sua.cv[module_cs_sua.mean<0.01] = 0
+    module_cs_sua.cv.mask = module_cs_sua.mean.mask.copy()
+    
     layers = {'MAPCEA-SUA-MEAN': module_cs_sua.mean,
               'MAPCEA-SUA-CV': module_cs_sua.cv,}
     for code, l in layers.items():
         cl = CodedLabel.objects.get(code=code)
-        csr_ol = csr.outputlayers.create(coded_label=cl)
+        # this override previous results
+        csr_ol, created = csr.outputlayers.get_or_create(coded_label=cl)
+        csr_ol.file = None
+        csr_ol.thumbnail = None
+        csr_ol.save()
         write_to_file_field(csr_ol.file, l.write_raster, 'geotiff')
         plot_map(l, csr_ol.thumbnail, ceamaxval=None, logcolor=False)
 
+    code = 'MAPCEA-SUA-SSA'
+    cl = CodedLabel.objects.get(code=code)
+    # this override previous results
+    csr_o, created = csr.outputs.get_or_create(coded_label=cl)
+    csr_o.file = None
+    csr_o.thumbnail = None
+    csr_o.save()
+
+    data = []
+    for df in module_cs_sua.analyze(calc_second_order=calc_second_order).to_df():
+        data.append(df.reset_index().to_dict())
+    write_to_file_field(csr_o.file, lambda buf: json.dump(data, buf), 'json', is_text_file=True)
     return module_cs
 
 
@@ -155,23 +175,9 @@ def _run(csr, runtypelevel=3):
         ci = module_cs.outputs['ci']
         cl = CodedLabel.objects.get(code='CEASCORE')
         csr_ol = csr.outputlayers.create(coded_label=cl)
-        csr_o = csr.outputs.create(coded_label=cl)
         write_to_file_field(csr_ol.file, ci.write_raster, 'geotiff')
-        plt.figure(figsize=get_map_figure_size(ci.bounds))
-        ax, mapimg = ci.plotmap(#ax=ax,
-                   cmap='jet',
-                   logcolor=True,
-                   legend=True,
-                   # maptype='minimal',
-                   grid=True,
-                   gridrange=1)
-        ax.add_image(cimgt.Stamen('toner-lite'), get_zoomlevel(ci.geobounds))
-
         if runtypelevel >= 3:
-            # CEASCORE map as png for
-            write_to_file_field(csr_ol.thumbnail, plt.savefig, 'png', dpi=300)
-            plt.clf()
-            plt.close()
+            plot_map(ci, csr_ol.thumbnail)
 
         #PRESENVSCEA heatmap
         cl = CodedLabel.objects.get(code='HEATPREENVCEA')
@@ -925,7 +931,11 @@ class CaseStudy(models.Model):
     thumbnail_tag.short_description = 'Thumbnail'
 
     def run(self, selected_layers=None, runtypelevel=3):
-        if self.module in ['cea', 'muc', 'partrac']:
+        # if self.pk == 66:
+        #     rlist = self.casestudyrun_set.filter(pk=2963)
+        # if False: #self.module in ['cea', 'muc', 'partrac']:
+        # if self.module in ['cea', 'muc', 'partrac']:
+        if self.module in ['cea', 'muc']:
             conf = {'selected_layers': selected_layers,
                     'runtypelevel': runtypelevel}
             csr = self.casestudyrun_set.create(configuration=conf)
@@ -935,7 +945,7 @@ class CaseStudy(models.Model):
         else:
             import time
             time.sleep(5)
-            rlist = self.casestudyrun_set.all()
+            rlist = self.casestudyrun_set.all().order_by('-id')
         if rlist.count() > 0:
             return rlist[0]
         return None
@@ -1254,11 +1264,11 @@ class WeightManager(models.Manager):
 
         for w in qs:
             if new_use_code is not None:
-                new_use = Use.objects.get_or_create(code=new_use_code)
+                new_use, created_use = Use.objects.get_or_create(code=new_use_code)
             else:
                 new_use = w.use
             if new_pres_code is not None:
-                new_pres = Pressure.objects.get_or_create(code=new_pres_code)
+                new_pres, created_pres = Pressure.objects.get_or_create(code=new_pres_code)
             else:
                 new_pres = w.pres
 
@@ -1332,11 +1342,11 @@ class SensitivityManager(models.Manager):
 
         for s in qs:
             if new_pres_code is not None:
-                new_pres = Pressure.objects.get_or_create(code=new_pres_code)
+                new_pres, created_pres = Pressure.objects.get_or_create(code=new_pres_code)
             else:
                 new_pres = s.pres
             if new_env_code is not None:
-                new_env = Env.objects.get_or_create(code=new_env_code)
+                new_env, created_env = Env.objects.get_or_create(code=new_env_code)
             else:
                 new_env = s.env
 
