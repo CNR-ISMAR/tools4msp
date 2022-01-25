@@ -95,6 +95,7 @@ class CaseStudyBase(object):
         self.layers.loc[code, 'code_group'] = code_group
         self.layers.loc[code, 'layer'] = layer
         self.layers.loc[code, 'availability'] = availability
+        logger.debug("loaded layer {} minval={} maxval={} shape={}".format(code, layer.min(), layer.max(), layer.shape))
         return code
 
     def get_envs(self):
