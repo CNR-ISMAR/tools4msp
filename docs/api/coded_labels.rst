@@ -1,22 +1,28 @@
-
 Tools4MSP Coded Labels
 ======================
+
+
 
 
 Case Study
 ----------
 
 
+
 CS-THUMB
   Case Study Thumbanil
-
-  URI: https://api.tools4msp.eu/api/codedlabels/CS-THUMB/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/CS-THUMB
 
 
 GRID
   Grid of analysis
-
-  URI: https://api.tools4msp.eu/api/codedlabels/GRID/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/GRID
 
 
 
@@ -25,275 +31,334 @@ Human Uses
 ----------
 
 
+
+ACQ
+  Aquaculture
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/ACQ
+
+
+ACQALGAE
+  Aquaculture - Algae
+  
+  Examples of spatial representations:
+   - presence of aquaculture farms (points, polygons) with (optional) attributes providing the total annual production statistics (tons/year)
+  
+  https://api.tools4msp.eu/api/codedlabels/ACQALGAE
+
+
 ACQFIN
   Aquaculture - Finfish
-
-  URI: https://api.tools4msp.eu/api/codedlabels/ACQFIN/
+  
+  Examples of spatial representations:
+   - presence of aquaculture farms (points, polygons) with (optional) attributes providing the total annual production statistics (tons/year)
+  
+  https://api.tools4msp.eu/api/codedlabels/ACQFIN
 
 
 ACQSHEL
   Aquaculture - Shellfish
-
-  URI: https://api.tools4msp.eu/api/codedlabels/ACQSHEL/
+  
+  Examples of spatial representations:
+   - presence of aquaculture farms (points, polygons) with (optional) attributes providing the total annual production statistics (tons/year)
+  
+  https://api.tools4msp.eu/api/codedlabels/ACQSHEL
 
 
 COASTDEF
   Coastal defence works
-
-  URI: https://api.tools4msp.eu/api/codedlabels/COASTDEF/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/COASTDEF
 
 
 DADREDG
   Dumping areas for dredging
-
-  URI: https://api.tools4msp.eu/api/codedlabels/DADREDG/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/DADREDG
 
 
 FPORTS
   Fishing ports
+  
+  Examples of spatial representations:
+   - port location (point/polygon features) with an (optional) attribute representing the port utilization (eg. annual landed fish, characteristics of fishing fleet)
+  
+  https://api.tools4msp.eu/api/codedlabels/FPORTS
 
-  URI: https://api.tools4msp.eu/api/codedlabels/FPORTS/
+
+HYDREDGES
+  Hydraulic dredges
+  
+  Hydraulic dredges for clam fisheries
+  
+  https://api.tools4msp.eu/api/codedlabels/HYDREDGES
 
 
 IPORTS
   Industrial ports
-
-  URI: https://api.tools4msp.eu/api/codedlabels/IPORTS/
+  
+  Examples of spatial representations:
+   - port location (point/polygon features) with an attribute reporting the annual tonnage (ton/year)
+  
+  https://api.tools4msp.eu/api/codedlabels/IPORTS
 
 
 LBA
   Land based activities
-
-  URI: https://api.tools4msp.eu/api/codedlabels/LBA/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/LBA
 
 
 LNG
   LNGs
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/LNG
 
-  URI: https://api.tools4msp.eu/api/codedlabels/LNG/
+
+MPA
+  Marine Protected Areas
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/MPA
 
 
 MIL
   Military areas
-
-  URI: https://api.tools4msp.eu/api/codedlabels/MIL/
+  
+  Examples of spatial representations:
+   - polygonal or point data representing the  military areas delimitation. or location including (optional) information on area characteristics (eg. temporary/permanent, firing area, mine hunting exercise)
+  
+  https://api.tools4msp.eu/api/codedlabels/MIL
 
 
 MILTEMP
   Military temporary areas
-
-  URI: https://api.tools4msp.eu/api/codedlabels/MILTEMP/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/MILTEMP
 
 
 MOOR
   Mooring, anchoring
-
-  URI: https://api.tools4msp.eu/api/codedlabels/MOOR/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/MOOR
 
 
 NOTRAWL
   No trawling areas
-
-  URI: https://api.tools4msp.eu/api/codedlabels/NOTRAWL/
-
-
-OGEXTR
-  Oil & Gas Extraction
-
-  URI: https://api.tools4msp.eu/api/codedlabels/OGEXTR/
-
-
-OGRES
-  Oil & Gas Research
-
-  URI: https://api.tools4msp.eu/api/codedlabels/OGRES/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/NOTRAWL
 
 
 OSDEP
   Offshore sand deposits
-
-  URI: https://api.tools4msp.eu/api/codedlabels/OSDEP/
-
-
-PIPELN
-  Pipelines
-
-  URI: https://api.tools4msp.eu/api/codedlabels/PIPELN/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/OSDEP
 
 
-SCUBA
-  Tourism - scuba diving
-
-  URI: https://api.tools4msp.eu/api/codedlabels/SCUBA/
-
-
-SHIPDENS
-  Passage of ships/boats
-
-  URI: https://api.tools4msp.eu/api/codedlabels/SHIPDENS/
+OFFWINDFARM-CO
+  Offshore WInd farm (Construction phase)
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/OFFWINDFARM-CO
 
 
-SSF
-  Small Scale Fishery
-
-  URI: https://api.tools4msp.eu/api/codedlabels/SSF/
-
-
-TBEACH
-  Tourism - beach uses
-
-  URI: https://api.tools4msp.eu/api/codedlabels/TBEACH/
+OFFWINDFARM-DE
+  Offshore Wind farm (Decommissioning phase)
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/OFFWINDFARM-DE
 
 
-TBOAT
-  Tourism - boating/yachting
-
-  URI: https://api.tools4msp.eu/api/codedlabels/TBOAT/
-
-
-TMAR
-  Tourism and leisure: marinas and leisure harbours 
+OFFWINDFARM-FLT
+  Offshore Wind farm (Floating)
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/OFFWINDFARM-FLT
 
 
-  URI: https://api.tools4msp.eu/api/codedlabels/TMAR/
+OFFWINDFARM-OP
+  Offshore Wind Farm (Operational phase)
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/OFFWINDFARM-OP
+
+
+OGEXTR
+  Oil & Gas Extraction
+  
+  Examples of spatial representations:
+   - extraction platform location (point/polygon features) with (optional) attributes reporting the characteristics of the platform (eg. type, dimensions)
+  
+  https://api.tools4msp.eu/api/codedlabels/OGEXTR
+
+
+OGRES
+  Oil & Gas Research
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/OGRES
 
 
 TRAWL
   OTB + TBB + PTM
+  
+  Examples of spatial representations:
+   - gridded data of fishing effort intensity (hours/km2/year)
+  
+  https://api.tools4msp.eu/api/codedlabels/TRAWL
 
-  URI: https://api.tools4msp.eu/api/codedlabels/TRAWL/
+
+SHIPDENS
+  Passage of ships/boats
+  
+  Examples of spatial representations:
+   - gridded data of annual/monthly/seasonally vessel route density (n. of tracks/km2/year) by vessel type (eg. Cargo, Tanker)
+  
+  https://api.tools4msp.eu/api/codedlabels/SHIPDENS
+
+
+PIPELN
+  Pipelines
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/PIPELN
+
+
+SSF
+  Small Scale Fishery
+  
+  Examples of spatial representations:
+   - gridded data of fishing effort intensity (hours/km2/year)
+  
+  https://api.tools4msp.eu/api/codedlabels/SSF
+
+
+TMAR
+  Tourism and leisure: marinas and leisure harbours
+  
+  Examples of spatial representations:
+   - location of marinas (points, polygons) with an (optional) attribute providing the dimension/usage (berths)
+  
+  https://api.tools4msp.eu/api/codedlabels/TMAR
+
+
+TBEACH
+  Tourism - beach uses
+  
+  Examples of spatial representations:
+   - presence of free or equipped beaches (points, polygons) with an (optional) attribute providing the total annual beach visitation (n. visitors/year)
+  
+  https://api.tools4msp.eu/api/codedlabels/TBEACH
+
+
+TBOAT
+  Tourism - boating/yachting
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/TBOAT
+
+
+SCUBA
+  Tourism - scuba diving
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/SCUBA
 
 
 TWSPO
   Tourism -  water sports (surface)
-
-  URI: https://api.tools4msp.eu/api/codedlabels/TWSPO/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/TWSPO
 
 
 WWATCH
   Tourism - wildlife watching
-
-  URI: https://api.tools4msp.eu/api/codedlabels/WWATCH/
-
-
-
-
-Pressures
----------
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/WWATCH
 
 
-ABR
-  Abrasion (surface, light, heavy)
-
-  URI: https://api.tools4msp.eu/api/codedlabels/ABR/
-
-
-CSALIN
-  Significant changes in salinity regime
-
-  URI: https://api.tools4msp.eu/api/codedlabels/CSALIN/
+OTB
+  Trawling OTB
+  
+  Examples of spatial representations:
+   - gridded data of fishing effort intensity (hours/km2/year)
+  
+  https://api.tools4msp.eu/api/codedlabels/OTB
 
 
-CSILT
-  Changes in siltation
-
-  URI: https://api.tools4msp.eu/api/codedlabels/CSILT/
-
-
-CTHERM
-  Significant changes in thermal regime
-
-  URI: https://api.tools4msp.eu/api/codedlabels/CTHERM/
+OTB-BRD
+  Trawling OTB (bycatch reduction device)
+  
+  Examples of spatial representations:
+   - gridded data of fishing effort intensity (hours/km2/year)
+  
+  https://api.tools4msp.eu/api/codedlabels/OTB-BRD
 
 
-DISTSP
-  nan
-
-  URI: https://api.tools4msp.eu/api/codedlabels/DISTSP/
-
-
-FERT
-  Inputs of fertilisers and other nitrogen and phosphorus-rich substances
-
-  URI: https://api.tools4msp.eu/api/codedlabels/FERT/
+PTM
+  Trawling PTM
+  
+  Examples of spatial representations:
+   - gridded data of fishing effort intensity (hours/km2/year)
+  
+  https://api.tools4msp.eu/api/codedlabels/PTM
 
 
-INPNIS
-  Introduction of non-indigenous species and translocations
-
-  URI: https://api.tools4msp.eu/api/codedlabels/INPNIS/
-
-
-MICRPAT
-  Introduction of microbial pathogens
-
-  URI: https://api.tools4msp.eu/api/codedlabels/MICRPAT/
+TBB
+  Trawling TBB
+  
+  Examples of spatial representations:
+   - gridded data of fishing effort intensity (hours/km2/year)
+  
+  https://api.tools4msp.eu/api/codedlabels/TBB
 
 
-MLITTER
-  Marine litter
-
-  URI: https://api.tools4msp.eu/api/codedlabels/MLITTER/
-
-
-NOISE
-  Underwater noise
-
-  URI: https://api.tools4msp.eu/api/codedlabels/NOISE/
+WAVE-ENG
+  Wave Energy
+  
+  Examples of spatial representations:
+   - location of the wave energy installations (point/polygon features) with (optional) attributes reporting the characteristics of the installations (eg. type, installed capacity)
+  
+  https://api.tools4msp.eu/api/codedlabels/WAVE-ENG
 
 
-NONSYNTH
-  Introduction of non-synthetic substances and compounds
-
-  URI: https://api.tools4msp.eu/api/codedlabels/NONSYNTH/
-
-
-ORGMAT
-  Inputs of organic matter
-
-  URI: https://api.tools4msp.eu/api/codedlabels/ORGMAT/
-
-
-OTHERS
-  Introduction of other substances
-
-  URI: https://api.tools4msp.eu/api/codedlabels/OTHERS/
-
-
-RADNUC
-  Introduction of radio-nuclides
-
-  URI: https://api.tools4msp.eu/api/codedlabels/RADNUC/
-
-
-REMOVAL
-  Removal of substratum (extraction)
-
-  URI: https://api.tools4msp.eu/api/codedlabels/REMOVAL/
-
-
-SEAL
-  Sealing
-
-  URI: https://api.tools4msp.eu/api/codedlabels/SEAL/
-
-
-SELEXTR
-  Selective extraction of species, including incidental non-target catches
-
-  URI: https://api.tools4msp.eu/api/codedlabels/SELEXTR/
-
-
-SMOTH
-  Smothering
-
-  URI: https://api.tools4msp.eu/api/codedlabels/SMOTH/
-
-
-SYNTH
-  Introduction of synthetic compounds
-
-  URI: https://api.tools4msp.eu/api/codedlabels/SYNTH/
+WELLS
+  Wells
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/WELLS
 
 
 
@@ -302,372 +367,997 @@ Environmental Receptors
 -----------------------
 
 
+
 A3
   A3 - Infralittoral rock and other hard substrata
-
-  URI: https://api.tools4msp.eu/api/codedlabels/A3/
-
-
-A4
-  A4 - Circalittoral rock and other hard substrata
-
-  URI: https://api.tools4msp.eu/api/codedlabels/A4/
-
-
-A5-14
-  A5.14 - Circalittoral coarse sediment
-
-  URI: https://api.tools4msp.eu/api/codedlabels/A4-14/
-
-
-A5-14MIX
-  A5.14 - Circalittoral coarse sediment (mixed)
-
-  URI: https://api.tools4msp.eu/api/codedlabels/A4-14MIX/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/A3
 
 
 A4-26
   A4.26 - Mediterranean coralligenous communities
-
-  URI: https://api.tools4msp.eu/api/codedlabels/A4-26/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/A4-26
 
 
 A4-27
   A4.27 - Fauna communities on deep moderate energy
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/A4-27
 
-  URI: https://api.tools4msp.eu/api/codedlabels/A4-27/
+
+A4
+  A4 - Circalittoral rock and other hard substrata
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/A4
 
 
 A5-13
   A5.13 - Infralittoral coarse sediment
-
-  URI: https://api.tools4msp.eu/api/codedlabels/A5-13/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/A5-13
 
 
 A5-13MIX
   A5.13 - Infralittoral coarse sediment (mixed)
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/A5-13MIX
 
-  URI: https://api.tools4msp.eu/api/codedlabels/A5-13MIX/
+
+A5-14
+  A5.14 - Circalittoral coarse sediment
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/A5-14
+
+
+A5-14MIX
+  A5.14 - Circalittoral coarse sediment (mixed)
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/A5-14MIX
 
 
 A5-23
   A5.23 - Infralittoral fine sands
-
-  URI: https://api.tools4msp.eu/api/codedlabels/A5-23/
+  
+  Examples of spatial representations:
+   - polygonal data of seabed habitat presence/hotspot (presence/absence)
+  
+  https://api.tools4msp.eu/api/codedlabels/A5-23
 
 
 A5-25
   A5.25 - Circalittoral fine sands
-
-  URI: https://api.tools4msp.eu/api/codedlabels/A5-25/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/A5-25
 
 
 A5-26
   A5.26 - Circalittoral muddy sand
-
-  URI: https://api.tools4msp.eu/api/codedlabels/A5-26/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/A5-26
 
 
 A5-33
   A5.33 - Infralittoral sandy mud
-
-  URI: https://api.tools4msp.eu/api/codedlabels/A5-33/
+  
+  Examples of spatial representations:
+   - polygonal data of seabed habitat presence/hotspot (presence/absence)
+  
+  https://api.tools4msp.eu/api/codedlabels/A5-33
 
 
 A5-34
   A5.34 - Infralittoral fine mud
-
-  URI: https://api.tools4msp.eu/api/codedlabels/A5-34/
+  
+  Examples of spatial representations:
+   - polygonal data of seabed habitat presence/hotspot (presence/absence)
+  
+  https://api.tools4msp.eu/api/codedlabels/A5-34
 
 
 A5-35
   A5.35 - Circalittoral sandy mud
-
-  URI: https://api.tools4msp.eu/api/codedlabels/A5-35/
+  
+  Examples of spatial representations:
+   - polygonal data of seabed habitat presence/hotspot (presence/absence)
+  
+  https://api.tools4msp.eu/api/codedlabels/A5-35
 
 
 A5-36
   A5.36 - Circalittoral fine mud
-
-  URI: https://api.tools4msp.eu/api/codedlabels/A5-36/
+  
+  Examples of spatial representations:
+   - polygonal data of seabed habitat presence/hotspot (presence/absence)
+  
+  https://api.tools4msp.eu/api/codedlabels/A5-36
 
 
 A5-38
   A5.38 - Mediterranean biocenosis of muddy detritic bottoms
-
-  URI: https://api.tools4msp.eu/api/codedlabels/A5-38/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/A5-38
 
 
 A5-39
   A5.39 - Mediterranean biocenosis of coastal terrigenous muds
-
-  URI: https://api.tools4msp.eu/api/codedlabels/A5-39/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/A5-39
 
 
 A5-46
   A5.46 - Mediterranean biocenosis of coastal detritic bottoms
-
-  URI: https://api.tools4msp.eu/api/codedlabels/A5-46/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/A5-46
 
 
 A5-46MIX
   A5.46 - Mediterranean biocenosis of coastal detritic bottoms (mixed)
-
-  URI: https://api.tools4msp.eu/api/codedlabels/A5-46MIX/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/A5-46MIX
 
 
 A5-46SAN
   A5.46 - Mediterranean biocenosis of coastal detritic bottoms (sand)
-
-  URI: https://api.tools4msp.eu/api/codedlabels/A5-46SAN/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/A5-46SAN
 
 
 A5-47
   A5.47 - Mediterranean biocenosis of shelf-edge detritic bottoms
-
-  URI: https://api.tools4msp.eu/api/codedlabels/A5-47/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/A5-47
 
 
 A5-47COA
   A5.47 - Mediterranean biocenosis of shelf-edge detritic bottoms (coarse)
-
-  URI: https://api.tools4msp.eu/api/codedlabels/A5-47COA/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/A5-47COA
 
 
 A5-47MIX
   A5.47 - Mediterranean biocenosis of shelf-edge detritic bottoms (mixed)
-
-  URI: https://api.tools4msp.eu/api/codedlabels/A5-47MIX/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/A5-47MIX
 
 
 A5-47SAN
   A5.47 - Mediterranean biocenosis of shelf-edge detritic bottoms (sand)
-
-  URI: https://api.tools4msp.eu/api/codedlabels/A5-47SAN/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/A5-47SAN
 
 
 A5-51
   A5.51 - Maerl beds
-
-  URI: https://api.tools4msp.eu/api/codedlabels/A5-51/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/A5-51
 
 
 A5-531
   A5.531 - Cymodocea beds
-
-  URI: https://api.tools4msp.eu/api/codedlabels/A5-531/
+  
+  Examples of spatial representations:
+   - polygonal data of seabed habitat presence/hotspot (presence/absence)
+  
+  https://api.tools4msp.eu/api/codedlabels/A5-531
 
 
 A5-535
   A5.535 - Posidonia beds
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/A5-535
 
-  URI: https://api.tools4msp.eu/api/codedlabels/A5-535/
+
+A5
+  A5 - Sublittoral sediment
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/A5
 
 
 A6-1
   A6.1 - Deep-sea rock and artificial hard substrata
-
-  URI: https://api.tools4msp.eu/api/codedlabels/A6-1/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/A6-1
 
 
 A6-2
   A6.2 - Deep-sea mixed substrata
-
-  URI: https://api.tools4msp.eu/api/codedlabels/A6-2/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/A6-2
 
 
 A6-3
   A6.3 - Deep-sea sand
-
-  URI: https://api.tools4msp.eu/api/codedlabels/A6-3/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/A6-3
 
 
 A6-4
   A6.4 - Deep-sea muddy sand
-
-  URI: https://api.tools4msp.eu/api/codedlabels/A6-4/
-
-
-A6-51
-  A6.51 - Mediterranean communities of bathyal muds
-
-  URI: https://api.tools4msp.eu/api/codedlabels/A6-51/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/A6-4
 
 
 A6-511
   A6.511 - Facies of sandy muds with Thenea muricata
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/A6-511
 
-  URI: https://api.tools4msp.eu/api/codedlabels/A6-511/
+
+A6-51
+  A6.51 - Mediterranean communities of bathyal muds
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/A6-51
 
 
 A6-52
   A6.52 - Communities of abyssal muds
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/A6-52
 
-  URI: https://api.tools4msp.eu/api/codedlabels/A6-52/
+
+A6
+  A6 - Deep sea bed
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/A6
 
 
 BATHDEEP
   BDS - Bathypelagic component of deep sea areas
-
-  URI: https://api.tools4msp.eu/api/codedlabels/BATHDEEP/
-
-
-MAM
-  Mammals
-
-  URI: https://api.tools4msp.eu/api/codedlabels/MAM/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/BATHDEEP
 
 
-MBIRD
-  Marine birds
-
-  URI: https://api.tools4msp.eu/api/codedlabels/MBIRD/
-
-
-MEDDEEP
-  Mediterranean deep sea 
-
-  URI: https://api.tools4msp.eu/api/codedlabels/MEDDEEP/
+CIRC-SEABED
+  Circalittoral seabed
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/CIRC-SEABED
 
 
-MOBMOB
-  Mobula mobular
-
-  URI: https://api.tools4msp.eu/api/codedlabels/MOBMOB/
+DOLPHINS
+  Delphinus delphis
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/DOLPHINS
 
 
 NURSPAW
   Essential Fish Habitats (Nursery and Spawning grounds)
+  
+  Examples of spatial representations:
+   - polygonal data of fish species/communities hotspots (presence/absence)
+   - gridded data of likelihood of presence (probability)
+   - gridded data of fish abundance (biomass/km2)
+  
+  https://api.tools4msp.eu/api/codedlabels/NURSPAW
 
-  URI: https://api.tools4msp.eu/api/codedlabels/NURSPAW/
+
+FISH
+  Fish
+  
+  Examples of spatial representations:
+   - polygonal data of fish species/communities hotspots (presence/absence)
+   - gridded data of likelihood of presence (probability)
+   - gridded data of fish abundance (biomass/km2)
+  
+  https://api.tools4msp.eu/api/codedlabels/FISH
+
+
+MBIRD-FULM
+  Fulmar (Fulmarus glacialis)
+  
+  Examples of spatial representations:
+   - polygonal data of marine bird species/communities hotspots (presence/absence)
+   - gridded data of likelihood of presence (probability)
+   - gridded data of marine birds abundance (biomass/km2)
+  
+  https://api.tools4msp.eu/api/codedlabels/MBIRD-FULM
+
+
+MBIRD-GUILLE
+  Guillemot (Uria aalge)
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/MBIRD-GUILLE
+
+
+FISH-HAD
+  Haddock (Melanogrammus aeglefinus)
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/FISH-HAD
+
+
+MAM-PORP
+  Harbour porpoise ( Phocoena phocoena)
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/MAM-PORP
+
+
+INF-SEABED
+  'Infralittoral seabed
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/INF-SEABED
+
+
+MAM
+  Mammals
+  
+  Examples of spatial representations:
+   - polygonal data of marine mammals species/communities hotspots (presence/absence)
+   - gridded data of likelihood of presence (probability)
+   - gridded data of marine mammals abundance (biomass/km2)
+  
+  https://api.tools4msp.eu/api/codedlabels/MAM
+
+
+MBIRD
+  Marine birds
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/MBIRD
+
+
+MEDDEEP
+  Mediterranean deep sea 
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/MEDDEEP
+
+
+MOBMOB
+  Mobula mobular
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/MOBMOB
+
+
+MONACHUS
+  Monachus-monachus
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/MONACHUS
 
 
 SEALS
   Monk seals
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/SEALS
 
-  URI: https://api.tools4msp.eu/api/codedlabels/SEALS/
+
+MBIRD-RAZ
+  Razorbill (Alca torda)
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/MBIRD-RAZ
+
+
+FISH-SAITHE
+  Saithe Pollock ( Pollachius virens)
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/FISH-SAITHE
+
+
+FISH-SANDEEL
+  Sandeel (Ammodytes tobianus)
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/FISH-SANDEEL
+
+
+FISH-SPRAT
+  Sprat (Sprattus sprattus)
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/FISH-SPRAT
 
 
 TURT
   Turtles
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/TURT
 
-  URI: https://api.tools4msp.eu/api/codedlabels/TURT/
+
+FISH-WHIT
+  Whiting (Merlangius merlangus)
+  
+  Examples of spatial representations:
+   - polygonal data of Whiting  hotspots (presence/absence)
+   - gridded data of likelihood of presence (probability)
+   - gridded data of marine mammals abundance (biomass/km2)
+  
+  https://api.tools4msp.eu/api/codedlabels/FISH-WHIT
 
 
 
 
-CEA module
+Pressures
+---------
+
+
+
+ABR
+  Abrasion (surface, light, heavy)
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/ABR
+
+
+BARRIER-EFF
+  Barrier effect (physical)
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/BARRIER-EFF
+
+
+CH-HYDRODIN
+  Change in the hydrodynamic regime
+  
+  Change in the hydrodynamic regime
+  
+  https://api.tools4msp.eu/api/codedlabels/CH-HYDRODIN
+
+
+CSILT
+  Changes in siltation
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/CSILT
+
+
+VESSEL-COLL
+  Collision with vessels
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/VESSEL-COLL
+
+
+DISTSP
+  Food availability
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/DISTSP
+
+
+CTHERM-CABL
+  Heat effect (due to cabling)
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/CTHERM-CABL
+
+
+INDIRECT-EFF
+  Indirect effects
+  
+  effects of restricted fishery in the area of the wind farm (includes effects on the sediment due to restricted near bottom fishery)
+  
+  https://api.tools4msp.eu/api/codedlabels/INDIRECT-EFF
+
+
+FERT
+  Inputs of fertilisers and other nitrogen and phosphorus-rich substances
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/FERT
+
+
+ORGMAT
+  Inputs of organic matter
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/ORGMAT
+
+
+MICRPAT
+  Introduction of microbial pathogens
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/MICRPAT
+
+
+INPNIS
+  Introduction of non-indigenous species and translocations
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/INPNIS
+
+
+NONSYNTH
+  Introduction of non-synthetic substances and compounds
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/NONSYNTH
+
+
+OTHERS
+  Introduction of other substances
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/OTHERS
+
+
+RADNUC
+  Introduction of radio-nuclides
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/RADNUC
+
+
+SYNTH
+  Introduction of synthetic compounds
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/SYNTH
+
+
+MLITTER
+  Marine litter
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/MLITTER
+
+
+NEW-HAB
+  New habitat (hard structure)
+  
+  effects the wind farm has due to the introduction of hard substrate on which species can settle
+  
+  https://api.tools4msp.eu/api/codedlabels/NEW-HAB
+
+
+REL-SEDIM
+  Release of sediment bound contaminants
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/REL-SEDIM
+
+
+REMOVAL
+  Removal of substratum (extraction)
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/REMOVAL
+
+
+SEAL
+  Sealing
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/SEAL
+
+
+SEDIM-AG
+  Sediment agitation
+  
+  effects of turbidity/smoothing caused by agitated sediments
+  
+  https://api.tools4msp.eu/api/codedlabels/SEDIM-AG
+
+
+SEDIM
+  Sedimentation
+  
+  sediments that are lifted from the ground and replaced somewhere else
+  
+  https://api.tools4msp.eu/api/codedlabels/SEDIM
+
+
+SELEXTR
+  Selective extraction of species, including incidental non-target catches
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/SELEXTR
+
+
+CELECTRO
+  Significant changes in electromagnetic field
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/CELECTRO
+
+
+CSALIN
+  Significant changes in salinity regime
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/CSALIN
+
+
+CTHERM
+  Significant changes in thermal regime
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/CTHERM
+
+
+SMOTH
+  Smothering
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/SMOTH
+
+
+TURBINE-COLL
+  turbine collision
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/TURBINE-COLL
+
+
+NOISE
+  Underwater noise
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/NOISE
+
+
+VIBRATION
+  Water vibration
+  
+  vibrations due to activities that come along with the wind farm on any temporal scale
+  
+  https://api.tools4msp.eu/api/codedlabels/VIBRATION
+
+
+
+
+MUC Module
 ----------
 
-
-BARCEAENV
-  Barplot of CEA score for Environmental Receptor
-
-  URI: https://api.tools4msp.eu/api/codedlabels/BARCEAENV/
-
-
-BARCEAUSE
-  Barplot of CEA score for Human Use
-
-  URI: https://api.tools4msp.eu/api/codedlabels/BARCEAUSE/
-
-
-BARPRESCORE
-  Barplot of Pressure scores
-
-  URI: https://api.tools4msp.eu/api/codedlabels/BARPRESCORE/
-
-
-CEAICHAIN
-  CEA Impact Chain
-
-  URI: https://api.tools4msp.eu/api/codedlabels/CEAICHAIN/
-
-
-CEASCORE
-  Geospatial distribution of CEA score
-
-  URI: https://api.tools4msp.eu/api/codedlabels/CEASCORE/
-
-
-HEATPREENVCEA
-  CEA score for each P-E combination
-
-  URI: https://api.tools4msp.eu/api/codedlabels/HEATPREENVCEA/
-
-
-HEATUSEPRESCORE
-  Heatmap of Pressure scores due to human uses
-
-  URI: https://api.tools4msp.eu/api/codedlabels/HEATUSEPRESCORE/
-
-
-HISTCEASCORE
-  Histogram of CEA score
-
-  URI: https://api.tools4msp.eu/api/codedlabels/HISTCEASCORE/
-
-
-SENS
-  Sensitivities matrix for CEA analysis
-
-  URI: https://api.tools4msp.eu/api/codedlabels/SENS/
-
-
-WEIGHTS
-  Weights matrix for CEA analysis
-
-  URI: https://api.tools4msp.eu/api/codedlabels/WEIGHTS/
-
-
-
-
-MUC module
-----------
-
-
-HEATUSEMUC
-  MUC score for each U-U combination
-
-  URI: https://api.tools4msp.eu/api/codedlabels/HEATUSEMUC/
 
 
 MUCSCORE
   Geospatial distribution of MUC score
-
-  URI: https://api.tools4msp.eu/api/codedlabels/MUCSCORE/
+  
+  A 2 -D GeoTIFF raster file representing the comprehensive conflict score in each raster. Coordinate reference system (CRS) and resolution are defined by the  Case Study configuration.
+  
+  https://api.tools4msp.eu/api/codedlabels/MUCSCORE
 
 
 PCONFLICT
   MUC Potential conflict
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/PCONFLICT
 
-  URI: https://api.tools4msp.eu/api/codedlabels/PCONFLICT/
+
+HEATUSEMUC
+  MUC score for each U-U combination
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/HEATUSEMUC
 
 
 
 
-ParTrac module
+CEA Module
+----------
+
+
+
+BARCEAENV
+  Barplot of CEA score for Environmental Receptor
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/BARCEAENV
+
+
+BARCEAUSE
+  Barplot of CEA score for Human Use
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/BARCEAUSE
+
+
+BARPRESCORE
+  Barplot of Pressure scores
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/BARPRESCORE
+
+
+CEAICHAIN
+  CEA Impact Chain
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/CEAICHAIN
+
+
+HEATPREENVCEA
+  CEA score for each P-E combination
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/HEATPREENVCEA
+
+
+HEATUSEENVCEA
+  CEA score for each U-E combination
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/HEATUSEENVCEA
+
+
+MAPCEA-MSFDBIO
+  CEA score from biological pressures
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/MAPCEA-MSFDBIO
+
+
+MAPCEA-MSFDPHY
+  CEA score from physical pressures
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/MAPCEA-MSFDPHY
+
+
+MAPCEA-MSFDSUB
+  CEA score from substances, litter and energy pressures
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/MAPCEA-MSFDSUB
+
+
+CEASCORE
+  Geospatial distribution of CEA score
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/CEASCORE
+
+
+HEATUSEPRESCORE
+  Heatmap of Pressure scores due to human uses
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/HEATUSEPRESCORE
+
+
+HISTCEASCORE
+  Histogram of CEA score
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/HISTCEASCORE
+
+
+DISTANCES
+  Pressure distances
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/DISTANCES
+
+
+SENS
+  Sensitivities matrix for CEA analysis
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/SENS
+
+
+MAPCEA-SUA-SSA
+  Sensitivity analysis - Sobol indeces
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/MAPCEA-SUA-SSA
+
+
+MAPCEA
+  Spatial distribution of CEA score
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/MAPCEA
+
+
+MAPCEA-SUA-CV
+  Uncertainty analysis - coefficient of variation of CEA score
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/MAPCEA-SUA-CV
+
+
+MAPCEA-SUA-MEAN
+  Uncertainty analysis - mean value of CEA score
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/MAPCEA-SUA-MEAN
+
+
+WEIGHTS
+  Weights matrix for CEA analysis
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/WEIGHTS
+
+
+
+
+PARTRAC Module
 --------------
+
+
+
+PARTRACSCEN
+  Available scenarios for ParTrac Case Study
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/PARTRACSCEN
+
+
+PARTRACCONF
+  Configuration parameters for ParTrac module
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/PARTRACCONF
+
+
+PARTRACSOURCES
+  Geojson sources for ParTrac module
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/PARTRACSOURCES
+
+
+PARTRACSCORE
+  Geospatial distribution of particle density/concentration
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/PARTRACSCORE
 
 
 PARTRACGRID
   Numerical grid for ParTrac module
-
-  URI: https://api.tools4msp.eu/api/codedlabels/PARTRACGRID/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/PARTRACGRID
 
 
 PARTRACSEEDING
   Seeding particle for ParTrac module
-
-  URI: https://api.tools4msp.eu/api/codedlabels/PARTRACSEEDING/
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/PARTRACSEEDING
 
 
 PARTRACTRAJSIM
   Trajectory simulation from ParTrac module
-
-  URI: https://api.tools4msp.eu/api/codedlabels/PARTRACTRAJSIM/
-
-
-
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/PARTRACTRAJSIM
 
 
