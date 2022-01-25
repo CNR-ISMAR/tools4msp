@@ -1,9 +1,12 @@
 # coding: utf-8
 
+import logging
 import numpy as np
 import pandas as pd
 from os import path, listdir
 from .casestudy import CaseStudyBase
+
+logger = logging.getLogger('tools4msp.cea')
 
 
 class ResponseFunction(object):
@@ -162,6 +165,10 @@ class CEACaseStudy(CaseStudyBase):
                 if _p is not None:
                     pressure_layer = _p.copy()
                     sensarray = pressure_layer * env_layer * sens.sensitivity
+                    # TODO: check how rfunc should be applied
+                    if sens.nrf is not None and not np.isnan(sens.nrf) and sens.srf is not None and not np.isnan(sens.srf):
+                        rfunc = ResponseFunction(v=1, m=sens.srf, b=sens.nrf, q=1)
+                        sensarray = rfunc.run(sensarray)
                     ci += sensarray
                     if runtypelevel >= 2:
                         out_presenvs[presenvsid] = sensarray.copy()
@@ -311,7 +318,7 @@ class CEACaseStudy(CaseStudyBase):
 
                     if 'nrf' not in self.sensitivities.columns:
                         self.sensitivities['nrf'] = None
-                    if 'nrf' not in self.sensitivities.columns:
+                    if 'srf' not in self.sensitivities.columns:
                         self.sensitivities['srf'] = None
 
         super().load_inputs()
