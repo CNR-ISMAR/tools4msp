@@ -70,7 +70,8 @@ ACQSHEL
 COASTDEF
   Coastal defence works
   
-  
+  Examples of spatial representations:
+   - presence of coastal defence structures likes alongshore hard structures, detached breakwaters, cross -shore structures.
   
   https://api.tools4msp.eu/api/codedlabels/COASTDEF
 
@@ -118,9 +119,10 @@ LBA
 
 
 LNG
-  LNGs
+  Liquefied natural gas
   
-  
+  Examples of spatial representations:
+   - Liquefied natural gas platform location (point/polygon features) with (optional) attributes reporting the characteristics of the platform (eg. type, dimensions)
   
   https://api.tools4msp.eu/api/codedlabels/LNG
 
@@ -834,6 +836,17 @@ FISH-SPRAT
   https://api.tools4msp.eu/api/codedlabels/FISH-SPRAT
 
 
+STENELLA
+  Stenella
+  
+  Examples of spatial representations:
+   - polygonal data of stenella species/communities hotspots (presence/absence)
+   - gridded data of likelihood of presence (probability)
+   - gridded data of stenella abundance (biomass/km2)
+  
+  https://api.tools4msp.eu/api/codedlabels/STENELLA
+
+
 TURT
   Turtles
   
@@ -890,6 +903,14 @@ CSILT
   
   
   https://api.tools4msp.eu/api/codedlabels/CSILT
+
+
+COASTALER
+  Coastal erosion
+  
+  
+  
+  https://api.tools4msp.eu/api/codedlabels/COASTALER
 
 
 VESSEL-COLL
