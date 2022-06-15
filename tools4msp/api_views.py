@@ -364,12 +364,14 @@ class CaseStudyInputViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         return Response(status=status.HTTP_201_CREATED)
 
 
-class CaseStudyRunViewSet(viewsets.ReadOnlyModelViewSet):
+# class CaseStudyRunViewSet(viewsets.ReadOnlyModelViewSet):
+class CaseStudyRunViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows CaseStudyRuns to be viewed.
     """
     permission_classes = [IsAuthenticated]
     serializer_class = CaseStudyRunSerializer
+    http_method_names = ['get', 'head', 'patch']
 
     def get_queryset(self):
         """

@@ -33,12 +33,19 @@ class Command(BaseCommand):
             action='store_true',
         )
 
+        parser.add_argument(
+            '--second_order',
+            action='store_false',
+        )
+
     def handle(self, *args, **options):
         nparams = options['nparams']
         nruns = options['nruns']
         njobs = options['njobs']
         bygroup = not options['nogroup']
+        calc_second_order = not options['second_order']
         for run_id in options['run_ids']:
             self.stdout.write('Starting SUA analysis CaseStudyRun={} ...'.format(run_id))
-            _run_sua(run_id, nparams, nruns, bygroup=bygroup, njobs=njobs)
+            _run_sua(run_id, nparams, nruns, bygroup=bygroup,
+                     njobs=njobs, calc_second_order=calc_second_order)
             self.stdout.write(self.style.SUCCESS('Successfully saved SUA results CaseStudyRun={}\t'.format(run_id)))

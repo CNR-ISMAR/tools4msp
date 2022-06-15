@@ -101,7 +101,7 @@ class CEACaseStudy(CaseStudyBase):
             usepresid = "{}--{}".format(usecode, precode)
 
             _pressure_layer = None
-
+            print(usepresid)
             if usepresid in self.layers.index:
                 # print usepresid
                 _pressure_layer = self.layers.loc[usepresid, 'layer'].copy()
@@ -113,17 +113,27 @@ class CEACaseStudy(CaseStudyBase):
                 if _use_layer is not None:
                     # convolution
                     _pressure_layer = _use_layer.layer.copy()
-                    maxval = _pressure_layer.max()
-
-                    _pressure_layer.gaussian_conv(w.distance / 2., truncate=3.)
-                    
-                    _pressure_layer = _pressure_layer / _pressure_layer.max() * maxval
+                    if _pressure_layer.mask is np.False_:
+                        _pressure_layer[np.isnan(_pressure_layer)] = 0
+                    maxval = np.nanmax(_pressure_layer)
+                    if maxval > 0:
+                        _pressure_layer.gaussian_conv(w.distance / 2., truncate=3.)
+                        # print("---", np.nansum(_pressure_layer), np.nanmax(_pressure_layer), maxval)
+                        _pressure_layer = _pressure_layer / np.nanmax(_pressure_layer) * maxval
+                        # print("---", np.nansum(_pressure_layer), np.nanmax(_pressure_layer), maxval)
 
             if _pressure_layer is not None:
+                if self.get_outputgrid() is not None:
+                    _pressure_layer *= self.get_outputgrid()
+                print("\t", _pressure_layer[_pressure_layer>=0].shape)
                 pressures_set.add(precode)
                 uses_set.add(usecode)
                 usepressure = _pressure_layer.copy() * w.weight
-                usepressure.mask = self.grid==0
+                # print("@@@", np.nansum(usepressure), np.nanmax(usepressure), w.weight)
+                if self.get_outputgrid() is not None:
+                    usepressure.mask = self.get_outputgrid().mask.copy()
+                else:
+                    usepressure.mask = self.grid==0
                 if out_pressures.get(precode) is None:
                     out_pressures[precode] = usepressure.copy()
                 else:
@@ -165,6 +175,8 @@ class CEACaseStudy(CaseStudyBase):
                 if _p is not None:
                     pressure_layer = _p.copy()
                     sensarray = pressure_layer * env_layer * sens.sensitivity
+                    # print("|||", np.nansum(pressure_layer), np.nansum(env_layer))
+                    # print("|||", np.nansum(sensarray), np.nanmax(sensarray), sens.sensitivity)
                     # TODO: check how rfunc should be applied
                     if sens.nrf is not None and not np.isnan(sens.nrf) and sens.srf is not None and not np.isnan(sens.srf):
                         rfunc = ResponseFunction(v=1, m=sens.srf, b=sens.nrf, q=1)
@@ -180,7 +192,7 @@ class CEACaseStudy(CaseStudyBase):
                     for usepresid, _up in self.outputs['usepressures'].items():
                         useid, presid = usepresid.split('--')
                         if presid == sens.precode and _up is not None:                        
-                            _sum += _up.sum()
+                            _sum += np.nansum(_up)
                             useenvid = "{}--{}".format(useid, idx)
                             if useenvid not in out_usesenvs:
                                 _r = np.zeros_like(self.grid)

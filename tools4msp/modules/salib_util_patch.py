@@ -35,8 +35,8 @@ def _nonuniform_scale_samples(params, bounds, dists):
 
         if dists[i] == 'triangmod':
             # checking for correct parameters
-            if b1 <= 0 or b2 <= 0 or b1 >= 1 or b2 >= 1:
-                raise ValueError('''Modified Triangular distribution: Peak and Confidence on interval [0,1]''')
+            if b1 < 0 or b2 <= 0 or b1 > 1 or b2 > 1:
+                raise ValueError('''Modified Triangular distribution: Peak on interval [0,1], Confidence on the interval (0, 1]''')
             else:
                 loc = min(max(b1 - b2 / 2, 0), 1 - b2)
                 scale = b2

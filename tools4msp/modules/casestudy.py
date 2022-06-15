@@ -50,6 +50,7 @@ class CaseStudyBase(object):
         self.name = name
         #
         self.grid = None
+        self.outputgrid = None
         self.csdir = csdir
         self.rundir = rundir
 
@@ -98,7 +99,7 @@ class CaseStudyBase(object):
         self.layers.loc[code, 'code_group'] = code_group
         self.layers.loc[code, 'layer'] = layer
         self.layers.loc[code, 'availability'] = availability
-        logger.debug("loaded layer {} minval={} maxval={} shape={}".format(code, layer.min(), layer.max(), layer.shape))
+        logger.debug("loaded layer {} minval={} maxval={} shape={}".format(code, np.nanmin(layer), np.nanmax(layer), layer.shape))
         return code
 
     def get_envs(self):
@@ -212,6 +213,13 @@ class CaseStudyBase(object):
         self.load_grid()
         return self.grid
 
+    def get_outputgrid(self):
+        if self.outputgrid is not None:
+            return self.outputgrid
+        if self.load_layers('OUTPUTGRID'):
+            self.outputgrid = self.layers.loc[self.layers.code == 'OUTPUTGRID']['layer'].values[0]
+        return self.outputgrid
+    
     def load_inputs(self):
         self.load_grid()
 

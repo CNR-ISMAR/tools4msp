@@ -11,7 +11,8 @@ from copy import deepcopy
 logger = logging.getLogger('tools4msp.sua')
 
 
-def run_sua(module_cs, nparams, nruns, bygroup=True, njobs=1, kwargs_run={}):
+def run_sua(module_cs, nparams, nruns, bygroup=True, njobs=1,
+            calc_second_order=False, kwargs_run={}):
     module_cs.load_layers()
     module_cs.load_grid()
     module_cs.load_inputs()
@@ -19,8 +20,9 @@ def run_sua(module_cs, nparams, nruns, bygroup=True, njobs=1, kwargs_run={}):
 
     module_cs_sua = CEACaseStudySUA(module_cs, nparams=nparams,
                                     bygroup=bygroup,
+                                    calc_second_order=calc_second_order,
                                     kwargs_run=kwargs_run)
-    module_cs_sua.runall(nruns, njobs=njobs)
+    module_cs_sua.runall(nruns, njobs=njobs, calc_second_order=calc_second_order)
 
     return module_cs_sua
 
@@ -30,7 +32,8 @@ class CaseStudySUA(object):
     This is a base class for support Sensitivity and Uncertainty Analysis.
     Child classes have to implement "set_problem" and "set_params" methods.
     """
-    def __init__(self, module_cs, nparams=40, bygroup=True, kwargs_run={}):
+    def __init__(self, module_cs, nparams=40, bygroup=True, calc_second_order=False,
+                 kwargs_run={}):
         self.module_cs = module_cs
         self.kwargs_run = kwargs_run
         # check runtypelevel
@@ -55,6 +58,7 @@ class CaseStudySUA(object):
         self.target_values = None
         self.nparams = nparams
         self.bygroup = bygroup
+        self.calc_second_order = calc_second_order
 
     def set_problem(self):
         """This is override by child classes"""
@@ -78,14 +82,16 @@ class CaseStudySUA(object):
             pass
 
         self.var_index.append(var_idx)
-
-    def sample(self, nruns, calc_second_order=True):
+        logger.debug('add problem var {} {} {} {}'.format(name, bound, dist, group))
+        
+    def sample(self, nruns, calc_second_order=False):
         return saltelli.sample(self.problem, nruns,
                                calc_second_order=calc_second_order)
 
     def runall(self, nruns, calc_second_order=False, njobs=1):
         self.set_problem()
         samples = self.sample(nruns, calc_second_order)
+        logger.debug('Samples={} calc_second_order={}'.format(len(samples), calc_second_order))
         model_output_stats = RunningStats2D(percentiles=[25, 50, 75])
         # TODO: add parallelization
         def _single_run(i, params):
@@ -215,21 +221,37 @@ class CEACaseStudySUA(CaseStudySUA):
         topsensitivities = df_presenvs.sort_values('score', ascending=False)[:nparams]
         for i, s in topsensitivities.iterrows():
             label = s.sua_var_name
+            group_label = "sensitivity {}".format(label)
             sensitivity_score = s.sensitivity
             confidence = s.confidence
-            if confidence == 0:
-                confidence = 0.1
+            if confidence == 1:
+                confidence = 0.9
             self.add_problem_var(['sensitivities', 'sensitivity', label],
                                  [sensitivity_score,
-                                  confidence],
+                                  1 - confidence],
                                  'triangmod',
-                                 'sensitivity' if self.bygroup else None
+                                 group_label if self.bygroup else None
+                                 )
+
+            self.add_problem_var(['sensitivities', 'nrf', label],
+                                 [0.4,
+                                  8],
+                                 'unif',
+                                 group_label if self.bygroup else None
+                                 )
+
+            self.add_problem_var(['sensitivities', 'srf', label],
+                                 [0.3,
+                                  0.7],
+                                 'unif',
+                                 group_label if self.bygroup else None
                                  )
 
         weights = module_cs.weights
         weights.fillna({'confidence': 0.5},
                         inplace=True)
-        self.normalize_distance = weights.distance.max() * 2
+        # self.normalize_distance = weights.distance.max() * 2
+        self.normalize_distance = weights.distance.max()
         weights['sua_var_name'] = weights['usecode'] + '--' + weights['precode']
         df_usepressures = module_cs.get_score_stats('usepressures')
         df_usepressures = df_usepressures.merge(weights,
@@ -239,24 +261,25 @@ class CEACaseStudySUA(CaseStudySUA):
         topweights = df_usepressures.sort_values('score', ascending=False)[:nparams]
         for i, s in topweights.iterrows():
             label = s.sua_var_name
+            group_label = "pressure {}".format(label)
             weight = s.weight
             distance = s.distance / self.normalize_distance
             confidence = s.confidence
-            if confidence == 0:
-                confidence = 0.1
+            if confidence == 1:
+                confidence = 0.9
 
             self.add_problem_var(['weights', 'weight', label],
                                  [weight,
-                                  confidence],
+                                  1 - confidence],
                                  'triangmod',
-                                 'weight' if self.bygroup else None
+                                 group_label if self.bygroup else None
                                  )
 
             self.add_problem_var(['weights', 'distance', label],
                                  [distance,
-                                  confidence],
+                                  (1 - confidence) * 2 / 3], # decrese uncertainty for distance
                                  'triangmod',
-                                 'distance' if self.bygroup else None
+                                 group_label if self.bygroup else None
                                  )
 
     def set_params(self, params, module_cs=None):
@@ -264,8 +287,8 @@ class CEACaseStudySUA(CaseStudySUA):
             module_cs = self.module_cs
         for i, (var_type, var_column, var_name) in enumerate(self.var_index):
             df = getattr(module_cs, var_type)
-            # print(obj[obj.sua_var_name == var_name])
             val = params[i]
             if var_column == 'distance':
                 val = val * self.normalize_distance
             df.loc[df.sua_var_name == var_name, var_column] = val
+            # logger.debug('set params {} {} {}'.format(var_name, var_column, val))

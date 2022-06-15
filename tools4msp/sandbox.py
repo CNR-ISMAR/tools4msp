@@ -11,3 +11,13 @@ module_cs.load_grid()
 module_cs.load_inputs()
 for idx, l in module_cs.layers.iterrows():
     l.layer.fill_underlying_data(0)
+
+import os
+import matplotlib
+import matplotlib.pyplot as plt
+from django.db import connection
+import pandas as pd
+df = pd.read_pickle('/opt/tools4msp/temp/df.pickle')
+matplotlib.use('module://backend_interagg')
+df['count'].plot.hist()
+plt.show()

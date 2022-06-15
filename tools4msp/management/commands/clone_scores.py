@@ -65,10 +65,11 @@ class Command(BaseCommand):
                 clone_sensitivities = False
                 if new_use_code is not None and old_use_code != new_use_code:
                     clone_muc = True
+                    clone_weights = True
                 if new_pres_code is not None and old_pres_code != new_pres_code:
                     clone_weights = True
                 if new_env_code is not None and old_env_code != new_env_code:
-                    clone_sensitivity = True
+                    clone_sensitivities = True
 
             if clone_muc:
                 self.stdout.write('Cloning MUC potential conflict')

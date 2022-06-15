@@ -53,6 +53,7 @@ from django.core.exceptions import ObjectDoesNotExist
 import math
 from .modules.sua import run_sua
 import uuid
+from treebeard.mp_tree import MP_Node, MP_NodeManager
 
 logger = logging.getLogger('tools4msp.models')
 
@@ -178,6 +179,7 @@ def _run(csr, runtypelevel=3):
         ci = module_cs.outputs['ci']
         cl = CodedLabel.objects.get(code='CEASCORE')
         csr_ol = csr.outputlayers.create(coded_label=cl)
+        print(np.nanmin(ci), np.nanmax(ci))
         write_to_file_field(csr_ol.file, ci.write_raster, 'geotiff')
         if runtypelevel >= 3:
             plot_map(ci, csr_ol.thumbnail)
@@ -193,9 +195,9 @@ def _run(csr, runtypelevel=3):
             pescore.append({
                 'p': p,
                 'e': e,
-                'pescore': float(l.sum())
+                'pescore': float(np.nansum(l))
             })
-            totscore += l.sum()
+            totscore += np.nansum(l)
         write_to_file_field(csr_o.file, lambda buf: json.dump(pescore, buf), 'json', is_text_file=True)
 
         if runtypelevel >= 3:
@@ -316,7 +318,7 @@ def _run(csr, runtypelevel=3):
         cl = CodedLabel.objects.get(code='BARPRESCORE')
         csr_o = csr.outputs.create(coded_label=cl)
         out_pressures = module_cs.outputs['pressures']
-        _pscores = [{'p': k, 'pscore': float(l.sum())} for (k, l) in out_pressures.items() if l.sum()>0]
+        _pscores = [{'p': k, 'pscore': float(np.nansum(l))} for (k, l) in out_pressures.items() if np.nansum(l)>0]
         write_to_file_field(csr_o.file, lambda buf: json.dump(_pscores, buf), 'json', is_text_file=True)
         pscores = pd.DataFrame(_pscores)
         
@@ -344,14 +346,14 @@ def _run(csr, runtypelevel=3):
         totscore = 0
         for (k, l) in out_usepressures.items():
             (u, p) = k.split('--')
-            if l.sum() == 0:
+            if np.nansum(l) == 0:
                 continue
             _upscores.append({
                 'u': u,
                 'p': p,
-                'upscore': float(l.sum())
+                'upscore': float(np.nansum(l))
             })
-            totscore += l.sum()
+            totscore += np.nansum(l)
         write_to_file_field(csr_o.file, lambda buf: json.dump(_upscores, buf), 'json', is_text_file=True)
         ax = plot_heatmap(_upscores, 'u', 'p', 'upscore', scale_measure=totscore / 100, fmt='.1f', fillval=0, cbar=False, figsize=[8, 10])
         ax.set_title('Pressure scores (%)')
@@ -374,9 +376,9 @@ def _run(csr, runtypelevel=3):
             uescore.append({
                 'u': u,
                 'e': e,
-                'uescore': float(l.sum())
+                'uescore': float(np.nansum(l))
             })
-            totscore += l.sum()
+            totscore += np.nansum(l)
         write_to_file_field(csr_o.file, lambda buf: json.dump(uescore, buf), 'json', is_text_file=True)
         ax = plot_heatmap(uescore, 'u', 'e', 'uescore', scale_measure=totscore / 100, fmt='.1f', fillval=0, cbar=False, figsize=[8, 10])
         ax.set_title('CEA score (%)')
@@ -388,7 +390,7 @@ def _run(csr, runtypelevel=3):
         plt.close()
 
         
-        ceamaxval = ci.max()
+        ceamaxval = np.nanmax(ci)
         MSFDGROUPS = {'Biological': 'MAPCEA-MSFDBIO',
                       'Physical': 'MAPCEA-MSFDPHY',
                       'Substances, litter and energy': 'MAPCEA-MSFDSUB'}
@@ -475,8 +477,8 @@ def _run(csr, runtypelevel=3):
         module_cs.run(scenario=1)
         time_rasters = module_cs.outputs['time_rasters']
         # collect statistics
-        vmaxcum = np.asscalar(max([r[1].max() for r in time_rasters]))
-        vmax = np.asscalar(max([r[2].max() for r in time_rasters]))
+        vmaxcum = np.asscalar(max([np.nanmax(r[1]) for r in time_rasters]))
+        vmax = np.asscalar(max([np.nanmax(r[2]) for r in time_rasters]))
 
         CRS = cartopy.crs.Mercator()
 
@@ -1107,6 +1109,7 @@ class CaseStudyInput(FileBase):
     updated = models.DateTimeField(auto_now=True)
 
 
+# class CodedLabelManager(MP_NodeManager):
 class CodedLabelManager(models.Manager):
     def get_dict(self):
         values = self.all().values('code', 'group', 'label')
@@ -1116,6 +1119,7 @@ class CodedLabelManager(models.Manager):
         return self.get(code=code)
 
 
+# class CodedLabel(MP_Node):
 class CodedLabel(models.Model):
     group = models.CharField(max_length=10, choices=CODEDLABEL_GROUP_CHOICES)
     code = models.SlugField(max_length=15, unique=True)
@@ -1132,7 +1136,7 @@ class CodedLabel(models.Model):
         return (self.code,)
 
     class Meta:
-        ordering = ['group', 'label']
+      ordering = ['group', 'label']
 
 
 class MsfdPres(models.Model):
@@ -1152,7 +1156,8 @@ class MsfdPres(models.Model):
         ordering = ['theme', 'msfd_pressure']
 
 
-class Pressure(CodedLabel):
+class Pressure(CodedLabel, MP_Node):
+    node_order_by = ["code"]
     msfd = models.ForeignKey(MsfdPres,
                              on_delete=models.CASCADE)
 
@@ -1164,7 +1169,7 @@ class Pressure(CodedLabel):
         return "%s" % self.label
 
     class Meta:
-        ordering = ['label']
+        ordering = ['path']
 
 
 class MsfdUse(models.Model):
@@ -1186,7 +1191,8 @@ class MsfdUse(models.Model):
         ordering = ['theme', 'activity']
 
 
-class Use(CodedLabel):
+class Use(CodedLabel, MP_Node):
+    node_order_by = ["code"]
     msfd = models.ForeignKey(MsfdUse,
                              on_delete=models.CASCADE)
 
@@ -1198,7 +1204,7 @@ class Use(CodedLabel):
         return "%s" % self.label
 
     class Meta:
-        ordering = ['label']
+        ordering = ['path']
 
 
 class MsfdEnv(models.Model):
@@ -1224,7 +1230,8 @@ class MsfdEnv(models.Model):
         ordering = ['theme', 'ecosystem_element', 'broad_group']
 
 
-class Env(CodedLabel):
+class Env(CodedLabel, MP_Node):
+    node_order_by = ["code"]
     msfd = models.ForeignKey(MsfdEnv,
                              on_delete=models.CASCADE)
 
@@ -1237,7 +1244,7 @@ class Env(CodedLabel):
 
     class Meta:
         verbose_name = "Environmental receptor"
-        ordering = ['label']
+        ordering = ['path']
 
 
 class WeightManager(models.Manager):
@@ -1379,6 +1386,8 @@ class Sensitivity(models.Model):
     """
     pres = models.ForeignKey(Pressure, on_delete=models.CASCADE)
     env = models.ForeignKey(Env, on_delete=models.CASCADE)
+    impact_level = models.FloatField(null=True, blank=True)
+    recovery = models.FloatField(null=True, blank=True)
     sensitivity = models.FloatField()
     context = models.ForeignKey(Context, on_delete=models.CASCADE)
     confidence = models.FloatField(null=True, blank=True)
@@ -1565,8 +1574,8 @@ class CaseStudyDataset(models.Model):
     def get_dataset(self, res=None, grid=None):
         raster = self.eval_expression(res=res, grid=grid)
         logger.debug('get_dataset dataset={} max={} min={}'.format(self.pk,
-                                                                   raster.max(),
-                                                                   raster.min()))
+                                                                   np.nanmax(raster),
+                                                                   np.nanmin(raster)))
         return raster
 
     def update_dataset(self, dataset_type, res=None, grid=None):

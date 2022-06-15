@@ -13,6 +13,10 @@ from .models import Env, Use, Pressure, CaseStudy, \
     CaseStudyRunOutputLayer, CaseStudyRunOutput, \
     CaseStudyRunInput, CaseStudyRunLayer, MUCPotentialConflict
 
+from treebeard.admin import TreeAdmin
+from treebeard.forms import movenodeform_factory
+
+
 #############
 ## CaseStudy drive approach
 class ContextAdmin(admin.ModelAdmin):
@@ -39,8 +43,10 @@ admin.site.register(Weight, WeightAdmin)
 class SensitivityAdmin(admin.ModelAdmin):
     model = Sensitivity
     list_display = ['context', 'pres',
-                    'env', 'sensitivity']
+                    'env', 'impact_level', 'recovery', 'sensitivity', 'confidence', 'references', 'notes']
+    list_editable = ['impact_level', 'recovery', 'sensitivity', 'confidence', 'references', 'notes']
     list_filter = ['context', 'pres', 'env']
+
 
 admin.site.register(Sensitivity, SensitivityAdmin)
 
@@ -55,36 +61,42 @@ admin.site.register(MUCPotentialConflict, MUCPotentialConflictAdmin)
 
 class CodedLabelAdmin(admin.ModelAdmin):
     model = CodedLabel
+    # fields = ['group', 'code', 'label', 'description']
     list_display = ['group',
                     'code',
                     'label']
+    list_filter = ['group']
+    
 
 admin.site.register(CodedLabel, CodedLabelAdmin)
 
 
-class PresAdmin(admin.ModelAdmin):
+class PresAdmin(TreeAdmin):
     model = Pressure
     list_display = ['code',
                    'label',
                    'msfd']
+    form = movenodeform_factory(Pressure)
 
 admin.site.register(Pressure, PresAdmin)
 
 
-class UseAdmin(admin.ModelAdmin):
+class UseAdmin(TreeAdmin):
     model = Use
     list_display = ['code',
                     'label',
                     'msfd',]
+    form = movenodeform_factory(Pressure)
 
 admin.site.register(Use, UseAdmin)
 
 
-class EnvAdmin(admin.ModelAdmin):
+class EnvAdmin(TreeAdmin):
     model = Env
     list_display = ['code',
                     'label',
                     'msfd',]
+    form = movenodeform_factory(Pressure)
 
 admin.site.register(Env, EnvAdmin)
 
