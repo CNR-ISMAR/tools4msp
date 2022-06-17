@@ -1125,6 +1125,8 @@ class CodedLabel(models.Model):
     code = models.SlugField(max_length=15, unique=True)
     label = models.CharField(max_length=100)
     description = models.TextField(blank=True)
+    fa_class = models.CharField(max_length=64, default='fa-circle')
+        
     old_label = models.CharField(max_length=100, blank=True, null=True)
 
     objects = CodedLabelManager()
