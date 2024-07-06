@@ -68,6 +68,7 @@ class Command(BaseCommand):
                     clone_weights = True
                 if new_pres_code is not None and old_pres_code != new_pres_code:
                     clone_weights = True
+                    clone_sensitivities = True
                 if new_env_code is not None and old_env_code != new_env_code:
                     clone_sensitivities = True
 

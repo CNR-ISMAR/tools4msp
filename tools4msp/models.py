@@ -1,3 +1,4 @@
+import sys
 import tempfile
 import logging
 from os import path
@@ -19,26 +20,34 @@ from django.utils.functional import lazy
 from django.utils.html import format_html
 from django.core.files.base import ContentFile
 
+import geopandas as gpd
+from shapely import wkt
+from shapely.ops import transform
+import rectifiedgrid as rg
+
 from jsonfield import JSONField
 from .processing import Expression
 from .utils import layer_to_raster, get_sensitivities_by_rule, get_conflict_by_uses, get_layerinfo
-from .modules.casestudy import CaseStudyBase as CS
+from .modules.casestudy import CaseStudyBase as CS, aggregate_layers_to_gdf
 import itertools
 import datetime
 import hashlib
-from django.contrib.gis.geos import MultiPolygon
+from django.contrib.gis.geos import MultiPolygon, Polygon
 from django.db.models import F
 from django.core.files import File
 from io import StringIO
 import json
 from django.dispatch import receiver
 import os
-from .utils import write_to_file_field, plot_heatmap
+from .utils import write_to_file_field, plot_heatmap, get_sld, write_empty_file_field
 from .plotutils import plot_map, get_map_figure_size, get_zoomlevel
 from django.conf import settings
 from .modules.cea import CEACaseStudy
 from .modules.muc import MUCCaseStudy
 from .modules.partrac import ParTracCaseStudy
+from .modules.pmar import PMARCaseStudy
+from .modules.geodatamaker import GeoDataMakerCaseStudy
+from .modules.testmodule import TESTCaseStudy
 from os import path
 import pandas as pd
 try:
@@ -54,6 +63,9 @@ import math
 from .modules.sua import run_sua
 import uuid
 from treebeard.mp_tree import MP_Node, MP_NodeManager
+from django_q.tasks import async_task, result
+import shutil
+import traceback
 
 logger = logging.getLogger('tools4msp.models')
 
@@ -67,12 +79,17 @@ CODEDLABEL_GROUP_CHOICES = (
     ('cea', 'CEA'),
     ('muc', 'MUC'),
     ('partrac', 'Particle tracking'),
+    ('pmar', 'Pressure Assessment for Marine Activities'),
+    ('testmodule', 'Test module'),
 )
 
 MODULE_TYPE_CHOICES = (
     ('cea', 'CEA'),
     ('muc', 'MUC'),
     ('partrac', 'Particle tracking'),
+    ('pmar', 'Pressure Assessment for Marine Activities'),
+    ('testmodule', 'Test module'),
+    ('geodatamaker', 'GeoData Maker')
 )
 
 CASESTUDY_TYPE_CHOICES = (
@@ -80,8 +97,17 @@ CASESTUDY_TYPE_CHOICES = (
     ('customized', 'Customized run'),
 )
 
+VIZMODE_CHOICES = (
+    (0, 'filtered'),
+    (1, 'all'),
+)
+
 
 TOOLS4MSP_BASEDIR = '/var/www/geonode/static/cumulative_impact'
+
+VISIBILITY_CHOICES = ((0, 'private'), (1, 'hidden'), (2, 'public'))
+
+RUNSTATUS_CHOICES = ((0, 'running'), (1, 'completed'), (2, 'error'))
 
 def get_coded_label_choices():
     lt = [("grid", "Analysis grid")]
@@ -111,10 +137,26 @@ if not geonode:
     class Layer(models.Model):
         pass
 
+
+class ClientApplication(models.Model):
+    name = models.CharField(max_length=100)
+    owner = models.OneToOneField('auth.User',
+                                 on_delete=models.CASCADE,
+                                 related_name="client_application_owner")
+    users = models.ManyToManyField("auth.User",
+                                   blank=True,
+                                   help_text="Users registered by the client application",
+                                   related_name="client_applications_user",
+    )
+
+    def __str__(self):
+        return self.name
+
+
 class Context(models.Model):
     """Model for storing information on data context."""
     label = models.CharField(max_length=100)
-    description = models.CharField(max_length=400, null=True, blank=True)
+    description = models.CharField(max_length=800, null=True, blank=True)
     reference_date = models.DateField(default=datetime.date.today)
 
     def __str__(self):
@@ -145,7 +187,7 @@ def _run_sua(csr, nparams=20, nruns=100, bygroup=True, njobs=1, calc_second_orde
         csr_ol.file = None
         csr_ol.thumbnail = None
         csr_ol.save()
-        write_to_file_field(csr_ol.file, l.write_raster, 'geotiff')
+        write_to_file_field(csr_ol.file, l.write_raster, 'tiff')
         plot_map(l, csr_ol.thumbnail, ceamaxval=None, logcolor=False)
 
     code = 'MAPCEA-SUA-SSA'
@@ -162,29 +204,170 @@ def _run_sua(csr, nparams=20, nruns=100, bygroup=True, njobs=1, calc_second_orde
     write_to_file_field(csr_o.file, lambda buf: json.dump(data, buf), 'json', is_text_file=True)
     return module_cs
 
+def run_wrapper(_csr, runtypelevel=3):
+    run_result = {}
+    if isinstance(_csr, int):
+        csr = CaseStudyRun.objects.get(pk=_csr)
+    else:
+        csr = _csr
 
-def _run(csr, runtypelevel=3):
+    run_result['csr_id'] = csr.pk
+    try:
+        csrid = _run(_csr, runtypelevel=runtypelevel)
+        run_result['error'] = None
+    except Exception as e:
+        run_result['error'] = repr(e)
+        traceback.print_exc()
+    return run_result
+
+def _run(_csr, runtypelevel=3):
+    if isinstance(_csr, int):
+        csr = CaseStudyRun.objects.get(pk=_csr)
+    else:
+        csr = _csr
+        
+    compute_aggregate_stats = False
+    # if csr.owner.username == 'geoplatform____admin': # TODO: make it dynamic
+    #    compute_aggregate_stats = True
+    compute_aggregate_stats = False # force to False
+        
+
     selected_layers = csr.configuration['selected_layers']
     module_cs = csr.casestudy.module_cs
+    # search for outputgrid
+    _outputgrid = csr.layers.filter(coded_label__code='OUTPUTGRID')
+    if _outputgrid.count()==1:
+        outputgrid = rg.read_raster(csr.layers.filter(coded_label__code='OUTPUTGRID')[0].file.path)
+        module_cs.outputgrid = outputgrid
     uses, pres, envs = check_coded_labels(selected_layers)
-
+    #
+    pivot_layer = csr.configuration.get('pivot_layer', None)
+    logger.debug('module {}'.format(csr.casestudy.module))
     if csr.casestudy.module == 'cea':
+        logger.debug('loading layers, grid, inputs')
         module_cs.load_layers()
+        # del csr.casestudy.module_cs
+        # logger.debug('return')
+        # return True
         module_cs.load_grid()
         module_cs.load_inputs()
-        module_cs.run(uses=uses, envs=envs, pressures=pres, runtypelevel=runtypelevel)
+        module_cs.layer_preprocessing()
+        logger.debug('starting run')
+        module_cs.run(uses=uses, envs=envs, pressures=pres, # usespres=usespres,
+                      selected_layers=selected_layers, runtypelevel=runtypelevel)
+        # start configuration of aggregate statistics
+        if compute_aggregate_stats:
+            aggregated_layers = {
+            }
+                    
         # Collect and save outputs
-
+        logger.debug('collecting results')
         # CEASCORE map
+        logger.debug('saving CEASCORE')
         ci = module_cs.outputs['ci']
         cl = CodedLabel.objects.get(code='CEASCORE')
-        csr_ol = csr.outputlayers.create(coded_label=cl)
-        print(np.nanmin(ci), np.nanmax(ci))
-        write_to_file_field(csr_ol.file, ci.write_raster, 'geotiff')
+        csr_ol = csr.outputlayers.create(coded_label=cl, description=cl.description)
+        # print(np.nanmin(ci), np.nanmax(ci))
+        write_to_file_field(csr_ol.file, ci.write_raster, 'tiff')
         if runtypelevel >= 3:
-            plot_map(ci, csr_ol.thumbnail)
+            logger.debug('plotting and saving thumbnail CEASCORE')
+            # this is needed to exclude outliers
+            plot_map(ci.crop(), csr_ol.thumbnail, # xlogcolor=True,
+                     vmin=0, quantile_outliers=0.98)
+
+        logger.debug('saving MAPINDEX-CEARANKING')
+        cl = CodedLabel.objects.get(code='MAPINDEX-CEARANKING')
+        csr_ol = csr.outputlayers.create(coded_label=cl)
+        # print(np.nanmin(ci), np.nanmax(ci))
+        write_to_file_field(csr_ol.file, ci.write_raster, 'tiff')
+        if runtypelevel >= 3:
+            logger.debug('plotting and saving thumbnail MAPINDEX-CEARANKING')
+            ci[ci.mask] = np.nan
+            # plot_map(ci / ci.max()*100, csr_ol.thumbnail, logcolor=True)
+            _colors = ['#016c59', '#1c9099', '#67a9cf', '#a6bddb', '#d0d1e6', '#f6eff7',
+                       '#fef0d9', '#fdd49e', '#fdbb84', '#fc8d59', '#e34a33', '#b30000']
+            _quantiles = [0, 0.05, 0.1, 0.2, 0.3, 0.4,
+                          0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 1]
+            cmap = matplotlib.colors.ListedColormap(_colors)
+            # bounds = ceascore.quantile([0, 0.5, 0.75, 0.9, 1]).data
+            bounds = np.nanquantile(ci, _quantiles)
+            bounds[-1] = np.nanmax(ci)
+            norm = matplotlib.colors.BoundaryNorm(bounds, cmap.N)
+            logger.debug(np.nanmax(ci))
+            logger.debug(bounds)
+            logger.debug(ci>=bounds[0])
+            plot_map(ci.masked_less(bounds[0], copy=True), csr_ol.thumbnail, # logcolor=True,
+                     cmap=cmap, norm=norm)
+            # 
+            
+        # return 
+        if compute_aggregate_stats:
+            aggregated_layers['CEASCORE'] = ci
+
+        # # plot the pressures
+        # for code, l in module_cs.outputs['pressures'].items():
+        #     cl = CodedLabel.objects.get(code=code)
+        #     csr_ol = csr.outputlayers.create(coded_label=cl)
+        #     write_to_file_field(csr_ol.file, l.write_raster, 'tiff')
+        #     plot_map(l, csr_ol.thumbnail)
+        #     # set layerinfo
+            
+        #     csr_ol.description = csr_ol.layerinfo_str
+        #     csr_ol.save()
+        # * 100return
+    
+        # MAPCEA-IMPACT-LEVEL map
+        logger.debug('saving MAPCEA-IMPACT-LEVEL')
+        ci_impact_level = module_cs.outputs['ci_impact_level']
+        cl = CodedLabel.objects.get(code='MAPCEA-IMPACT-LEVEL')
+        csr_ol = csr.outputlayers.create(coded_label=cl)
+        # print(np.nanmin(ci), np.nanmax(ci))
+        write_to_file_field(csr_ol.file, ci_impact_level.write_raster, 'tiff')
+        if runtypelevel >= 3:
+            logger.debug('plotting and saving thumbnail MAPCEA-IMPACT-LEVEL')
+            plot_map(ci_impact_level, csr_ol.thumbnail, quantile_outliers=0.98)
+
+        # MAPCEA-RECOVERY-TIME map
+        logger.debug('saving MAPCEA-RECOVERY-TIME')
+        ci_recovery_time = module_cs.outputs['ci_recovery_time']
+        cl = CodedLabel.objects.get(code='MAPCEA-RECOVERY-TIME')
+        csr_ol = csr.outputlayers.create(coded_label=cl)
+        # print(np.nanmin(ci), np.nanmax(ci))
+        write_to_file_field(csr_ol.file, ci_recovery_time.write_raster, 'tiff')
+        if runtypelevel >= 3:
+            logger.debug('plotting and saving thumbnail MAPCEA-RECOVERY-TIME')
+            plot_map(ci_recovery_time, csr_ol.thumbnail, quantile_outliers=0.98)
+
+        # MAPINDEX-EDIV
+        logger.debug('saving MAPINDEX-EDIV')
+        mapindex_ediv = module_cs.outputs['mapindex_ediv']
+        cl = CodedLabel.objects.get(code='MAPINDEX-EDIV')
+        csr_ol = csr.outputlayers.create(coded_label=cl)
+        # print(np.nanmin(ci), np.nanmax(ci))
+        write_to_file_field(csr_ol.file, mapindex_ediv.write_raster, 'tiff')
+        if runtypelevel >= 3:
+            logger.debug('plotting and saving thumbnail MAPINDEX-EDIV')
+            plot_map(mapindex_ediv, csr_ol.thumbnail, logcolor=False)
+
+        if compute_aggregate_stats:
+            aggregated_layers['CEASCORE'] = ci
+
+        # MAPINDEX-UDIV
+        logger.debug('saving MAPINDEX-UDIV')
+        mapindex_udiv = module_cs.outputs['mapindex_udiv']
+        cl = CodedLabel.objects.get(code='MAPINDEX-UDIV')
+        csr_ol = csr.outputlayers.create(coded_label=cl)
+        # print(np.nanmin(ci), np.nanmax(ci))
+        write_to_file_field(csr_ol.file, mapindex_udiv.write_raster, 'tiff')
+        if runtypelevel >= 3:
+            logger.debug('plotting and saving thumbnail MAPINDEX-UDIV')
+            plot_map(mapindex_udiv, csr_ol.thumbnail, logcolor=False, quantile_outliers=0.98)
+
+        if compute_aggregate_stats:
+            aggregated_layers['CEASCORE'] = ci
 
         #PRESENVSCEA heatmap
+        logger.debug('saving HEATPREENVCEA')
         cl = CodedLabel.objects.get(code='HEATPREENVCEA')
         csr_o = csr.outputs.create(coded_label=cl)
         out_presenvs = module_cs.outputs['presenvs']
@@ -199,7 +382,7 @@ def _run(csr, runtypelevel=3):
             })
             totscore += np.nansum(l)
         write_to_file_field(csr_o.file, lambda buf: json.dump(pescore, buf), 'json', is_text_file=True)
-
+        logger.debug('saving HEATPREENVCEA2')
         if runtypelevel >= 3:
             ax = plot_heatmap(pescore, 'p', 'e', 'pescore', scale_measure=totscore / 100, fmt='.1f', fillval=0, cbar=False, figsize=[8, 10])
             ax.set_title('CEA score (%)')
@@ -211,10 +394,11 @@ def _run(csr, runtypelevel=3):
             plt.close()
 
         if runtypelevel < 3:
-            return module_cs
+            return csr.id
 
         # WEIGHTS
-        cl = CodedLabel.objects.get(code='WEIGHTS')
+        logger.debug('saving WEIGHTS')
+        cl = CodedLabel.objects.get(code='PRESSURE-WEIGHTS')
         csr_o = csr.outputs.create(coded_label=cl)
         filter_used_weights = module_cs.weights.usecode.isin(module_cs.layers.code)
         matrix = module_cs.weights[filter_used_weights]
@@ -242,6 +426,7 @@ def _run(csr, runtypelevel=3):
         plt.close()
 
         # DISTANCES
+        logger.debug('saving DISTANCES')
         cl = CodedLabel.objects.get(code='DISTANCES')
         csr_o = csr.outputs.create(coded_label=cl)
         write_to_file_field(csr_o.file, lambda buf: json.dump(matrix, buf), 'json', is_text_file=True)
@@ -262,6 +447,7 @@ def _run(csr, runtypelevel=3):
         plt.close()
 
         # SENS
+        logger.debug('saving SENS')
         cl = CodedLabel.objects.get(code='SENS')
         csr_o = csr.outputs.create(coded_label=cl)
         # matrix = module_cs.sensitivities.to_dict('record')
@@ -314,29 +500,29 @@ def _run(csr, runtypelevel=3):
         plt.clf()
         plt.close()
 
-        # PRESCORE barplot
-        cl = CodedLabel.objects.get(code='BARPRESCORE')
-        csr_o = csr.outputs.create(coded_label=cl)
-        out_pressures = module_cs.outputs['pressures']
-        _pscores = [{'p': k, 'pscore': float(np.nansum(l))} for (k, l) in out_pressures.items() if np.nansum(l)>0]
-        write_to_file_field(csr_o.file, lambda buf: json.dump(_pscores, buf), 'json', is_text_file=True)
-        pscores = pd.DataFrame(_pscores)
+        # # PRESCORE barplot
+        # cl = CodedLabel.objects.get(code='BARPRESCORE')
+        # csr_o = csr.outputs.create(coded_label=cl)
+        # out_pressures = module_cs.outputs['pressures']
+        # _pscores = [{'p': k, 'pscore': float(np.nansum(l))} for (k, l) in out_pressures.items() if np.nansum(l)>0]
+        # write_to_file_field(csr_o.file, lambda buf: json.dump(_pscores, buf), 'json', is_text_file=True)
+        # pscores = pd.DataFrame(_pscores)
         
-        pscores.set_index('p', inplace=True)
-        ax = pscores.plot.bar(legend=False)
-        ax.set_xlabel('Pressures')
-        ax.set_ylabel('pressure score')
-        totscoreperc = pscores.pscore.sum()/100
-        y1, y2 = ax.get_ylim()
-        x1, x2= ax.get_xlim()
-        ax2 = ax.twinx()
-        ax2.set_ylim(y1/totscoreperc, y2/totscoreperc)
-        ax2.set_ylabel('% of the total pressure score')
+        # pscores.set_index('p', inplace=True)
+        # ax = pscores.plot.bar(legend=False)
+        # ax.set_xlabel('Pressures')
+        # ax.set_ylabel('pressure score')
+        # totscoreperc = pscores.pscore.sum()/100
+        # y1, y2 = ax.get_ylim()
+        # x1, x2= ax.get_xlim()
+        # ax2 = ax.twinx()
+        # ax2.set_ylim(y1/totscoreperc, y2/totscoreperc)
+        # ax2.set_ylabel('% of the total pressure score')
             
-        plt.tight_layout()
-        write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
-        plt.clf()
-        plt.close()
+        # plt.tight_layout()
+        # write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
+        # plt.clf()
+        # plt.close()
 
         #USEPRESCORE heatmap
         cl = CodedLabel.objects.get(code='HEATUSEPRESCORE')
@@ -389,12 +575,12 @@ def _run(csr, runtypelevel=3):
         plt.clf()
         plt.close()
 
-        
         ceamaxval = np.nanmax(ci)
         MSFDGROUPS = {'Biological': 'MAPCEA-MSFDBIO',
                       'Physical': 'MAPCEA-MSFDPHY',
                       'Substances, litter and energy': 'MAPCEA-MSFDSUB'}
         for ptheme, msfdcode in MSFDGROUPS.items():
+            logger.debug('saving {}'.format(msfdcode))
             plist = list(Pressure.objects.filter(msfd__theme=ptheme).values_list('code', flat=True))
             module_cs.run(uses=uses, envs=envs, pressures=plist)
             #
@@ -404,23 +590,32 @@ def _run(csr, runtypelevel=3):
             plist_str = ", ".join(CodedLabel.objects.filter(code__in=plist).values_list('label', flat=True))
             description = 'MSFD {} pressures: {}'.format(ptheme, plist_str)
             csr_ol = csr.outputlayers.create(coded_label=cl, description=description)
-            write_to_file_field(csr_ol.file, ci.write_raster, 'geotiff')
+            write_to_file_field(csr_ol.file, ci.write_raster, 'tiff')
+            logger.debug('plotting and saving thumbnail {}'.format(msfdcode))
+            plot_map(ci, csr_ol.thumbnail, ceamaxval=ceamaxval, quantile_outliers=0.98)
 
-            plot_map(ci, csr_ol.thumbnail, ceamaxval=ceamaxval)
+            if compute_aggregate_stats:
+                aggregated_layers[msfdcode] = ci
+        # TODO: generalize step = 2
+        if compute_aggregate_stats:
+            for code, l in module_cs.layers.iterrows():
+                aggregated_layers[code] = l.layer
+
+            module_cs.outputs['aggregated_gdf'] = aggregate_layers_to_gdf(aggregated_layers, step=2, melt=True)
 
     elif csr.casestudy.module == 'muc':
-        csr.casestudy.set_or_update_context('AIR')
+        # csr.casestudy.set_or_update_context('CATALUNIA')
         module_cs.load_layers()
         module_cs.load_grid()
         module_cs.load_inputs()
-        module_cs.run(uses=uses)
+        module_cs.run(uses=uses, pivot_layer=pivot_layer)
         totalscore = module_cs.outputs['muc_totalscore']
 
         # MUCSCORE map
         out = module_cs.outputs['muc']
         cl = CodedLabel.objects.get(code='MUCSCORE')
         csr_ol = csr.outputlayers.create(coded_label=cl)
-        write_to_file_field(csr_ol.file, out.write_raster, 'geotiff')
+        write_to_file_field(csr_ol.file, out.write_raster, 'tiff')
         plt.figure(figsize=get_map_figure_size(out.bounds))
         ax, mapimg = out.plotmap(#ax=ax,
                    cmap='jet',
@@ -428,7 +623,7 @@ def _run(csr, runtypelevel=3):
                    legend=True,
                    # maptype='minimal',
                    grid=True, gridrange=1)
-        ax.add_image(cimgt.Stamen('toner-lite'), get_zoomlevel(out.geobounds))
+        # ax.add_image(cimgt.Stamen('toner-lite'), get_zoomlevel(out.geobounds))
         # CEASCORE map as png for
         write_to_file_field(csr_ol.thumbnail, plt.savefig, 'png')
         plt.clf()
@@ -436,9 +631,18 @@ def _run(csr, runtypelevel=3):
         # PCONFLICT
         cl = CodedLabel.objects.get(code='PCONFLICT')
         csr_o = csr.outputs.create(coded_label=cl)
-        pconflict = MUCPotentialConflict.objects.get_matrix('AIR')
-        write_to_file_field(csr_o.file, lambda buf: json.dump(pconflict, buf), 'json', is_text_file=True)
-        ax = plot_heatmap(pconflict, 'u1', 'u2', 'score',
+        # pconflict = MUCPotentialConflict.objects.get_matrix('CATALUNIA')
+        
+        filter_used_columns = module_cs.potential_conflict_scores.columns.isin(module_cs.layers.code)
+        filter_used_rows = module_cs.potential_conflict_scores.index.isin(module_cs.layers.code)
+        matrix = module_cs.potential_conflict_scores.loc[filter_used_rows, filter_used_columns]
+        filter_triu = np.triu(np.ones(matrix.shape), k=1).astype(np.bool)
+        matrix = matrix.where(filter_triu)
+        matrix = matrix.stack().reset_index(name='score')
+        matrix = matrix.to_dict('record')
+        
+        write_to_file_field(csr_o.file, lambda buf: json.dump(matrix, buf), 'json', is_text_file=True)
+        ax = plot_heatmap(matrix, 'u1', 'u2', 'score',
                           figsize=[12, 12],
                           sparse_tri=True,
                           fmt='.0f', fillval=0, cbar=False,
@@ -468,7 +672,7 @@ def _run(csr, runtypelevel=3):
         plt.tight_layout()
         write_to_file_field(csr_o.thumbnail, plt.savefig, 'png')
         plt.clf()
-        return module_cs
+        return csr.id
 
     elif csr.casestudy.module == 'partrac':
         # module_cs.load_layers()
@@ -500,8 +704,8 @@ def _run(csr, runtypelevel=3):
             im = ax.images
             if len(im) > 0:
                 legend = False
-            else:
-                ax.add_image(cimgt.Stamen('toner-lite'), get_zoomlevel(raster.geobounds))
+            # else:
+            #     ax.add_image(cimgt.Stamen('toner-lite'), get_zoomlevel(raster.geobounds))
             # print(iternum, rindex, raster.max(), vmax)
             raster.plotmap(ax=ax,
                            # etopo=True,
@@ -536,7 +740,7 @@ def _run(csr, runtypelevel=3):
         write_to_file_field(csr_o.thumbnail, write_to_buffer, 'gif', aniobj=ani)
         plt.clf()
 
-        write_to_file_field(csr_o.file, time_rasters[-1][1].copy().write_raster, 'geotiff')
+        write_to_file_field(csr_o.file, time_rasters[-1][1].copy().write_raster, 'tiff')
 
         fig, ax = plt.subplots(figsize=[12, 12], subplot_kw={'projection': CRS})
         fig.set_tight_layout(True)
@@ -551,10 +755,99 @@ def _run(csr, runtypelevel=3):
 
         write_to_file_field(csr_o.thumbnail, write_to_buffer, 'gif', aniobj=ani)
         plt.clf()
-        write_to_file_field(csr_o.file, time_rasters[-1][2].copy().write_raster, 'geotiff')
+        write_to_file_field(csr_o.file, time_rasters[-1][2].copy().write_raster, 'tiff')
+        return csr.id
 
-        return module_cs
-        #
+    elif csr.casestudy.module == 'pmar':
+        module_cs.load_layers()
+        module_cs.load_inputs()
+        module_cs.layer_preprocessing()
+        df_domain_area = None
+        if csr.casestudy.domain_area is not None:
+            domain_area = csr.casestudy.domain_area
+            if domain_area.geom_type == 'MultiPolygon':
+                areas = {i: da.area for i, da in enumerate(domain_area)}
+                domain_area = domain_area[max(areas, key=areas.get)]
+                
+            #     df_domain_area = csr.casestudy.domain_area_to_gdf()
+            # else:
+            #     message = 'The domain_area is not a Polygon. It cannot be used for seeding'
+            #     logger.warning(message)
+            #     print(message)
+                
+        module_cs.run(selected_layers=selected_layers, df_domain_area=_domain_area_to_gdf(domain_area), runtypelevel=runtypelevel, context=csr.casestudy.default_context.label)
+        # pmar_result = module_cs.outputs['pmar_result']
+        # print("################")
+        # print(pmar_result)
+        # cl = CodedLabel.objects.get(code='PMAR-RESULTS')
+        # csr_o = csr.outputs.create(coded_label=cl)
+        # write_to_file_field(csr_o.file, lambda buf: json.dump(pmar_result, buf), 'json', is_text_file=True)
+
+        for c, layer in module_cs.outputs['pmar_result_layers'].items():
+            cl = CodedLabel.objects.get(code=c)
+            csr_ol = csr.outputlayers.create(coded_label=cl)
+            # print(np.nanmin(ci), np.nanmax(ci))
+            write_to_file_field(csr_ol.file, layer['output'].write_raster, 'tiff')
+            write_to_file_field(csr_ol.thumbnail, layer['thumbnail'].save, 'png', format='PNG')
+            # plot_map(layer, csr_ol.thumbnail)
+
+    elif csr.casestudy.module == 'geodatamaker':
+        module_cs.load_layers()
+        module_cs.load_inputs()
+        module_cs.layer_preprocessing()
+        module_cs.run(selected_layers=selected_layers, runtypelevel=runtypelevel)
+        for c, layer in module_cs.outputs['layers'].iterrows():
+            cl = CodedLabel.objects.get(code=c)
+            csr_ol = csr.outputlayers.create(coded_label=cl)
+            # print(np.nanmin(ci), np.nanmax(ci))
+            write_to_file_field(csr_ol.file, layer['layer'].write_raster, 'tiff')
+            plot_map(layer['layer'], csr_ol.thumbnail)
+            # def save_shp_wrapper(buf):
+            #     with tempfile.TemporaryDirectory() as tmpdirname:
+            #         gdf = module_cs.outputs['aggregated_gdf']
+            #         gdf.to_file(tempdirname.name, driver='ESRI Shapefile')
+            #         with tempfile.NamedTemporaryFile(suffix=".shp") as fp:
+            #             archiveFile = shutil.make_archive(fp.name, 'zip', tempdirname.name)
+            #             zip = open(archiveFile, 'rb')
+            #             buf.write(fzip.read())
+
+            # write_to_file_field(csr_o.file, , 'shp.zip')
+
+            # write_to_file_field(csr_ol.thumbnail, layer['thumbnail'].save, 'png', format='PNG')
+            # plot_map(layer, csr_ol.thumbnail)
+
+        # related = []
+        # # get outputlayers
+        # for f in csr.casestudy._meta.get_fields():
+        #     if f.one_to_many and f.field.model==CaseStudyLayer:
+        #         related_name = f.get_accessor_name()
+        #         related.extend(getattr(csr.casestudy, related_name).all())
+
+        # # copy input layers to outputlayers
+        # for o in related:
+        #     csr_o = csr.outputlayers.create(coded_label=o.coded_label)
+        #     if bool(o.file):
+        #         new_file = ContentFile(o.file.read())
+        #         new_file.name = o.file.name
+        #         csr_o.file = new_file
+
+        #     if bool(o.thumbnail):
+        #         new_file = ContentFile(o.thumbnail.read())
+        #         new_file.name = o.thumbnail.name
+        #         csr_o.thumbnail = new_file
+        #     csr_o.save()
+
+        
+    elif csr.casestudy.module == 'testmodule':
+        module_cs.run()
+        testmodule_result = module_cs.outputs['testmodule_result']
+        print("################")
+        print(testmodule_result)
+        cl = CodedLabel.objects.get(code='TESTMODULERES')
+        csr_o = csr.outputs.create(coded_label=cl)
+        write_to_file_field(csr_o.file, lambda buf: json.dump(testmodule_result, buf), 'json', is_text_file=True)
+
+
         #
         # fig, axs = plt.subplots(3, 3, figsize=(15, 20),
         #                         subplot_kw={'projection': CRS})
@@ -583,13 +876,33 @@ def _run(csr, runtypelevel=3):
         # return module_cs
     else:
         return None
-    return module_cs
+
+
+    # if the outputs contain a aggregated_gdf key, a shpfile will be
+    # save as csr output
+    if 'aggregated_gdf' in module_cs.outputs:
+        cl = CodedLabel.objects.get(code="SHP-AGGREGATE-STATS")
+        csr_o = csr.outputs.create(coded_label=cl)
+        write_empty_file_field(csr_o.file, 'shp.zip')
+        gdf = module_cs.outputs['aggregated_gdf']
+        if 'group' not in gdf.columns:
+            code_groups = {code: group for code, group in CodedLabel.objects.all().order_by('group', 'code').values_list('code', 'group')}
+            gdf['group'] = gdf.variable.replace(code_groups)
+        with tempfile.TemporaryDirectory() as tempdirname:
+            gdf.to_file(tempdirname, driver='ESRI Shapefile')
+            #override just create file. We have to removed the last 4 char (.zip suffix)
+            archiveFile = shutil.make_archive(csr_o.file.path[:-4], 'zip', tempdirname)
+            print(archiveFile)
+            
+    del module_cs
+    return csr.id
 
 
 def check_coded_labels(selected_layers):
     uses = None
     envs = None
     pres = None
+    usespres = None
     if selected_layers is not None:
         coded_labels = CodedLabel.objects.get_dict()
         uses = []
@@ -604,6 +917,12 @@ def check_coded_labels(selected_layers):
                 envs.append(code)
             elif g == 'pre':
                 pres.append(code)
+            elif g == 'usepre':
+                _use, _pre = code.split('--')
+                uses.append(_use)
+                # WARNING: pressure from usepre is not included
+                # TODO: make more robust
+                # pres.append(_pre)
         if len(uses) == 0:
             uses = None
         if len(envs) == 0:
@@ -612,15 +931,29 @@ def check_coded_labels(selected_layers):
             pres = None
     return uses, pres, envs
 
+def _domain_area_to_gdf(domain_area):
+    feature = wkt.loads(domain_area.wkt)
+    # TODO: there is a problem on lat, lon order
+    # revert lat, lon order
+    _feature = transform(lambda x, y: (y, x), feature)
+    gdf = gpd.GeoDataFrame([{'geometry': _feature}], geometry='geometry', crs='epsg:4326')
+    return gdf
+    
+def _guess_ncells(domain_area, resolution):
+    gdf = _domain_area_to_gdf(domain_area)
+    bounds = gdf.to_crs(epsg=3035).total_bounds
+    ncells = (bounds[2] - bounds[0]) * (bounds[3] - bounds[1]) / resolution / resolution
+    return int(ncells)
+
 
 class CaseStudy(models.Model):
     # id = models.AutoField(primary_key=True, help_text="AAAAAAAAA") # TODO: to be removed
     label = models.CharField(max_length=100, help_text="CaseStudy title")
-    description = models.CharField(max_length=400, null=True, blank=True, help_text="CaseStudy description")
+    description = models.CharField(max_length=800, null=True, blank=True, help_text="CaseStudy description")
 
     cstype = models.CharField(_('CS Type'), max_length=10, choices=CASESTUDY_TYPE_CHOICES,
                               help_text="CaseStudy type. Accepted values are: {}".format(", ".join([t[0] for t in CASESTUDY_TYPE_CHOICES])))
-    module = models.CharField(_('Module type'), max_length=10, choices=MODULE_TYPE_CHOICES,
+    module = models.CharField(_('Module type'), max_length=15, choices=MODULE_TYPE_CHOICES,
                               help_text="Module type. Accepted values are: {}".format(
                                   ", ".join([t[0] for t in MODULE_TYPE_CHOICES])))
     tag = models.CharField(max_length=100, null=True, blank=True,
@@ -656,11 +989,19 @@ class CaseStudy(models.Model):
     is_published = models.BooleanField(_("Is Published"), default=False,
                                        help_text=_('Should this Case Study be published?'))
 
+    visibility = models.IntegerField(default=0, choices=VISIBILITY_CHOICES)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     owner = models.ForeignKey('auth.User',
                               on_delete=models.CASCADE)
+
+    client_application = models.ForeignKey(ClientApplication,
+                                           on_delete=models.SET_NULL,
+                                           null=True,
+                                           blank=True)
+
+    default_context = models.ForeignKey(Context, on_delete=models.CASCADE, blank=True, null=True)
     # created_at = models.DateTimeField(auto_now_add=True)
     # updated_at = models.DateTimeField(auto_now=True)
 
@@ -681,36 +1022,237 @@ class CaseStudy(models.Model):
     def set_domain_area(self):
         if self.domain_area_terms.count() > 0:
             geounion = self.domain_area_terms.aggregate(models.Union('geo'))['geo__union']
-            geounion = geounion.simplify(0.01)
+            extent = geounion.extent
+            dlon = extent[2] - extent[0]
+            dlat = extent[3] - extent[1]
+            tolerance = min(dlon / 500, dlat/500, 0.01)
+            geounion = geounion.simplify(tolerance)
             if geounion.geom_type != 'MultiPolygon':
                 geounion = MultiPolygon(geounion)
             self.domain_area = geounion
+            self.set_update_grid()
 
-    def set_or_update_context(self, context_label):
+    def domain_area_to_gdf(self):
+        return _domain_area_to_gdf(self.domain_area)
+
+    def guess_ncells(self):
+        return _guess_ncells(self.domain_area, self.resolution)
+    
+    def set_update_grid(self):
+        if self.domain_area is None:
+            return None
+        else:
+            gdf = self.domain_area_to_gdf()
+            l = rg.read_df(gdf, self.resolution, epsg=3035, eea=True)
+            l.mask = l==0
+            code = 'GRID'
+            cl = CodedLabel.objects.get(code=code)
+            # this override previous results
+            csr_ol, created = self.layers.get_or_create(coded_label=cl)
+            csr_ol.file = None
+            csr_ol.thumbnail = None
+            csr_ol.save()
+            write_to_file_field(csr_ol.file, l.write_raster, 'tiff')
+            plot_map(l, csr_ol.thumbnail, ceamaxval=None, logcolor=False)
+
+    def set_layer_weights(self, cl_sorter=None):
+        self.set_or_update_input('LAYER-WEIGHTS', self.default_context, cl_sorter=cl_sorter)
+
+    def set_or_update_input(self, coded_label, context_label, vizmode=1, cl_sorter=None, overwrite=False):
+        cl = CodedLabel.objects.get(code=coded_label)
+        layers_info =  {d['layer']: "sum={sumval:.2f}, min={minval:.2f}, max={maxval:.2f} mean={meanval:.2f}".format(**json.loads(d['layerinfo'])) for d in self.layers.all().values('layerinfo', layer=F('coded_label__code'))}
+        layers_list = list(layers_info.keys())
+        ## append usepre
+        codedlabels_list = layers_list
+        for ll in layers_list:
+            if '--' in ll:
+                codedlabels_list = codedlabels_list + ll.split('--')
+
+        layers_list = [{'layer': code} for code in set(layers_list)]
+        codedlabels_list = [{'layer': code} for code in set(codedlabels_list)] 
+
+        module_cs = self.module_cs
+        df1 = module_cs.load_input(cl.filename_prefix)
+
+        def _merge(_df1, _df2, ucols=None):
+            if _df1 is not None:
+                df = pd.concat([_df1, _df2])
+            else:
+                df = _df2
+
+            if ucols is not None:
+                keep = 'first' if not overwrite else 'last'
+                df = df.drop_duplicates(ucols, keep=keep)
+            return df
+
+        logger.debug(coded_label)
+        logger.debug(context_label)
+        logger.debug("DFA1")
+        # logger.debug(df1.to_json(orient='records'))
+        
+        cols_to_sort = None
+        if coded_label=='WEIGHTS': # deprecated
+            df2 = pd.DataFrame(Weight.objects.get_matrix(context_label))
+            ucols = ['u', 'p']
+            layer_col = 'u'
+        if coded_label=='PRESSURE-WEIGHTS':
+            df2 = pd.DataFrame(Weight.objects.get_matrix(context_label))
+            df2.rename(columns={'use_code': 'use', 'pressure_code': 'pressure'}, inplace=True)
+            # df2.loc[df2.weight>0,'weight'] = 100
+            ucols = ['use', 'pressure']
+            layer_col = 'use'
+            cols_to_sort = ucols
+        elif coded_label=='LAYER-WEIGHTS':
+            _type = "select"
+            rescale_options = [
+                ['none', 'None'],
+                ['rescale', 'Rescale (max=1)'],
+                ['log', 'Log'],
+                ['logrescale', 'Log and rescale (max=1)'],
+                ['normlog', '100-Normalized log'],
+                ['normlogrescale', '100-Normalized log and rescale (max=1)'],
+                ['pa', 'Presence-absence (0-1)'],
+                
+            ]
+            df2_1 = pd.DataFrame([dict(item, weight='none', param="RESCALE-MODE", _type=_type, _options=rescale_options) for item in layers_list])
+            df2_2 = pd.DataFrame([dict(item, weight=1, param="WEIGHT-FREQUENCY", _type="number", _options=None) for item in layers_list])
+            df2_3 = pd.DataFrame([dict(item, weight=1, param="WEIGHT-MAGNITUDE", _type="number", _options=None) for item in layers_list])
+            df2_4 = pd.DataFrame([dict(item, weight=1, param="WEIGHT-RELEVANCE", _type="number", _options=None) for item in layers_list])
+            # init layer-info as empty string
+            df2_5 = pd.DataFrame([dict(item, weight='', param="LAYER-INFO", _type="select", _options=None) for item in layers_list])
+
+            df2 = pd.concat([df2_1, df2_2, df2_3, df2_4, df2_5], axis=0)
+            # print(df2)
+            # print(pd.concat
+            ucols = ['layer', 'param']
+            layer_col = 'layer'
+            # cols_to_sort = ['layer', 'param']
+            cols_to_sort = ['layer', 'param']
+        elif coded_label=='SENSITIVITIES':
+            df2 = pd.DataFrame(Sensitivity.objects.get_matrix(context_label))
+            df2.rename(columns={'env_code': 'env', 'pressure_code': 'pressure'}, inplace=True)
+
+            ucols = ['env', 'pressure']
+            layer_col = 'env'
+            cols_to_sort = ucols
+
+        # logger.debug("DFA2")
+        # logger.debug(df2.to_json(orient='records'))
+
+        df = _merge(df1, df2, ucols)
+        if layer_col is not None and df.shape[0] > 0:
+            # logger.debug(df.to_json(orient='records'))
+            df = df[df[layer_col].isin([r['layer'] for r in codedlabels_list])] 
+        # logger.debug("dentre")
+        # logger.debug(df2.to_json(orient='records'))
+
+
+        # fill gaps
+        if coded_label=='WEIGHTS': # deprecated
+            df = df.pivot(index='u', columns='p').fillna(0).stack().reset_index()
+        elif coded_label=='LAYER-WEIGHTS':
+            # rescale_options is a dictionary, so I need to apply it to every element
+            _filter = df.param=='RESCALE-MODE'
+            df.loc[_filter, '_options'] = df[_filter]._options.apply(lambda x: rescale_options)
+
+            # layer-info is always updated
+            _filter = df.param=='LAYER-INFO'
+            df.loc[_filter, 'weight'] = df[_filter].layer.replace(layers_info)
+            df.loc[_filter, '_options'] = df[_filter].weight.apply(lambda x: [['info', x]])
+                        
+            print(df.loc[_filter, '_options'])
+        elif coded_label=='PRESSURE-WEIGHTS':
+            # logger.debug("kaput")
+            # logger.debug(df.columns)
+            # logger.debug(df.index)
+            df = df.pivot(index='use', columns='pressure').fillna(0).stack().reset_index()
+        elif coded_label=='SENSITIVITIES':
+            # df = df.pivot(index='pressure', columns='env').fillna(0).stack().reset_index()
+            df = df.pivot(index='pressure', columns='env').fillna(0).stack().reset_index()
+            if df.shape[0] > 0:
+                df.loc[df.impact_level==0, 'impact_level'] = 0.01
+                df.loc[df.recovery_time==0, 'recovery_time'] = 0.01
+                df.loc[df.confidence==0, 'confidence'] = 0.
+                df.loc[df.sensitivity==0, 'sensitivity'] = 0.01 * 0.01
+
+        logger.debug(cols_to_sort)
+        if cl_sorter is not None and cols_to_sort is not None:
+            logger.error("dentro, dentro")
+            for c in cols_to_sort:
+                df[c] = df[c].astype('category')
+                df[c].cat.set_categories(cl_sorter)
+            df.sort_values(cols_to_sort, inplace=True)
+
+        csi, created = self.inputs.get_or_create(coded_label=cl, defaults={'vizmode': vizmode, 'description': cl.description})
+        jsonstring = df.to_json(orient='records')
+        #WARNING: this remove None or nodata values from the json export
+        # jsonstring = df.apply(lambda x: x.dropna().to_dict(), axis=1).to_json(orient="records")
+        # only the file extension matters
+        csi.file.save('file.json', File(StringIO(jsonstring)))
+        # print(jsonstring)
+        return df
+        
+        
+    def set_or_update_context2(self, context_label):
+        self.default_context = Context.objects.get(label=context_label)
+        self.save()
+        
+    
+    def set_or_update_context(self, context_label=None, overwrite=False):
+        if context_label is not None:
+            self.default_context = Context.objects.get(label=context_label)
+            self.save()
+        else:
+            context_label = self.default_context.label
+        cl_sorter = list(CodedLabel.objects.all().order_by('group', 'code').values_list('code', flat=True)) 
         # TODO: this is a module-aware function. Move to the module library
-        # set sensitivity
-        cl = CodedLabel.objects.get(code='SENS')
-        csi, created = self.inputs.get_or_create(coded_label=cl)
-        s = Sensitivity.objects.get_matrix(context_label)
-        jsonstring = json.dumps(s)
-        # only the file extension matters
-        csi.file.save('file.json', File(StringIO(jsonstring)))
+        if self.module == 'cea':
+            # weights
+            # cl = CodedLabel.objects.get(code='WEIGHTS')
+            # csi, created = self.inputs.get_or_create(coded_label=cl)
+            # s = Weight.objects.get_matrix(context_label)
+            # jsonstring = json.dumps(s)
+            # only the file extension matters
+            # csi.file.save('file.json', File(StringIO(jsonstring)))
+            self.set_layer_weights(cl_sorter=cl_sorter)
+            self.set_or_update_input('PRESSURE-WEIGHTS', context_label, cl_sorter=cl_sorter, overwrite=overwrite)
+            
 
-        # weights
-        cl = CodedLabel.objects.get(code='WEIGHTS')
-        csi, created = self.inputs.get_or_create(coded_label=cl)
-        s = Weight.objects.get_matrix(context_label)
-        jsonstring = json.dumps(s)
-        # only the file extension matters
-        csi.file.save('file.json', File(StringIO(jsonstring)))
+        if self.module == 'cea':
+            # set sensitivity
+            # cl = CodedLabel.objects.get(code='SENS')
+            # csi, created = self.inputs.get_or_create(coded_label=cl)
+            # s = Sensitivity.objects.get_matrix(context_label)
+            # jsonstring = json.dumps(s)
+            # only the file extension matters
+            # csi.file.save('file.json', File(StringIO(jsonstring)))
+            self.set_or_update_input('SENSITIVITIES', context_label, cl_sorter=cl_sorter, overwrite=overwrite)
 
-        # muc potential conflict matrix
-        cl = CodedLabel.objects.get(code='PCONFLICT')
-        csi, created = self.inputs.get_or_create(coded_label=cl)
-        s = MUCPotentialConflict.objects.get_matrix(context_label)
-        jsonstring = json.dumps(s)
-        # only the file extension matters
-        csi.file.save('file.json', File(StringIO(jsonstring)))
+        if self.module == 'muc':
+            # muc potential conflict matrix
+            cl = CodedLabel.objects.get(code='PCONFLICT')
+            csi, created = self.inputs.get_or_create(coded_label=cl)
+            s = MUCPotentialConflict.objects.get_matrix(context_label)
+            jsonstring = json.dumps(s)
+            # only the file extension matters
+            csi.file.save('file.json', File(StringIO(jsonstring)))
+
+        if self.module == 'pmar':
+            self.set_layer_weights(cl_sorter=cl_sorter)
+            from tools4msp.modules.pmar import PMARPARAMS
+            cl = CodedLabel.objects.get(code='PMAR-CONF')
+            csi, created = self.inputs.get_or_create(coded_label=cl, defaults={'vizmode': 1}, description=cl.description)
+            jsonstring = json.dumps(PMARPARAMS)
+            # only the file extension matters
+            csi.file.save('file.json', File(StringIO(jsonstring)))
+
+        if self.module == 'testmodule':
+            from tools4msp.modules.testmodule import TESTPARAMS
+            cl = CodedLabel.objects.get(code='TESTPARAMS')
+            csi, created = self.inputs.get_or_create(coded_label=cl, defaults={'vizmode': 1})
+            jsonstring = json.dumps(TESTPARAMS)
+            # only the file extension matters
+            csi.file.save('file.json', File(StringIO(jsonstring)))
 
     def save(self, *args, **kwargs):
         # self.set_domain_area()
@@ -756,6 +1298,12 @@ class CaseStudy(models.Model):
             module_class = MUCCaseStudy
         elif self.module == 'partrac':
             module_class = ParTracCaseStudy
+        elif self.module == 'pmar':
+            module_class = PMARCaseStudy
+        elif self.module == 'testmodule':
+            module_class = TESTCaseStudy
+        elif self.module == 'geodatamaker':
+            module_class = GeoDataMakerCaseStudy
 
         if module_class is not None:
             self._module_cs = module_class(csdir=self.csdir)
@@ -935,17 +1483,55 @@ class CaseStudy(models.Model):
             return ''
     thumbnail_tag.short_description = 'Thumbnail'
 
-    def run(self, selected_layers=None, runtypelevel=3):
+    def run(self, selected_layers=None, runtypelevel=3, pivot_layer=None):
         # if self.pk == 66:
         #     rlist = self.casestudyrun_set.filter(pk=2963)
         # if False: #self.module in ['cea', 'muc', 'partrac']:
         # if self.module in ['cea', 'muc', 'partrac']:
         if self.module in ['cea', 'muc']:
             conf = {'selected_layers': selected_layers,
-                    'runtypelevel': runtypelevel}
+                    'runtypelevel': runtypelevel,
+                    'pivot_layer': pivot_layer}
             csr = self.casestudyrun_set.create(configuration=conf)
 
             _run(csr, runtypelevel=runtypelevel)
+            rlist = self.casestudyrun_set.filter(pk=csr.pk)
+        else:
+            import time
+            time.sleep(5)
+            rlist = self.casestudyrun_set.all().order_by('-id')
+        if rlist.count() > 0:
+            return rlist[0]
+        return None
+
+    def asyncrun(self, selected_layers=None, runtypelevel=3, owner=None, domain_area=None):
+        # if self.pk == 66:
+        #     rlist = self.casestudyrun_set.filter(pk=2963)
+        # if False: #self.module in ['cea', 'muc', 'partrac']:
+        # if self.module in ['cea', 'muc', 'partrac']:
+        if self.module in ['cea', 'muc', 'pmar', 'geodatamaker', 'testmodule']:
+            conf = {'selected_layers': selected_layers,
+                    'runtypelevel': runtypelevel}
+            uses, pres, envs = check_coded_labels(selected_layers)
+
+            uses_desc = 'All'
+            if uses is not None:
+                uses_desc = ', '.join(uses)
+            envs_desc = 'All'
+            if envs is not None:
+                envs_desc = ', '.join(envs)
+            description = "Uses: {}. Receptors: {}".format(uses_desc, envs_desc)
+            csr = self.casestudyrun_set.create(configuration=conf, owner=owner, description=description)
+
+            # create outputgrid
+            if domain_area is not None:
+                i = self.domain_area.intersection(domain_area)
+                if isinstance(i, Polygon):
+                    i = MultiPolygon(i)
+                csr.domain_area = i
+                csr.set_update_outputgrid()
+
+            async_task(run_wrapper, csr.pk, runtypelevel, hook="tools4msp.hooks.set_runstatus")
             rlist = self.casestudyrun_set.filter(pk=csr.pk)
         else:
             import time
@@ -1019,8 +1605,7 @@ def generate_filename(self, filename):
     parent_id = None
     file_type = None
     _filename, suffix = path.splitext(filename)
-    name = "{}-{}".format(self.coded_label.group,
-                          self.coded_label.code)
+    name = self.coded_label.filename_prefix
     if isinstance(self, (CaseStudyRunInput,
                          CaseStudyRunLayer,
                          CaseStudyRunOutput,
@@ -1065,14 +1650,17 @@ class FileBase(models.Model):
                                                                                   'out',
                                                                                   'cea',
                                                                                   'muc',
-                                                                                  'partrac']},
+                                                                                  'partrac',
+                                                                                  'pmar',
+                                                                                  'testmodule']},
                                    on_delete=models.CASCADE)
-    description = models.CharField(max_length=400, null=True, blank=True)
+    description = models.CharField(max_length=800, null=True, blank=True)
     file = models.FileField(blank=True,
                             null=True,
                             upload_to=generate_filename)
     thumbnail = models.ImageField(blank=True,
                             null=True,
+                            # default="defaults/cs_thumb_default.png",
                             upload_to=generate_filename)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -1080,15 +1668,18 @@ class FileBase(models.Model):
     class Meta:
         abstract = True
 
-
-## TODO: add constrain to avoid multiple CaseStudyLayer with the same coded_label
-class CaseStudyLayer(FileBase):
-    "Model for layer description and storage"
-    casestudy = models.ForeignKey(CaseStudy,
-                                  on_delete=models.CASCADE,
-                                  related_name="layers")
+class LayerInfoMixin(FileBase):
     layerinfo = JSONField(null=True, blank=True)
 
+    @property
+    def layerinfo_str(self):
+        if self.layerinfo is None:
+            return None
+        else:
+            layer_info =  "min={minval:.2f}, max={maxval:.2f} mean={meanval:.2f} sum={sumval:.2f}".format(**self.layerinfo)
+        return layer_info
+
+        
     def save(self, *args, **kwargs):
         if self.coded_label is not None:
             try:
@@ -1097,6 +1688,29 @@ class CaseStudyLayer(FileBase):
                 pass
         super().save(*args, **kwargs)
 
+    class Meta:
+        abstract = True
+
+## TODO: add constrain to avoid multiple CaseStudyLayer with the same coded_label
+class CaseStudyLayer(LayerInfoMixin):
+    "Model for layer description and storage"
+    casestudy = models.ForeignKey(CaseStudy,
+                                  on_delete=models.CASCADE,
+                                  related_name="layers")
+
+    def set_thumbnail(self, ceamaxval=None, logcolor=False):
+        l = rg.read_raster(self.file.path)
+        plot_map(l, self.thumbnail, ceamaxval=ceamaxval, logcolor=logcolor, coast=True, cmap="viridis", grid=False, alpha=0.75)
+
+    def mask_layer_with_grid(self):
+        grid = self.casestudy.get_grid()
+        raster = rg.read_raster(self.file.path)
+        raster[np.isnan(raster)] = 0
+        raster = raster.astype(float)
+        raster[grid.mask] = np.nan
+        raster.mask = grid.mask.copy()
+        write_to_file_field(self.file, raster.write_raster, 'tiff')
+        
     class Meta:
         ordering = ['coded_label__group']
 
@@ -1107,7 +1721,10 @@ class CaseStudyInput(FileBase):
                                   related_name="inputs")
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-
+    vizmode = models.IntegerField(choices=VIZMODE_CHOICES, default=0)
+    class Meta:
+        ordering = ['coded_label__sort_order']
+        
 
 # class CodedLabelManager(MP_NodeManager):
 class CodedLabelManager(models.Manager):
@@ -1122,10 +1739,11 @@ class CodedLabelManager(models.Manager):
 # class CodedLabel(MP_Node):
 class CodedLabel(models.Model):
     group = models.CharField(max_length=10, choices=CODEDLABEL_GROUP_CHOICES)
-    code = models.SlugField(max_length=15, unique=True)
+    code = models.SlugField(max_length=20, unique=True)
     label = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     fa_class = models.CharField(max_length=64, default='fa-circle')
+    sort_order = models.IntegerField(null=True, blank=True)
         
     old_label = models.CharField(max_length=100, blank=True, null=True)
 
@@ -1137,6 +1755,18 @@ class CodedLabel(models.Model):
     def natural_key(self):
         return (self.code,)
 
+    @property
+    def filename_prefix(self):
+        return "{}-{}".format(self.group, self.code)
+
+    def get_msfd(self):
+        if self.group == 'env':
+            return self.env.msfd
+        elif self.group == 'use':
+            return self.use.msfd
+        elif self.group == 'pre':
+            return self.pressure.msfd
+    
     class Meta:
       ordering = ['group', 'label']
 
@@ -1214,7 +1844,15 @@ class MsfdEnv(models.Model):
                              blank=True,
                              null=True
                              )
-    ecosystem_element = models.CharField(max_length=200,
+    ecosystem_component = models.CharField(max_length=200,
+                                         blank=True,
+                                         null=True
+                                         )
+    feature = models.CharField(max_length=200,
+                                         blank=True,
+                                         null=True
+                                         )
+    element = models.CharField(max_length=200,
                                          blank=True,
                                          null=True
                                          )
@@ -1223,13 +1861,15 @@ class MsfdEnv(models.Model):
                                    null=True
                                    )
     def __str__(self):
-        return "{} -> {} -> {}".format(self.theme,
-                                 self.ecosystem_element,
-                                 self.broad_group)
+        return "{}{}{}{}".format(self.theme if self.theme else '-',
+                                             " -> {}".format(self.ecosystem_component) if self.ecosystem_component else '',
+                                             " -> {}".format(self.feature) if self.feature else '',
+                                             " -> {}".format(self.element) if self.element else '',
+        )
 
     class Meta:
         verbose_name = "MSFD environmental receptor"
-        ordering = ['theme', 'ecosystem_element', 'broad_group']
+        ordering = ['theme', 'ecosystem_component', 'broad_group']
 
 
 class Env(CodedLabel, MP_Node):
@@ -1252,11 +1892,11 @@ class Env(CodedLabel, MP_Node):
 class WeightManager(models.Manager):
     def get_matrix(self, context_label):
         qs = self.filter(context__label=context_label)
-        return list(qs.values(u=F('use__code'),
-                              p=F('pres__code'),
-                              w=F('weight'),
-                              d=F('distance'),
-                              c=F('confidence'),
+        return list(qs.values('weight',
+                              'distance',
+                              'confidence',
+                              use_code=F('use__code'),
+                              pressure_code=F('pres__code'),
                               ))
 
     def clone_weights(self,
@@ -1331,10 +1971,12 @@ class Weight(models.Model):
 class SensitivityManager(models.Manager):
     def get_matrix(self, context_label):
         qs = self.filter(context__label=context_label)
-        return list(qs.values(p=F('pres__code'),
-                              e=F('env__code'),
-                              s=F('sensitivity'),
-                              c=F('confidence'),
+        return list(qs.values('sensitivity',
+                              'impact_level',
+                              'confidence',
+                              pressure_code=F('pres__code'),
+                              env_code=F('env__code'),
+                              recovery_time=F('recovery'),
                               ))
 
     def clone_sensitivities(self,
@@ -1722,7 +2364,7 @@ class CaseStudyPressure(CaseStudyDataset):
 class CaseStudyRun(models.Model):
     casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE)
     label = models.CharField(max_length=100, blank=True, null=True)
-    description = models.CharField(max_length=400, null=True, blank=True)
+    description = models.CharField(max_length=800, null=True, blank=True)
     domain_area = models.MultiPolygonField(blank=True, null=True)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True,
                               related_name='owned_casestudyrun',
@@ -1732,31 +2374,63 @@ class CaseStudyRun(models.Model):
 
     # temporary storage for uses a
     configuration = JSONField(null=True, blank=True)
+    visibility = models.IntegerField(default=0, choices=VISIBILITY_CHOICES)
+    runstatus = models.IntegerField(default=0, choices=RUNSTATUS_CHOICES)
+    runerror = models.TextField(null=True, blank=True)
+    
+    def set_update_outputgrid(self):
+        # TODO: this is a duplicate of set_update_grid
+        if self.domain_area is None:
+            return None
+        else:
+            gdf = _domain_area_to_gdf(self.domain_area)
+            l = rg.read_df_like(self.casestudy.get_grid(), gdf)
+            l.mask = l==0
+            code = 'OUTPUTGRID'
+            cl = CodedLabel.objects.get(code=code)
+            # this override previous results
+            csr_ol, created = self.layers.get_or_create(coded_label=cl)
+            csr_ol.file = None
+            csr_ol.thumbnail = None
+            csr_ol.save()
+            write_to_file_field(csr_ol.file, l.write_raster, 'tiff')
+            plot_map(l, csr_ol.thumbnail, ceamaxval=None, logcolor=False)
 
 
 class CaseStudyRunLayer(FileBase):
     "Model for layer description and storage"
-    casestudy = models.ForeignKey(CaseStudyRun,
-                                  on_delete=models.CASCADE)
+    casestudyrun = models.ForeignKey(CaseStudyRun,
+                                  on_delete=models.CASCADE,
+                                  related_name="layers")
     class Meta:
         ordering = ['coded_label__group']
 
 
 class CaseStudyRunInput(FileBase):
     "Model for input description and storage"
-    casestudy = models.ForeignKey(CaseStudyRun, on_delete=models.CASCADE,
+    casestudyrun = models.ForeignKey(CaseStudyRun, on_delete=models.CASCADE,
                                   related_name="inputs")
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
 
-class CaseStudyRunOutputLayer(FileBase):
+class CaseStudyRunOutputLayer(LayerInfoMixin):
     casestudyrun = models.ForeignKey(CaseStudyRun,
                                      on_delete=models.CASCADE,
                                      related_name="outputlayers"
                                      )
+
     class Meta:
         ordering = ['coded_label__group']
+
+    @property
+    def sld(self):
+        if bool(self.file):
+            r = rg.read_raster(self.file.path)
+            name = f"layer_{self.pk}"
+            sld = get_sld(r, name)
+            return sld
+        return None
 
 
 class CaseStudyRunOutput(FileBase):
@@ -1922,3 +2596,4 @@ class PartracDataGrid(models.Model):
 #     lid = models.CharField(max_length=5)
 #     label = models.CharField(max_length=5)
 #     ltype = models.CharField(max_length=5, choices=LAYER_TYPE_CHOICES)
+    

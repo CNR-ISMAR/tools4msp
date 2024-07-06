@@ -10,23 +10,23 @@ from rest_framework.documentation import include_docs_urls
 from rest_framework_swagger.views import get_swagger_view
 
 from tools4msp import api_views
-from tools4msp.messages import DESCRIPTION_LAST, DESCRIPTION_DEPRECATED
+from tools4msp import api_v2_views
 
 router = ExtendedDefaultRouter()
-cs_router = router.register(r'api/domainareas',
+cs_router = router.register(r'domainareas',
                             api_views.DomainAreaViewSet,
                             )
 
-cs_router = router.register(r'api/contexts',
-                            api_views.ContextViewSet,
+cs_router = router.register(r'contexts',
+                            api_v2_views.ContextViewSet,
                             )
 
-cs_router = router.register(r'api/codedlabels',
-                            api_views.CodedLabelViewSet,
+cs_router = router.register(r'codedlabels',
+                            api_v2_views.CodedLabelViewSet,
                             )
 
-cs_router = router.register(r'api/casestudies',
-                            api_views.CaseStudyViewSet,
+cs_router = router.register(r'casestudies',
+                            api_v2_views.CaseStudyViewSet,
                             basename='casestudy')
 
 cs_router.register(r'layers',
@@ -40,18 +40,16 @@ cs_router.register(r'inputs',
                    parents_query_lookups=['casestudy__id'])
 
 cs_router = router.register(r'casestudyruns',
-                            api_views.CaseStudyRunViewSet,
+                            api_v2_views.CaseStudyRunViewSet,
                             basename='casestudyrun'
                             )
 
-cs_router = router.register(r'api/casestudyruns', # this is a fake url,
-                                              # otherwise 'api' prefix
-                                              # is collapsed. Instead
-                                              # we want the api prefix
-                                              # in V1 schema (as befor
-                                              # the upgrade to V2).
-                            api_views.CaseStudyRunViewSet,
-                            basename='casestudyrun'
+cs_router = router.register(r'pressureweights',
+                            api_v2_views.WeightViewSet,
+                            )
+
+cs_router = router.register(r'sensitivities',
+                            api_v2_views.SensitivityViewSet,
                             )
 
 # (
@@ -73,13 +71,11 @@ cs_router = router.register(r'api/casestudyruns', # this is a fake url,
 # inputs_router = routers.NestedDefaultRouter(router, r'casestudies', lookup='casestudy')
 # inputs_router.register(r'inputs', api_views.CaseStudyInputViewSet, base_name='casestudy-inputs')
 
+schema_view = get_swagger_view(title='Tools4MSP API')
+
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
-    path('api/', include(router.urls)),
-    # path('api/', include(layers_router.urls)),
-    # path('api/', include(inputs_router.urls)),
-    path(r'docs/', include_docs_urls(title='Tools4MSP API v1',
-                                     description=DESCRIPTION_DEPRECATED)),
-    # path('openapi/', schema_view),
+    path('', include(router.urls)),
+    path('auth/createuser/', api_v2_views.CreateUserAPIView.as_view()),
 ]

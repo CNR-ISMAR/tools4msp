@@ -41,10 +41,20 @@ from .modules.casestudy import CaseStudyBase
 
 def get_layerinfo(fpath):
     l = rg.read_raster(fpath)
-    layerinfo = {'bounds': l.bounds,
-                 'resolution': l.resolution,
-                 'projection': l.crs.to_proj4(),
-                 'epsg': 3035}  # Makeit dynamic
+    percentiles = [5, 10, 25, 50, 75, 90, 95]
+    layerinfo = {
+        'bounds': l.bounds,
+        'resolution': l.resolution,
+        'projection': l.crs.to_proj4(),
+        'epsg': 3035, # Makeit dynamic
+        'minval': float(np.nanmin(l)),
+        'maxval': float(np.nanmax(l)),
+        'meanval': float(np.nanmean(l)),
+        'sumval': float(np.nansum(l)),
+        # WARNING: il percentile NaN dava problemi nella serializzazione del caso di studio
+        # forse bisogno usare nanpercentile
+        # 'percentiles': {p[0]: p[1]  for p in zip(percentiles, np.percentile(l, percentiles))},
+    }  
     return layerinfo
 
 def plot_heatmap(matrix,
@@ -120,6 +130,18 @@ def write_to_file_field(file_field,
     write_func(buf, **write_kwargs)
     buf.seek(0)
     fname = 'file.{}'.format(file_ext)
+    f = File(buf)
+    file_field.save(fname, f)
+    buf.close()
+    f.close()
+    file_field.close()
+
+def write_empty_file_field(file_field, file_ext, is_text_file=False):
+    fname = 'file.{}'.format(file_ext)
+    if is_text_file is True:
+        buf = io.StringIO()
+    else:
+        buf = io.BytesIO()
     f = File(buf)
     file_field.save(fname, f)
     buf.close()
@@ -1093,9 +1115,11 @@ def raster_file_upload(filepath, **kwargs):
 
 
 def get_sld(data, name):
-    vmax = data.max()
-    vmean = vmax / 2.
-    return RASTER_SLD.format(name=name, vmax=vmax, vmean=vmean)
+    vmax = data.max() * 0.95
+    v1 = np.round(np.exp(np.log(1+vmax) / 4 * 1) - 1, 2)
+    v2 = np.round(np.exp(np.log(1+vmax) / 4 * 2) - 1, 2)
+    v3 = np.round(np.exp(np.log(1+vmax) / 4 * 3) - 1, 2)
+    return RASTER_SLD.format(name=name, vmax=vmax, v1=v1, v2=v2, v3=v3)
 
 RASTER_SLD = """<?xml version="1.0" encoding="UTF-8"?>
 <sld:StyledLayerDescriptor xmlns="http://www.opengis.net/sld" xmlns:sld="http://www.opengis.net/sld" xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml" version="1.0.0">
@@ -1110,11 +1134,11 @@ RASTER_SLD = """<?xml version="1.0" encoding="UTF-8"?>
           <RasterSymbolizer>
           <Opacity>1.0</Opacity>
             <ColorMap type="ramp">
-              <ColorMapEntry opacity="0" color="#0000ff" quantity="0"/>
-              <ColorMapEntry color="#0000ff" quantity="0.00001"/>
-              <ColorMapEntry color="#ffff00" quantity="{vmean}"/>
-              <ColorMapEntry color="#ff0000" quantity="{vmax}"/>
-              <ColorMapEntry opacity="0" color="#ff0000" quantity="{vmax}"/>
+              <ColorMapEntry color="#2b83ba" quantity="0.0"/>
+              <ColorMapEntry color="#abdda4" quantity="{v1}"/>
+              <ColorMapEntry color="#ffffbf" quantity="{v2}" />
+              <ColorMapEntry color="#fdae61" quantity="{v3}"/>
+              <ColorMapEntry color="#d7191c" quantity="{vmax}"/>
           </ColorMap>
           </RasterSymbolizer>
         </sld:Rule>

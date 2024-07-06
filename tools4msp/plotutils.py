@@ -1,5 +1,6 @@
 import math
 import matplotlib.pyplot as plt
+import numpy as np
 from .utils import write_to_file_field
 try:
     import cartopy.io.img_tiles as cimgt
@@ -23,17 +24,31 @@ def get_map_figure_size(extent, height=8.):
     return [width + 1, height]
 
 
-def plot_map(raster, file_field=None, ceamaxval=None, logcolor=True):
-    plt.figure(figsize=get_map_figure_size(raster.bounds))
+def plot_map(raster, file_field=None, ceamaxval=None, logcolor=True, cmap="jet", coast=False, grid=True, alpha=None, vmin=None, norm=None, extend='neither',
+             quantile_outliers=None):
+
+    if quantile_outliers is not None:
+        # some functions (eg. quantiles) seem to ignore mask
+        # so masked values are setted to nan
+        raster = raster.flattening_outliers(quantile_outliers)
+        extend='max'
+
+    fig = plt.figure(figsize=get_map_figure_size(raster.bounds))
     ax, mapimg = raster.plotmap(  # ax=ax,
-        cmap='jet',
+        cmap=cmap,
         logcolor=logcolor,
         legend=True,
         # maptype='minimal',
-        grid=True, gridrange=1,
-        vmax=ceamaxval)
+        grid=grid, gridrange=1,
+        vmax=ceamaxval,
+        coast=coast,
+        alpha=alpha,
+        vmin=vmin,
+        norm=norm,
+        extend=extend)
+    fig.tight_layout()
 
-    ax.add_image(cimgt.Stamen('toner-lite'), get_zoomlevel(raster.geobounds))
+    # ax.add_image(cimgt.Stamen('toner-lite'), get_zoomlevel(raster.geobounds))
     if file_field is not None:
         write_to_file_field(file_field, plt.savefig, 'png')
         plt.clf()

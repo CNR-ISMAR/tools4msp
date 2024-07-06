@@ -13,6 +13,9 @@ import coreapi, coreschema
 from rasterio.io import MemoryFile
 from rasterio.errors import RasterioIOError
 import json
+import numpy as np
+import logging
+logger = logging.getLogger('tools4msp.api_views')
 
 # Use customized NestedViewSetMixin (see issue https://github.com/chibisov/drf-extensions/issues/142)
 # from rest_framework_extensions.mixins import NestedViewSetMixin
@@ -21,11 +24,18 @@ from .drf_extensions_patch import NestedViewSetMixin
 from .serializers import CaseStudySerializer, CaseStudyLayerSerializer, CaseStudyInputSerializer, \
     CaseStudyListSerializer, DomainAreaSerializer, DomainAreaListSerializer, CodedLabelSerializer, \
     FileUploadSerializer, CaseStudyRunSerializer, ThumbnailUploadSerializer, CaseStudyCloneSerializer, \
-    ContextSerializer
+    ContextSerializer, CaseStudyRunListSerializer
 from .models import CaseStudy, CaseStudyLayer, CaseStudyInput, DomainArea, CodedLabel, \
     CaseStudyRun, Context
 from rest_framework.schemas import AutoSchema
 
+
+class ContextSerializerMixin(object):
+    # add request to serializer context to support is_owner
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({"request": self.request})
+        return context                            
 
 
 class ActionSerializerMixin(object):
@@ -41,8 +51,14 @@ class DomainAreaViewSet(ActionSerializerMixin, viewsets.ReadOnlyModelViewSet):
     queryset = DomainArea.objects.all()
     serializer_class = DomainAreaSerializer
     action_serializers = {'list': DomainAreaListSerializer}
-    filterset_fields = ('label',)
+    # filterset_fields is override by the cust get_queryset
+    # filterset_fields = ('label',)
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if self.request.GET.get('search'):
+            return qs.filter(label__icontains=self.request.GET.get('search'))
+        return qs
 
 class CodedLabelViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = CodedLabel.objects.all()
@@ -83,7 +99,7 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
     """
     permission_classes = [IsAuthenticated]
     serializer_class = CaseStudySerializer
-    filterset_fields = ('cstype', 'module', 'tag')
+    filterset_fields = ('cstype', 'module', 'tag', 'owner')
 
     # used by Mixin to implement multiple serializer
     action_serializers = {'list': CaseStudyListSerializer,
@@ -129,6 +145,12 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
                 required=False,
                 location='query'
             ),
+            coreapi.Field(
+                "pivot_layer",
+                schema=coreschema.String(description="Codedlabel of the Pivot Layer to use for the analysis"),
+                required=False,
+                location='query'
+            ),
         ]
     )
     @action(detail=True, schema=run_schema)
@@ -144,9 +166,11 @@ class CaseStudyViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.Model
         # check for valid runtypelevels
         # raise ParseError("Invalid runtypelevel parameter")
 
+        pivot_layer = self.request.GET.get('pivot_layer', None)
+        
         rjson = {'success': False}
         cs = self.get_object()
-        csr = cs.run(selected_layers=selected_layers, runtypelevel=runtypelevel)
+        csr = cs.run(selected_layers=selected_layers, runtypelevel=runtypelevel, pivot_layer=pivot_layer)
         csr.owner = request.user
         csr.save()
         if csr is not None:
@@ -274,6 +298,12 @@ class CaseStudyLayerViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
 
         obj = self.get_object()
         obj.file.save(f.name, f, save=True)
+        # mask layer with grid
+        obj.mask_layer_with_grid()
+        # set the thumbnail
+        obj.set_thumbnail()
+
+        obj.casestudy.set_or_update_context()
         return Response(status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['put'], serializer_class=ThumbnailUploadSerializer)
@@ -365,12 +395,13 @@ class CaseStudyInputViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
 
 
 # class CaseStudyRunViewSet(viewsets.ReadOnlyModelViewSet):
-class CaseStudyRunViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
+class CaseStudyRunViewSet(NestedViewSetMixin, ActionSerializerMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows CaseStudyRuns to be viewed.
     """
     permission_classes = [IsAuthenticated]
     serializer_class = CaseStudyRunSerializer
+    action_serializers = {'list': CaseStudyRunListSerializer}
     http_method_names = ['get', 'head', 'patch']
 
     def get_queryset(self):

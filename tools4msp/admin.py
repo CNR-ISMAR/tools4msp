@@ -11,7 +11,8 @@ from .models import Env, Use, Pressure, CaseStudy, \
     Context, CaseStudyGrid, CaseStudyLayer, CaseStudyInput, \
     MsfdUse, MsfdPres, MsfdEnv, DomainArea, CodedLabel, \
     CaseStudyRunOutputLayer, CaseStudyRunOutput, \
-    CaseStudyRunInput, CaseStudyRunLayer, MUCPotentialConflict
+    CaseStudyRunInput, CaseStudyRunLayer, MUCPotentialConflict, \
+    ClientApplication
 
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
@@ -36,7 +37,9 @@ class WeightAdmin(admin.ModelAdmin):
     list_display = ['context', 'use', 'pres',
                     'weight', 'distance']
     list_filter = ['context', 'use', 'pres']
-
+    list_editable = ['weight', 'distance']
+    raw_id_fields = ['use']
+    
 admin.site.register(Weight, WeightAdmin)
 
 
@@ -46,7 +49,7 @@ class SensitivityAdmin(admin.ModelAdmin):
                     'env', 'impact_level', 'recovery', 'sensitivity', 'confidence', 'references', 'notes']
     list_editable = ['impact_level', 'recovery', 'sensitivity', 'confidence', 'references', 'notes']
     list_filter = ['context', 'pres', 'env']
-
+    search_fields = ['env__label', 'pres__label']
 
 admin.site.register(Sensitivity, SensitivityAdmin)
 
@@ -97,7 +100,9 @@ class EnvAdmin(TreeAdmin):
                     'label',
                     'msfd',]
     form = movenodeform_factory(Pressure)
-
+    raw_id_fields = ['msfd']
+    search_fields = ['code', 'label']
+    
 admin.site.register(Env, EnvAdmin)
 
 # class CaseStudyDatasetInline(admin.TabularInline):
@@ -168,8 +173,9 @@ class CaseStudyAdmin(#admin.OSMGeoAdmin, # django 2.2 already provide a map widg
               'domain_area',
               'domain_area_terms',
               ('domain_area_dataset', 'thumbnail_tag'),
+              'default_context',
               # 'grid_output',
-              'is_published', 'module', 'cstype', 'tag', 'owner')
+              'is_published', 'module', 'cstype', 'tag', 'owner', 'client_application')
     inlines = [
         CaseStudyLayerInline,
         CaseStudyInputInline,
@@ -307,6 +313,10 @@ admin.site.register(MsfdPres, MsfdPresAdmin)
 
 class MsfdEnvAdmin(admin.ModelAdmin):
     model = MsfdEnv
-    list_display = ['theme', 'ecosystem_element', 'broad_group']
+    list_display = ['theme', 'ecosystem_component', 'feature', 'element']
+    list_filter = ['theme', 'ecosystem_component', 'feature']
+    search_fields = ['theme', 'ecosystem_component', 'feature', 'element']
 
 admin.site.register(MsfdEnv, MsfdEnvAdmin)
+
+admin.site.register(ClientApplication)

@@ -1,10 +1,11 @@
 # coding: utf-8
 
+import sys
 import logging
 import numpy as np
 import pandas as pd
 from os import path, listdir
-from .casestudy import CaseStudyBase
+from .casestudy import CaseStudyBase, aggregate_layers_to_gdf
 
 logger = logging.getLogger('tools4msp.cea')
 
@@ -80,7 +81,7 @@ class CEACaseStudy(CaseStudyBase):
             })
         return pd.DataFrame(stats)
 
-    def run_pressures(self, uses=None, pressures=None,
+    def run_pressures(self, uses=None, pressures=None, selected_layers=None,
                       outputmask=None):
         self.outputs['pressures'] = {}
         self.outputs['usepressures'] = {}
@@ -101,8 +102,10 @@ class CEACaseStudy(CaseStudyBase):
             usepresid = "{}--{}".format(usecode, precode)
 
             _pressure_layer = None
-            print(usepresid)
+            # print(usepresid)
             if usepresid in self.layers.index:
+                if selected_layers is not None and usepresid not in selected_layers:
+                    continue
                 # print usepresid
                 _pressure_layer = self.layers.loc[usepresid, 'layer'].copy()
                 # print usecode, precode, usepresid
@@ -110,36 +113,48 @@ class CEACaseStudy(CaseStudyBase):
                 # _pressure_layer.norm()
             else:
                 _use_layer = self.get_layer(usecode)
+
                 if _use_layer is not None:
                     # convolution
                     _pressure_layer = _use_layer.layer.copy()
                     if _pressure_layer.mask is np.False_:
                         _pressure_layer[np.isnan(_pressure_layer)] = 0
                     maxval = np.nanmax(_pressure_layer)
+                    # print("#######", self.layer_preprocessed)
+                    # print(usecode, _use_layer.layer.max())
                     if maxval > 0:
                         _pressure_layer.gaussian_conv(w.distance / 2., truncate=3.)
                         # print("---", np.nansum(_pressure_layer), np.nanmax(_pressure_layer), maxval)
-                        _pressure_layer = _pressure_layer / np.nanmax(_pressure_layer) * maxval
+                        # TODO: capire bene se questo crea più confusione perché di fatto non disperde
+                        # _pressure_layer = _pressure_layer / np.nanmax(_pressure_layer) * maxval
                         # print("---", np.nansum(_pressure_layer), np.nanmax(_pressure_layer), maxval)
+                    else:
+                        pass
+                        #print("\t NOPRESSURE")
+                    # the weight has to be intended as a release factor for the pressure
+                    # 
+                    _pressure_layer = _pressure_layer.copy() * w.weight
 
             if _pressure_layer is not None:
                 if self.get_outputgrid() is not None:
                     _pressure_layer *= self.get_outputgrid()
-                print("\t", _pressure_layer[_pressure_layer>=0].shape)
+                # print("\t", _pressure_layer[_pressure_layer>=0].shape)
                 pressures_set.add(precode)
                 uses_set.add(usecode)
-                usepressure = _pressure_layer.copy() * w.weight
+                usepressure = _pressure_layer.copy()
                 # print("@@@", np.nansum(usepressure), np.nanmax(usepressure), w.weight)
                 if self.get_outputgrid() is not None:
-                    usepressure.mask = self.get_outputgrid().mask.copy()
+                    # layer[~(layer.mask) & (layer > 0)] = 1
+                    usepressure.mask = (self.get_outputgrid().mask) | (self.get_outputgrid()==0)
+                    # usepressure.mask = self.get_outputgrid().mask.copy()
                 else:
-                    usepressure.mask = self.grid==0
+                    usepressure.mask = (self.grid.mask) | (self.grid==0)
+                usepressure.flattening_outliers(0.98)
                 if out_pressures.get(precode) is None:
                     out_pressures[precode] = usepressure.copy()
                 else:
                     out_pressures[precode] += usepressure.copy()
                 out_usepressures[usepresid] = usepressure.copy()
-
         # extract single use contribute
 
 
@@ -149,25 +164,48 @@ class CEACaseStudy(CaseStudyBase):
         # for key, op in out_pressures.items():
         #    out_pressures[key] = op.norm()
 
-    def run(self, uses=None, envs=None,
+    def get_mapindex_udiv(self, uses=None):
+        mapindex_udiv = np.zeros_like(self.grid)
+        _filter = self.layers.code_group=='use'
+        if uses is not None:
+            _filter &= self.layers.index.isin(uses)
+        for idx, r in self.layers[_filter].iterrows():
+            mapindex_udiv += r.layer
+        return mapindex_udiv
+
+        
+    def run(self, uses=None, envs=None, selected_layers=None,
                            outputmask=None, fulloutput=True, pressures=None,
                            cienvs_info=True, ciuses_info=True, cipres_info=True,
                            ciscores_info=True, runtypelevel=3):
         self.runtypelevel = runtypelevel
         self.outputs['presenvs'] = {}
+        self.outputs['presenvs_impact_level'] = {}
+        self.outputs['presenvs_recovery_time'] = {}
+        
         self.outputs['usesenvs'] = {}
+        
         out_presenvs = self.outputs['presenvs']
+        out_presenvs_impact_level = self.outputs['presenvs_impact_level']
+        out_presenvs_recovery_time = self.outputs['presenvs_recovery_time']
+
         out_usesenvs = self.outputs['usesenvs']
         self.run_pressures(uses=uses,
                            pressures=pressures,
+                           selected_layers=selected_layers, # we need also this parameters to filter the selected usepressure layers
                            outputmask=outputmask)
 
         ci = np.zeros_like(self.grid)
-
+        ci_impact_level = np.zeros_like(self.grid)
+        ci_recovery_time = np.zeros_like(self.grid)
+        mapindex_ediv = np.zeros_like(self.grid)
+        
         for idx, e in self.get_envs().iterrows():
             if envs is not None and idx not in envs:
                 continue
-            env_layer =  self.get_layer(idx).layer.copy()
+            # env_layer =  self.get_layer(idx).layer.copy()
+            env_layer =  self.get_layer(idx).layer.flattening_outliers(0.98, copy=True).copy()
+            mapindex_ediv += env_layer
             filter = self.sensitivities.envcode == idx
             for idx_sens, sens in self.sensitivities[filter].iterrows():
                 presenvsid = "{}--{}".format(sens.precode, idx)
@@ -175,6 +213,10 @@ class CEACaseStudy(CaseStudyBase):
                 if _p is not None:
                     pressure_layer = _p.copy()
                     sensarray = pressure_layer * env_layer * sens.sensitivity
+                    # sensarray = pressure_layer * env_layer * sens.impact_level * sens.recovery_time
+                    # print("@@@@@@@", sens.precode, self.sensitivities.envcode)
+                    impact_level = pressure_layer * env_layer * sens.impact_level
+                    recovery_time = pressure_layer * env_layer * sens.recovery_time
                     # print("|||", np.nansum(pressure_layer), np.nansum(env_layer))
                     # print("|||", np.nansum(sensarray), np.nanmax(sensarray), sens.sensitivity)
                     # TODO: check how rfunc should be applied
@@ -182,8 +224,12 @@ class CEACaseStudy(CaseStudyBase):
                         rfunc = ResponseFunction(v=1, m=sens.srf, b=sens.nrf, q=1)
                         sensarray = rfunc.run(sensarray)
                     ci += sensarray
+                    ci_impact_level += impact_level
+                    ci_recovery_time += recovery_time
                     if runtypelevel >= 2:
                         out_presenvs[presenvsid] = sensarray.copy()
+                        out_presenvs_impact_level[presenvsid] = impact_level.copy()
+                        out_presenvs_recovery_time[presenvsid] = recovery_time.copy()
 
                 # collect information for a single use-env CEA
                 # assuming linear interactions
@@ -203,6 +249,10 @@ class CEACaseStudy(CaseStudyBase):
                     # print(presenvsid, _p.sum(), _sum)
 
         self.outputs['ci'] = ci
+        self.outputs['ci_impact_level'] = ci_impact_level
+        self.outputs['ci_recovery_time'] = ci_recovery_time
+        self.outputs['mapindex_ediv'] = mapindex_ediv
+        self.outputs['mapindex_udiv'] = self.get_mapindex_udiv(uses=uses)
         return True
 
     def get_main_output(self):
@@ -299,6 +349,7 @@ class CEACaseStudy(CaseStudyBase):
     #     self.sensitivities.to_csv(self.get_outpath('pres_sensitivities.csv'))
     #     super(CEAMixin, self).dump_inputs()
 
+    # TODO: use the new load_input from case study
     def load_inputs(self):
         for f in listdir(self.inputsdir):
             filepath = path.join(self.inputsdir, f)
@@ -306,7 +357,7 @@ class CEACaseStudy(CaseStudyBase):
             if ext == '.json':
                 # remove random file suffix
                 fname = fname.split('_')[0]
-                if fname == 'cea-WEIGHTS':
+                if fname == 'cea-WEIGHTS': # deprecated
                     _df = pd.read_json(filepath)
                     if 'c' not in _df.columns:
                         _df['c'] = np.NaN
@@ -317,7 +368,18 @@ class CEACaseStudy(CaseStudyBase):
                                         'c': 'confidence',
                                         }, inplace=True)
                     self.weights = _df
-                elif fname == 'cea-SENS':
+                elif fname == 'cea-PRESSURE-WEIGHTS':
+                    _df = pd.read_json(filepath)
+                    if 'c' not in _df.columns:
+                        _df['c'] = np.NaN
+                    _df.rename(columns={'use': 'usecode',
+                                        'pressure': 'precode',
+                                        'distance': 'distance',
+                                        'weight': 'weight',
+                                        'confidence': 'confidence',
+                                        }, inplace=True)
+                    self.weights = _df
+                elif fname == 'cea-SENS': # deprecated
                     _df = pd.read_json(filepath)
                     if 'c' not in _df.columns:
                         _df['c'] = np.NaN
@@ -325,6 +387,21 @@ class CEACaseStudy(CaseStudyBase):
                                         'p': 'precode',
                                         's': 'sensitivity',
                                         'c': 'confidence',
+                                        }, inplace=True)
+                    self.sensitivities = _df
+
+                    if 'nrf' not in self.sensitivities.columns:
+                        self.sensitivities['nrf'] = None
+                    if 'srf' not in self.sensitivities.columns:
+                        self.sensitivities['srf'] = None
+                elif fname == 'cea-SENSITIVITIES':
+                    _df = pd.read_json(filepath)
+                    if 'c' not in _df.columns:
+                        _df['c'] = np.NaN
+                    _df.rename(columns={'env': 'envcode',
+                                        'pressure': 'precode',
+                                        'sensitivity': 'sensitivity',
+                                        'confidence': 'confidence',
                                         }, inplace=True)
                     self.sensitivities = _df
 

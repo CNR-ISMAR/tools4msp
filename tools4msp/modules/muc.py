@@ -39,8 +39,9 @@ class MUCCaseStudy(CaseStudyBase):
     def get_potential_conflict_score(self, use1id, use2id):
         return self.potential_conflict_scores.loc[use1id, use2id]
 
-    def run(self, uses=None, intensity=False, outputmask=None):
+    def run(self, uses=None, intensity=False, outputmask=None, pivot_layer=None):
         logger.debug("uses = {}".format(uses))
+        logger.debug("pivot_layer = {}".format(pivot_layer))
         # TODO using outputmask
         couses_data = []
         muc = np.zeros_like(self.grid)
@@ -49,6 +50,9 @@ class MUCCaseStudy(CaseStudyBase):
             use1id, use1 = _use1
             use2id, use2 = _use2
             if uses is not None and (use1id not in uses or use2id not in uses):
+                continue
+            logger.debug("use1id = {}, use2id = {}".format(use1id, use2id))
+            if pivot_layer is not None and (use1id != pivot_layer and use2id != pivot_layer):
                 continue
 
             score = self.get_potential_conflict_score(use1id, use2id)
@@ -71,7 +75,7 @@ class MUCCaseStudy(CaseStudyBase):
 
             couses_data.append({'u1': use1.code,
                                 'u2': use2.code,
-                                'score': float(_score.sum()),
+                                'score': float(np.nansum(_score)),
                                 # convert to int for allowing json serialization
                                 'ncells': int(_score[_score > 0].count())
             })

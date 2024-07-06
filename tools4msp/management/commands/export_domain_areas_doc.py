@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 from tools4msp.models import CodedLabel
 
-BODY = """Tools4MSP Coded Labels
+BODY = """Domain Areas
 ======================
 
 {body}
@@ -17,8 +17,6 @@ CODE = """{code}
   {code_label}
   
   {code_desc}
-
-  MSFD: {code_msfd}
   
   {code_uri}
 """
@@ -53,13 +51,9 @@ def get_group_body(group, group_label):
     qs = CodedLabel.objects.filter(group=group)
     body = ""
     for c in qs:
-        msfd_code = '-'
-        if c.group == 'env':
-            msfd_code = c.get_msfd() or '-'
         d = {'code': c.code,
              'code_label': c.label,
              'code_desc': c.description.replace("\n", "\n  ").replace("-", " -"),
-             'code_msfd': msfd_code,
              'code_uri': "https://api.tools4msp.eu/api/codedlabels/{}".format(c.code)
              }
         body += "\n\n" + CODE.format(**d)

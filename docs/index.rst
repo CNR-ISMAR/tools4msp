@@ -38,6 +38,7 @@ Welcome to Tools4MSP modules' documentation!
    :caption: Advanced:
 
    api/coded_labels
+   api/domain_areas
 
 
 Indices and tables

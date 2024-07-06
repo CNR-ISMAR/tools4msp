@@ -2,6 +2,7 @@ import logging
 from os import listdir, path, makedirs
 from slugify import slugify
 import pandas as pd
+import geopandas as gpd
 import numpy as np
 try:
     import rectifiedgrid as rg
@@ -27,9 +28,40 @@ def read_casestudy(csmetadata):
         c.load_grid()
         c.load_layers()
         c.load_inputs()
+        c.layer_preprocessing()
         return c
     return None
 
+
+def aggregate_layers_to_gdf(layers, step=1, melt=False):
+    grid = layers.get('GRID') 
+    bounds = grid.bounds
+    resolution = grid.resolution
+    xcoords = np.linspace(bounds[0]+resolution/2, bounds[2]-resolution/2, grid.shape[1])
+    # y is in reverse order
+    ycoords = np.linspace(bounds[3]-resolution/2, bounds[1]+resolution/2, grid.shape[0])    
+    arr1 = np.meshgrid(xcoords[::step], ycoords[::step])
+    arr1x = np.ravel(arr1[0])
+    arr1y = np.ravel(arr1[1])
+    df1 = pd.DataFrame({'X':arr1x, 'Y':arr1y})
+    gdf = gpd.GeoDataFrame(
+            df1, geometry=gpd.points_from_xy(df1.X, df1.Y), crs="epsg:3035")
+    
+    gdf['GRID'] = grid[::step,::step].flatten()
+    for cname, l in layers.items():
+        gdf[cname] = l[::step,::step].flatten()
+    gdf = gdf[gdf.GRID>0]
+    # gdf = gpd.GeoDataFrame()
+
+    # for idx, l in layers.iterrows():
+    #     _r = l['layer']
+    #     stats = zonal_stats(grid, _r.values, affine=_r.rio.transform())
+    #     _df[cname] = [a['mean'] for a in stats]
+    if melt:
+        col = gdf.columns[~gdf.columns.isin(['GRID', 'X','Y','geometry'])]
+        gdf = gdf.melt(id_vars="geometry", value_vars=col)
+        gdf = gdf[gdf.value!=0].set_geometry('geometry', crs="epsg:3035")
+    return gdf
 
 class CaseStudyBase(object):
     """Class to implement Tools4MSP CaseStudy.
@@ -64,6 +96,8 @@ class CaseStudyBase(object):
 
         self.outputs = {}
 
+        self.layer_preprocessed = False
+        
         # store last runtypelevel
         # None: no run has been performed or the child module doesn't support runtypelevel parameter
         # 1: only main output
@@ -161,7 +195,7 @@ class CaseStudyBase(object):
             raise FileNotFoundError("Directory layersdir doesn't exist:", self.layersdir)
         for f in listdir(self.layersdir):
             fname, ext = path.splitext(f)
-            if ext == '.geotiff':
+            if ext == '.geotiff' or ext == '.tiff' or ext == '.tif':
                 # remove random file suffix
                 fname = fname.split('_')[0]
                 code_group, _code = fname.split('-', 1)
@@ -172,7 +206,9 @@ class CaseStudyBase(object):
         if code is not None:
             if code not in layerref.keys():
                 return False
-            self.add_layer(self.read_raster(layerref[code]['f']).fill_underlying_data(0),
+            _r = self.read_raster(layerref[code]['f']).fill_underlying_data(0)
+            _r.crs = rg.utils.parse_projection('epsg:3035') 
+            self.add_layer(_r,
                            code,
                            layerref[code]['code_group'],
                            availability=None)
@@ -184,7 +220,9 @@ class CaseStudyBase(object):
                 pass
             else:
                 raster = None
-            self.add_layer(self.read_raster(layerref[_code]['f']).fill_underlying_data(0),
+            _r = self.read_raster(layerref[_code]['f']).fill_underlying_data(0)
+            _r.crs = rg.utils.parse_projection('epsg:3035')
+            self.add_layer(_r,
                            _code,
                            layerref[_code]['code_group'],
                            availability=None)
@@ -219,8 +257,30 @@ class CaseStudyBase(object):
         if self.load_layers('OUTPUTGRID'):
             self.outputgrid = self.layers.loc[self.layers.code == 'OUTPUTGRID']['layer'].values[0]
         return self.outputgrid
-    
+
+    def get_input_paths(self):
+        # if self._input_paths is not None:
+        #    return self._input_paths
+        inputs_paths = {}
+        for f in listdir(self.inputsdir):
+            filepath = path.join(self.inputsdir, f)
+            fname, ext = path.splitext(f)
+            if ext == '.json':
+                # remove random file suffix
+                fname = fname.split('_')[0]
+                inputs_paths[fname] = filepath
+        # self._input_paths = inputs_paths
+        return inputs_paths
+
+    def load_input(self, fname):
+        inputs_paths = self.get_input_paths()
+        filepath = inputs_paths.get(fname)
+        if filepath is not None:
+            return pd.read_json(filepath)
+        return None
+
     def load_inputs(self):
+        self.layer_weights = self.load_input('casestudy-LAYER-WEIGHTS')
         self.load_grid()
 
     def set_mask(self, mask, overwrite=True):
@@ -254,3 +314,45 @@ class CaseStudyBase(object):
                 _v.reproject(l.availability)
                 l.availability = _v
                 l.availability[self.grid == 0] = np.ma.masked
+
+    def layer_preprocessing(self, force=False):
+        if self.layer_preprocessed and not force:
+            return True
+        if self.layer_weights is not None:
+            weights = self.layer_weights.pivot('layer', 'param', 'weight')
+            def _get_value(layer, param, default=None):
+                try:
+                    return weights.at[layer, param]
+                except KeyError:
+                    return default
+            for idx, l in self.layers.iterrows():
+                layer = l.layer
+                rescale_mode = _get_value(l.code, 'RESCALE-MODE')
+                weight_frequency = _get_value(l.code, 'WEIGHT-FREQUENCY', 1)
+                weight_magnitude = _get_value(l.code, 'WEIGHT-MAGNITUDE', 1)
+                weight_relevance = _get_value(l.code, 'WEIGHT-RELEVANCE', 1)
+                layer_weight = weight_frequency * weight_magnitude * weight_relevance
+                
+                if rescale_mode == 'none':
+                    pass
+                elif rescale_mode == 'rescale':
+                    layer = layer.norm(copy=True)
+                elif rescale_mode == 'log':
+                    layer = layer.log(copy=True)
+                elif rescale_mode == 'logrescale':
+                    layer = layer.lognorm(copy=True)
+                elif rescale_mode == 'normlog':
+                    layer = (layer.norm(copy=True) * 100).log(copy=True)
+                elif rescale_mode == 'normlogrescale':
+                    layer = (layer.norm(copy=True) * 100).lognorm(copy=True)
+                elif rescale_mode == 'pa':
+                    layer = layer.copy()
+                    layer[~(layer.mask) & (layer > 0)] = 1
+                                                                                                
+                if layer_weight is not None:
+                    layer = layer.copy() * layer_weight
+                    print("APPLY layer weights")
+                    print(layer.max())
+
+                self.layers.loc[idx, 'layer'] = layer
+            self.layer_preprocessed = True
