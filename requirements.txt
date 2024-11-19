@@ -67,7 +67,7 @@ pyproj==2.2.1
 pyshp==2.1.0
 python-dateutil==2.8.0
 pytz==2019.1
-PyYAML==5.1.1
+PyYAML==5.4
 rasterio==1.0.24
 -e git+https://github.com/CNR-ISMAR/rectifiedgrid@50a901a835e3ea2dbec7926739b6695d15a5ac79#egg=rectifiedgrid
 requests==2.22.0
